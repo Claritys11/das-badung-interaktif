@@ -3,9 +3,38 @@ body {
   margin: 0;
   background: var(--das-bg, #fafafa);
 }
+
+/* Slideshow di iframe: mengisi tinggi iframe apa pun. Citra di-"contain" di ruang tersisa,
+   kontrol & caption selalu terlihat — tinggi iframe yang kurang pas hanya menambah ruang kosong,
+   tidak pernah memotong konten. */
 .das-embed--slideshow {
-  padding: 0;
+  height: 100vh;
+  height: 100dvh;
+  display: flex;
+  flex-direction: column;
 }
+.das-embed--slideshow .das-ss {
+  flex: 1;
+  min-height: 0;
+  max-width: none;
+  display: flex;
+  flex-direction: column;
+}
+.das-embed--slideshow .das-ss__frame {
+  flex: 1;
+  min-height: 0;
+  aspect-ratio: auto;
+  background: transparent;
+  border-radius: 0;
+}
+.das-embed--slideshow .das-ss__slide img {
+  object-fit: contain;
+}
+.das-embed--slideshow .das-ss__controls,
+.das-embed--slideshow .das-ss__caption {
+  flex: none;
+}
+
 /* Halaman peta: tidak ada scroll dokumen — scroll ditangani komponen. */
 body:has(.das-sm--internal) {
   overflow: hidden;
