@@ -1,0 +1,38 @@
+{
+  "name": "das-badung-interaktif",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc -b && vite build",
+    "preview": "vite preview",
+    "data": "node scripts/kmz-to-geojson.mjs",
+    "images": "node scripts/optimize-images.mjs",
+    "test": "vitest run",
+    "e2e": "playwright test",
+    "typecheck": "tsc -b"
+  },
+  "dependencies": {
+    "maplibre-gl": "^6.11.2",
+    "motion": "^13.4.3",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.63.0",
+    "@tmcw/togeojson": "^7.1.2",
+    "@turf/bbox": "^7.4.0",
+    "@turf/simplify": "^7.4.0",
+    "@types/node": "^26.6.2",
+    "@types/react": "^18.3.31",
+    "@types/react-dom": "^18.3.7",
+    "@vitejs/plugin-react": "^6.1.1",
+    "@xmldom/xmldom": "^0.9.12",
+    "jszip": "^3.10.2",
+    "sharp": "^0.35.4",
+    "typescript": "^7.0.2",
+    "vite": "^8.3.1",
+    "vitest": "^5.0.1"
+  }
+}
