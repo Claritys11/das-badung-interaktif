@@ -11,10 +11,7 @@ export interface StoryState {
 }
 
 export type StoryAction =
-  | { type: 'enterStep'; index: number }
-  | { type: 'selectPoint'; id: string }
-  | { type: 'clearSelection' }
-  | { type: 'reset' };
+  { type: 'enterStep'; index: number } | { type: 'selectPoint'; id: string } | { type: 'clearSelection' } | { type: 'reset' };
 
 export const initialStoryState: StoryState = { activeStep: 0, selectedPointId: null, resetToken: 0 };
 
@@ -48,12 +45,7 @@ export interface View {
 
 export const POINT_ZOOM = 15.5;
 
-export function resolveView(
-  state: StoryState,
-  steps: Step[],
-  points: Map<string, PointLike>,
-  isNarrow = false,
-): View {
+export function resolveView(state: StoryState, steps: Step[], points: Map<string, PointLike>, isNarrow = false): View {
   const step = steps[Math.min(Math.max(state.activeStep, 0), steps.length - 1)];
   const base: Camera = { pitch: 0, bearing: 0, ...step.camera, ...(isNarrow ? step.cameraMobile : undefined) };
   const point = state.selectedPointId ? points.get(state.selectedPointId) : undefined;

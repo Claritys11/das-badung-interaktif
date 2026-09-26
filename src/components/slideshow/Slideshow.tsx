@@ -177,9 +177,7 @@ export function Slideshow({
         onPointerUp={onPointerUp}
         onPointerCancel={() => (swipeStart.current = null)}
       >
-        {prevIndex !== null && (
-          <SlidePicture slide={slides[prevIndex]} base={assetBaseUrl} style={{ zIndex: 1 }} eager />
-        )}
+        {prevIndex !== null && <SlidePicture slide={slides[prevIndex]} base={assetBaseUrl} style={{ zIndex: 1 }} eager />}
         <SlidePicture
           key={index}
           slide={slide}

@@ -41,7 +41,9 @@
   background: var(--das-surface);
   color: var(--das-ink);
   cursor: pointer;
-  transition: background-color 0.15s, border-color 0.15s;
+  transition:
+    background-color 0.15s,
+    border-color 0.15s;
 }
 .das-iconbtn:hover {
   border-color: var(--das-ink);

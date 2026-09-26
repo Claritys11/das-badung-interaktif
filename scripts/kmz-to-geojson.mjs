@@ -42,9 +42,18 @@ function slugify(s) {
     .replace(/[^a-z0-9]+/g, '-')
     .replace(/^-|-$/g, '');
 }
-const text = (s) => (s ?? '').toString().replace(/<!\[CDATA\[|\]\]>/g, '').replace(/[​]/g, '').trim();
+const text = (s) =>
+  (s ?? '')
+    .toString()
+    .replace(/<!\[CDATA\[|\]\]>/g, '')
+    .replace(/[​]/g, '')
+    .trim();
 // Style id KMZ: "#poly-32C739-1000-178" / "#line-A1C2FA-4273-nodesc" / "#icon-1703-A52714"
-const styleParts = (url) => (url ?? '').replace(/^#/, '').replace(/-(normal|highlight)$/, '').split('-');
+const styleParts = (url) =>
+  (url ?? '')
+    .replace(/^#/, '')
+    .replace(/-(normal|highlight)$/, '')
+    .split('-');
 
 async function write(name, data) {
   const json = JSON.stringify(data);
@@ -126,8 +135,18 @@ async function main() {
   report.push(await write('titik-banjir.geojson', banjirFc));
 
   console.table(report);
-  console.log('bbox DAS       :', bbox(fc(dasFeatures)).map((v) => v.toFixed(4)).join(', '));
-  console.log('bbox titik     :', bbox(banjirFc).map((v) => v.toFixed(4)).join(', '));
+  console.log(
+    'bbox DAS       :',
+    bbox(fc(dasFeatures))
+      .map((v) => v.toFixed(4))
+      .join(', '),
+  );
+  console.log(
+    'bbox titik     :',
+    bbox(banjirFc)
+      .map((v) => v.toFixed(4))
+      .join(', '),
+  );
   console.log('deskripsi KMZ  :', banjirFeatures.filter((f) => f.properties.deskripsiKmz).length, 'titik');
 
   // 5. Skeleton konten titik — hanya dibuat jika belum ada.

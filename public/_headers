@@ -1,0 +1,21 @@
+# Header Cloudflare Pages.
+# Halaman embed boleh di-iframe dari domain mana pun (frame-ancestors *). Batasi ke domain IDN Times
+# bila perlu, mis.: frame-ancestors https://page.idntimes.com https://*.idntimes.com
+/embed/*
+  Content-Security-Policy: frame-ancestors *
+  Referrer-Policy: strict-origin-when-cross-origin
+
+# Aset ber-hash & citra: cache panjang.
+/assets/*
+  Access-Control-Allow-Origin: *
+  Cache-Control: public, max-age=31536000, immutable
+/citra/*
+  Cache-Control: public, max-age=2592000
+/data/*
+  Access-Control-Allow-Origin: *
+  Cache-Control: public, max-age=86400
+
+# Bundle Framer dimuat lintas-origin dari situs Framer.
+/framer/*
+  Access-Control-Allow-Origin: *
+  Cache-Control: public, max-age=3600

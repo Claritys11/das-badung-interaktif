@@ -1,0 +1,6 @@
+# Konfigurasi Cloudflare Pages (BELUM di-deploy — deploy hanya dengan persetujuan).
+# Deploy manual:  pnpm build && npx wrangler pages deploy dist --project-name das-badung-interaktif
+# Env var build : VITE_MAPTILER_KEY (set di dashboard Pages → Settings → Environment variables)
+name = "das-badung-interaktif"
+pages_build_output_dir = "dist"
+compatibility_date = "2026-09-01"

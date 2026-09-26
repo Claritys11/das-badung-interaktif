@@ -12,7 +12,18 @@ import {
 // dependensinya menjadi satu file (tanpa ini: "Worker failed to load" dan tile vektor tidak muncul).
 import workerUrl from 'maplibre-gl/dist/maplibre-gl-worker.mjs?worker&url';
 
-setWorkerUrl(workerUrl);
+// Worker tidak bisa dibuat dari URL lintas-origin (kasus Framer: situs di framer.app, aset di
+// hosting kita). Maka bila origin berbeda, skrip worker di-fetch lalu dijalankan dari blob: URL.
+let workerReady: Promise<void> | null = null;
+function ensureWorker() {
+  workerReady ??= (async () => {
+    const abs = new URL(workerUrl, import.meta.url).href;
+    if (new URL(abs).origin === location.origin) return setWorkerUrl(abs);
+    const code = await (await fetch(abs)).blob();
+    setWorkerUrl(URL.createObjectURL(new Blob([code], { type: 'text/javascript' })));
+  })();
+  return workerReady;
+}
 import type { View } from './storyState';
 import { addDataLayers, applyLayerVisibility, CLICKABLE_LAYER } from './layers';
 
@@ -40,7 +51,19 @@ export interface MapViewProps {
 }
 
 export function MapView(props: MapViewProps) {
-  const { apiKey, view, resetToken, selectedPointId, banjirData, dataBaseUrl, reduceMotion, isNarrow, terrain3d, cooperativeGestures, debug } = props;
+  const {
+    apiKey,
+    view,
+    resetToken,
+    selectedPointId,
+    banjirData,
+    dataBaseUrl,
+    reduceMotion,
+    isNarrow,
+    terrain3d,
+    cooperativeGestures,
+    debug,
+  } = props;
   const containerRef = useRef<HTMLDivElement>(null);
   const mapRef = useRef<MLMap | null>(null);
   const [ready, setReady] = useState(false);
@@ -52,131 +75,149 @@ export function MapView(props: MapViewProps) {
   // 1. Buat peta sekali.
   useEffect(() => {
     if (!containerRef.current || !banjirData) return;
-    let map: MLMap;
-    try {
-      map = new MLMap({
-        container: containerRef.current,
-        style: `https://api.maptiler.com/maps/hybrid/style.json?key=${encodeURIComponent(apiKey)}`,
-        center: view.camera.center,
-        zoom: view.camera.zoom,
-        pitch: view.camera.pitch ?? 0,
-        bearing: view.camera.bearing ?? 0,
-        maxBounds: BALI_BOUNDS,
-        maxPitch: 60,
-        attributionControl: false,
-        cooperativeGestures: Boolean(cooperativeGestures),
-        dragRotate: false,
-        pitchWithRotate: false,
-      });
-    } catch (e) {
-      cb.current.onError(e instanceof GPUInitializationError ? 'webgl' : 'load');
-      return;
-    }
-    mapRef.current = map;
-    map.touchZoomRotate.disableRotation();
-    map.addControl(new NavigationControl({ showCompass: false }), 'top-right');
-    map.addControl(new AttributionControl({ compact: isNarrow }), 'bottom-right');
-
-    map.on('load', () => {
-      addDataLayers(map, dataBaseUrl, banjirData);
-      if (terrain3d) {
-        map.addSource('terrain', { type: 'raster-dem', url: `https://api.maptiler.com/tiles/terrain-rgb-v2/tiles.json?key=${encodeURIComponent(apiKey)}` });
-        map.setTerrain({ source: 'terrain', exaggeration: 1.4 });
-      }
-      // Atribusi compact tampil terbuka saat load; di layar sempit dilipat (tetap bisa dibuka lewat ikon ⓘ).
-      if (isNarrow) containerRef.current?.querySelector('.maplibregl-ctrl-attrib')?.classList.remove('maplibregl-compact-show');
-      setReady(true);
-    });
-    map.on('error', (e) => {
-      // Error tile sesekali (jaringan) tidak fatal; gagal memuat style = fatal.
-      if (!map.isStyleLoaded() && /style|401|403/i.test(String(e.error?.message))) cb.current.onError('load');
-    });
-
-    // Interaksi titik banjir.
-    const popup = new Popup({ closeButton: false, closeOnClick: false, offset: 12, className: 'das-sm__tooltip' });
-    let hoverId: string | null = null;
-    const setHover = (id: string | null) => {
-      if (hoverId) map.setFeatureState({ source: 'banjir', id: hoverId }, { hover: false });
-      hoverId = id;
-      if (id) map.setFeatureState({ source: 'banjir', id }, { hover: true });
-    };
-    const interactive = () => cb.current.view.titikInteraktif && cb.current.view.layers.includes('banjir');
-    map.on('mousemove', CLICKABLE_LAYER, (e) => {
-      if (!interactive()) return;
-      const f = e.features?.[0] as MapGeoJSONFeature | undefined;
-      if (!f) return;
-      map.getCanvas().style.cursor = 'pointer';
-      setHover(String(f.id));
-      popup
-        .setLngLat((f.geometry as GeoJSON.Point).coordinates as [number, number])
-        .setText(String(f.properties.nama))
-        .addTo(map);
-    });
-    map.on('mouseleave', CLICKABLE_LAYER, () => {
-      map.getCanvas().style.cursor = '';
-      setHover(null);
-      popup.remove();
-    });
-    map.on('click', (e) => {
-      if (!interactive()) return;
-      // Area klik diperbesar (± 10px) supaya titik kecil mudah disentuh di layar sentuh.
-      const pad = 10;
-      const hits = map.queryRenderedFeatures(
-        [
-          [e.point.x - pad, e.point.y - pad],
-          [e.point.x + pad, e.point.y + pad],
-        ],
-        { layers: [CLICKABLE_LAYER] },
-      );
-      if (!hits.length) return;
-      // Beberapa titik bertumpuk di bawah jari (mis. 7 titik dalam 20px di sekitar Pasar Badung pada
-      // zoom mobile) → jangan menebak: zoom ke kumpulan itu dulu, ketukan berikutnya memilih satu titik.
-      if (hits.length > 1 && map.getZoom() < 14) {
-        const lng = hits.map((f) => (f.geometry as GeoJSON.Point).coordinates[0]);
-        const lat = hits.map((f) => (f.geometry as GeoJSON.Point).coordinates[1]);
-        popup.remove();
-        cb.current.onUserMove();
-        map.fitBounds(
-          [
-            [Math.min(...lng), Math.min(...lat)],
-            [Math.max(...lng), Math.max(...lat)],
-          ],
-          { padding: 60, maxZoom: 16, duration: cb.current.reduceMotion ? 0 : 900 },
-        );
-        return;
-      }
-      // Sisa ambiguitas kecil: pilih titik yang paling dekat ke kursor.
-      const dist = (f: MapGeoJSONFeature) => {
-        const p = map.project((f.geometry as GeoJSON.Point).coordinates as [number, number]);
-        return (p.x - e.point.x) ** 2 + (p.y - e.point.y) ** 2;
-      };
-      const nearest = hits.reduce((a, b) => (dist(b) < dist(a) ? b : a));
-      popup.remove();
-      cb.current.onPointClick(String(nearest.id));
-    });
-    map.on('dragstart', () => cb.current.onUserMove());
-    map.on('zoomstart', (e) => {
-      if ((e as { originalEvent?: Event }).originalEvent) cb.current.onUserMove();
-    });
-    if (debug) {
-      // Untuk test e2e & redaksi: akses peta dari console (window.__dasMap).
-      (window as unknown as { __dasMap?: MLMap }).__dasMap = map;
-      const show = () => {
-        const c = map.getCenter();
-        setDebugText(
-          `center: [${c.lng.toFixed(4)}, ${c.lat.toFixed(4)}], zoom: ${map.getZoom().toFixed(2)}, pitch: ${map.getPitch().toFixed(0)}, bearing: ${map.getBearing().toFixed(0)}`,
-        );
-      };
-      map.on('moveend', show);
-      show();
-    }
-
+    let cancelled = false;
+    let cleanup = () => {};
+    ensureWorker()
+      .then(() => {
+        if (!cancelled) cleanup = init();
+      })
+      .catch(() => cb.current.onError('load'));
     return () => {
-      popup.remove();
-      map.remove();
-      mapRef.current = null;
-      setReady(false);
+      cancelled = true;
+      cleanup();
     };
+
+    function init(): () => void {
+      if (!containerRef.current || !banjirData) return () => {};
+      let map: MLMap;
+      try {
+        map = new MLMap({
+          container: containerRef.current,
+          style: `https://api.maptiler.com/maps/hybrid/style.json?key=${encodeURIComponent(apiKey)}`,
+          center: view.camera.center,
+          zoom: view.camera.zoom,
+          pitch: view.camera.pitch ?? 0,
+          bearing: view.camera.bearing ?? 0,
+          maxBounds: BALI_BOUNDS,
+          maxPitch: 60,
+          attributionControl: false,
+          cooperativeGestures: Boolean(cooperativeGestures),
+          dragRotate: false,
+          pitchWithRotate: false,
+        });
+      } catch (e) {
+        cb.current.onError(e instanceof GPUInitializationError ? 'webgl' : 'load');
+        return () => {};
+      }
+      mapRef.current = map;
+      map.touchZoomRotate.disableRotation();
+      map.addControl(new NavigationControl({ showCompass: false }), 'top-right');
+      map.addControl(new AttributionControl({ compact: isNarrow }), 'bottom-right');
+
+      map.on('load', () => {
+        addDataLayers(map, dataBaseUrl, banjirData);
+        if (terrain3d) {
+          map.addSource('terrain', {
+            type: 'raster-dem',
+            url: `https://api.maptiler.com/tiles/terrain-rgb-v2/tiles.json?key=${encodeURIComponent(apiKey)}`,
+          });
+          map.setTerrain({ source: 'terrain', exaggeration: 1.4 });
+        }
+        // Atribusi compact tampil terbuka saat load; di layar sempit dilipat (tetap bisa dibuka lewat ikon ⓘ).
+        if (isNarrow) containerRef.current?.querySelector('.maplibregl-ctrl-attrib')?.classList.remove('maplibregl-compact-show');
+        setReady(true);
+      });
+      map.on('error', (e) => {
+        // Error tile sesekali (jaringan) tidak fatal; gagal memuat style = fatal.
+        if (!map.isStyleLoaded() && /style|401|403/i.test(String(e.error?.message))) cb.current.onError('load');
+      });
+
+      // Interaksi titik banjir.
+      const popup = new Popup({ closeButton: false, closeOnClick: false, offset: 12, className: 'das-sm__tooltip' });
+      let hoverId: string | null = null;
+      const setHover = (id: string | null) => {
+        if (hoverId) map.setFeatureState({ source: 'banjir', id: hoverId }, { hover: false });
+        hoverId = id;
+        if (id) map.setFeatureState({ source: 'banjir', id }, { hover: true });
+      };
+      const interactive = () => cb.current.view.titikInteraktif && cb.current.view.layers.includes('banjir');
+      map.on('mousemove', CLICKABLE_LAYER, (e) => {
+        if (!interactive()) return;
+        const f = e.features?.[0] as MapGeoJSONFeature | undefined;
+        if (!f) return;
+        map.getCanvas().style.cursor = 'pointer';
+        setHover(String(f.id));
+        popup
+          .setLngLat((f.geometry as GeoJSON.Point).coordinates as [number, number])
+          .setText(String(f.properties.nama))
+          .addTo(map);
+      });
+      map.on('mouseleave', CLICKABLE_LAYER, () => {
+        map.getCanvas().style.cursor = '';
+        setHover(null);
+        popup.remove();
+      });
+      map.on('click', (e) => {
+        if (!interactive()) return;
+        // Area klik diperbesar (± 10px) supaya titik kecil mudah disentuh di layar sentuh.
+        const pad = 10;
+        const hits = map.queryRenderedFeatures(
+          [
+            [e.point.x - pad, e.point.y - pad],
+            [e.point.x + pad, e.point.y + pad],
+          ],
+          { layers: [CLICKABLE_LAYER] },
+        );
+        if (!hits.length) return;
+        // Beberapa titik bertumpuk di bawah jari (mis. 7 titik dalam 20px di sekitar Pasar Badung pada
+        // zoom mobile) → jangan menebak: zoom ke kumpulan itu dulu, ketukan berikutnya memilih satu titik.
+        if (hits.length > 1 && map.getZoom() < 14) {
+          const lng = hits.map((f) => (f.geometry as GeoJSON.Point).coordinates[0]);
+          const lat = hits.map((f) => (f.geometry as GeoJSON.Point).coordinates[1]);
+          popup.remove();
+          cb.current.onUserMove();
+          map.fitBounds(
+            [
+              [Math.min(...lng), Math.min(...lat)],
+              [Math.max(...lng), Math.max(...lat)],
+            ],
+            { padding: 60, maxZoom: 16, duration: cb.current.reduceMotion ? 0 : 900 },
+          );
+          return;
+        }
+        // Sisa ambiguitas kecil: pilih titik yang paling dekat ke kursor.
+        const dist = (f: MapGeoJSONFeature) => {
+          const p = map.project((f.geometry as GeoJSON.Point).coordinates as [number, number]);
+          return (p.x - e.point.x) ** 2 + (p.y - e.point.y) ** 2;
+        };
+        const nearest = hits.reduce((a, b) => (dist(b) < dist(a) ? b : a));
+        popup.remove();
+        cb.current.onPointClick(String(nearest.id));
+      });
+      map.on('dragstart', () => cb.current.onUserMove());
+      map.on('zoomstart', (e) => {
+        if ((e as { originalEvent?: Event }).originalEvent) cb.current.onUserMove();
+      });
+      if (debug) {
+        // Untuk test e2e & redaksi: akses peta dari console (window.__dasMap).
+        (window as unknown as { __dasMap?: MLMap }).__dasMap = map;
+        const show = () => {
+          const c = map.getCenter();
+          setDebugText(
+            `center: [${c.lng.toFixed(4)}, ${c.lat.toFixed(4)}], zoom: ${map.getZoom().toFixed(2)}, pitch: ${map.getPitch().toFixed(0)}, bearing: ${map.getBearing().toFixed(0)}`,
+          );
+        };
+        map.on('moveend', show);
+        show();
+      }
+
+      return () => {
+        popup.remove();
+        map.remove();
+        mapRef.current = null;
+        setReady(false);
+      };
+    }
     // Peta hanya dibuat ulang bila sumber/konfigurasi dasarnya berubah.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [apiKey, banjirData, dataBaseUrl, terrain3d, cooperativeGestures, debug]);

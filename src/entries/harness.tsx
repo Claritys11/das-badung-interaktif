@@ -16,9 +16,9 @@ const Dummy = ({ n }: { n: number }) => (
   <>
     {Array.from({ length: n }, (_, i) => (
       <p key={i}>
-        [Teks dummy artikel {i + 1}] Paragraf ini hanya pengisi untuk menguji perilaku scroll dan sticky di dalam halaman artikel. Panjangnya
-        dibuat menyerupai paragraf berita pada umumnya supaya jarak antarkomponen terasa realistis ketika halaman digulir ke atas maupun ke
-        bawah.
+        [Teks dummy artikel {i + 1}] Paragraf ini hanya pengisi untuk menguji perilaku scroll dan sticky di dalam halaman artikel.
+        Panjangnya dibuat menyerupai paragraf berita pada umumnya supaya jarak antarkomponen terasa realistis ketika halaman digulir ke atas
+        maupun ke bawah.
       </p>
     ))}
   </>
@@ -45,7 +45,14 @@ createRoot(document.getElementById('root')!).render(
     <article className="hx-article">
       <Dummy n={5} />
     </article>
-    <ScrollyMap steps={story} titik={titikBanjir} teks={petaTeks} scrollMode="page" terrain3d={q.get('terrain') === '1'} debug={q.has('debug')} />
+    <ScrollyMap
+      steps={story}
+      titik={titikBanjir}
+      teks={petaTeks}
+      scrollMode="page"
+      terrain3d={q.get('terrain') === '1'}
+      debug={q.has('debug')}
+    />
     <article className="hx-article">
       <h2>Setelah peta</h2>
       <Dummy n={8} />

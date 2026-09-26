@@ -147,14 +147,26 @@ export function ScrollyMap({
 
   const selected = state.selectedPointId ? points.get(state.selectedPointId) : undefined;
   const selectedKonten: KontenTitik | undefined = selected
-    ? titik[selected.id] ?? { judul: selected.nama, deskripsi: `[Penjelasan titik ${selected.nama} — diisi redaksi]`, sumber: 'placeholder', tampil: true }
+    ? (titik[selected.id] ?? {
+        judul: selected.nama,
+        deskripsi: `[Penjelasan titik ${selected.nama} — diisi redaksi]`,
+        sumber: 'placeholder',
+        tampil: true,
+      })
     : undefined;
   const activeStep = steps[state.activeStep];
   const showReset = Boolean(selected) || userMoved;
   const detailLabels = { tutup: teks.tutupDetail, badgeKmz: teks.badgeKmz, badgePlaceholder: teks.badgePlaceholder };
   const sortedPoints = useMemo(() => [...points.values()].sort((a, b) => a.nama.localeCompare(b.nama, 'id')), [points]);
 
-  const errorText = mapError === 'webgl' ? teks.tanpaWebgl : mapError === 'data' ? 'Data peta gagal dimuat. Muat ulang halaman untuk mencoba lagi.' : mapError ? teks.tanpaKey : null;
+  const errorText =
+    mapError === 'webgl'
+      ? teks.tanpaWebgl
+      : mapError === 'data'
+        ? 'Data peta gagal dimuat. Muat ulang halaman untuk mencoba lagi.'
+        : mapError
+          ? teks.tanpaKey
+          : null;
 
   return (
     <section
@@ -170,22 +182,22 @@ export function ScrollyMap({
             </div>
           ) : !mapNear ? null : (
             <Suspense fallback={null}>
-            <MapView
-              apiKey={apiKey}
-              view={view}
-              resetToken={state.resetToken}
-              selectedPointId={state.selectedPointId}
-              banjirData={banjir}
-              dataBaseUrl={dataBaseUrl}
-              reduceMotion={reduceMotion}
-              isNarrow={isNarrow}
-              terrain3d={terrain3d}
-              cooperativeGestures={scrollMode === 'page' && !isNarrow}
-              debug={debug}
-              onPointClick={(id) => dispatch({ type: 'selectPoint', id })}
-              onUserMove={() => setUserMoved(true)}
-              onError={setMapError}
-            />
+              <MapView
+                apiKey={apiKey}
+                view={view}
+                resetToken={state.resetToken}
+                selectedPointId={state.selectedPointId}
+                banjirData={banjir}
+                dataBaseUrl={dataBaseUrl}
+                reduceMotion={reduceMotion}
+                isNarrow={isNarrow}
+                terrain3d={terrain3d}
+                cooperativeGestures={scrollMode === 'page' && !isNarrow}
+                debug={debug}
+                onPointClick={(id) => dispatch({ type: 'selectPoint', id })}
+                onUserMove={() => setUserMoved(true)}
+                onError={setMapError}
+              />
             </Suspense>
           )}
           {showReset && !errorText && (
@@ -208,7 +220,13 @@ export function ScrollyMap({
           <div className="das-sm__detail-slot">
             <AnimatePresence>
               {selectedKonten && (
-                <PointDetail key={state.selectedPointId} konten={selectedKonten} variant="panel" labels={detailLabels} onClose={() => dispatch({ type: 'clearSelection' })} />
+                <PointDetail
+                  key={state.selectedPointId}
+                  konten={selectedKonten}
+                  variant="panel"
+                  labels={detailLabels}
+                  onClose={() => dispatch({ type: 'clearSelection' })}
+                />
               )}
             </AnimatePresence>
           </div>
@@ -261,14 +279,25 @@ export function ScrollyMap({
         </ol>
 
         {scrollMode === 'internal' && (
-          <StoryNav steps={steps} active={state.activeStep} onGo={goToStep} labels={{ sebelumnya: teks.sebelumnya, berikutnya: teks.berikutnya }} />
+          <StoryNav
+            steps={steps}
+            active={state.activeStep}
+            onGo={goToStep}
+            labels={{ sebelumnya: teks.sebelumnya, berikutnya: teks.berikutnya }}
+          />
         )}
       </div>
 
       {isNarrow && (
         <AnimatePresence>
           {selectedKonten && (
-            <PointDetail key={state.selectedPointId} konten={selectedKonten} variant="sheet" labels={detailLabels} onClose={() => dispatch({ type: 'clearSelection' })} />
+            <PointDetail
+              key={state.selectedPointId}
+              konten={selectedKonten}
+              variant="sheet"
+              labels={detailLabels}
+              onClose={() => dispatch({ type: 'clearSelection' })}
+            />
           )}
         </AnimatePresence>
       )}

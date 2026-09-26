@@ -17,8 +17,12 @@ export const activeStep = (page: Page) => page.locator('.das-sm__step.is-active'
 /** Tunggu peta siap dan kamera selesai bergerak. */
 export async function mapIdle(page: Page) {
   await expect(page.locator('.das-sm__map[data-ready]')).toBeVisible();
-  await page.waitForFunction(() => {
-    const m = (window as any).__dasMap;
-    return m && !m.isMoving() && m.areTilesLoaded();
-  }, undefined, { timeout: 20_000 });
+  await page.waitForFunction(
+    () => {
+      const m = (window as any).__dasMap;
+      return m && !m.isMoving() && m.areTilesLoaded();
+    },
+    undefined,
+    { timeout: 20_000 },
+  );
 }

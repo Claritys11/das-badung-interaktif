@@ -11,6 +11,13 @@ const q = new URLSearchParams(location.search);
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
-    <ScrollyMap steps={story} titik={titikBanjir} teks={petaTeks} scrollMode="internal" terrain3d={q.get('terrain') === '1'} debug={q.has('debug')} />
+    <ScrollyMap
+      steps={story}
+      titik={titikBanjir}
+      teks={petaTeks}
+      scrollMode="internal"
+      terrain3d={q.get('terrain') === '1'}
+      debug={q.has('debug')}
+    />
   </StrictMode>,
 );

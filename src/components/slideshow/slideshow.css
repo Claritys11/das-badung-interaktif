@@ -51,7 +51,9 @@
   line-height: 1;
   letter-spacing: -0.02em;
   font-variant-numeric: tabular-nums;
-  text-shadow: 0 1px 2px rgb(0 0 0 / 0.45), 0 4px 24px rgb(0 0 0 / 0.35);
+  text-shadow:
+    0 1px 2px rgb(0 0 0 / 0.45),
+    0 4px 24px rgb(0 0 0 / 0.35);
   pointer-events: none;
 }
 
@@ -100,7 +102,9 @@
   height: 8px;
   margin-left: -1px;
   background: var(--das-muted);
-  transition: height 0.2s, background-color 0.2s;
+  transition:
+    height 0.2s,
+    background-color 0.2s;
 }
 .das-ss__tick.is-past {
   background: var(--das-ink);

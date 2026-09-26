@@ -93,5 +93,7 @@ test('peta: reduced motion tetap berfungsi (tanpa animasi)', async ({ page }) =>
   await page.getByRole('button', { name: 'Berikutnya' }).click();
   await expect.poll(() => activeStep(page)).toBe('das');
   // jumpTo → kamera langsung di tujuan tanpa animasi.
-  await expect.poll(() => page.evaluate(() => (window as any).__dasMap.getZoom())).toBeCloseTo(story[1].cameraMobile && page.viewportSize()!.width < 768 ? story[1].cameraMobile.zoom! : story[1].camera.zoom, 1);
+  await expect
+    .poll(() => page.evaluate(() => (window as any).__dasMap.getZoom()))
+    .toBeCloseTo(story[1].cameraMobile && page.viewportSize()!.width < 768 ? story[1].cameraMobile.zoom! : story[1].camera.zoom, 1);
 });

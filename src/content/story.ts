@@ -42,10 +42,7 @@ export const story: Step[] = [
   {
     id: 'banjir',
     judul: '[Judul step 5: titik banjir — diisi redaksi]',
-    teks: [
-      '[Penjelasan sebaran titik banjir — diisi redaksi]',
-      'Klik salah satu titik merah untuk melihat keterangannya.',
-    ],
+    teks: ['[Penjelasan sebaran titik banjir — diisi redaksi]', 'Klik salah satu titik merah untuk melihat keterangannya.'],
     camera: { center: [115.215, -8.665], zoom: 12.2, pitch: 0, bearing: 0 },
     cameraMobile: { zoom: 11.3 },
     layers: ['das', 'sungai', 'banjir'],

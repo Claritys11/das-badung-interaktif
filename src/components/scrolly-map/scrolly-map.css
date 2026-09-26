@@ -59,7 +59,9 @@
   padding: 4px 0 4px 20px;
   border-left: 3px solid var(--das-line);
   opacity: 0.38;
-  transition: opacity 0.35s, border-color 0.35s;
+  transition:
+    opacity 0.35s,
+    border-color 0.35s;
 }
 .das-sm__step.is-active .das-sm__stepcard {
   opacity: 1;
@@ -372,7 +374,9 @@
   height: 8px;
   border-radius: 50%;
   background: var(--das-line);
-  transition: background-color 0.2s, transform 0.2s;
+  transition:
+    background-color 0.2s,
+    transform 0.2s;
 }
 .das-sm__dots button.is-active::before {
   background: var(--das-accent);
