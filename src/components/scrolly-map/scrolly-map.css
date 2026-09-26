@@ -440,6 +440,13 @@
     border-radius: 16px 16px 0 0;
     padding-bottom: calc(24px + env(safe-area-inset-bottom, 0px));
   }
+  /* Mode iframe: navigasi tetap bisa ditekan saat bottom sheet terbuka. */
+  .das-sm--internal .das-sm__nav {
+    z-index: 31;
+  }
+  .das-sm--internal .das-sm__detail--sheet {
+    padding-bottom: calc(96px + env(safe-area-inset-bottom, 0px));
+  }
   .das-sm__legend {
     bottom: 36px;
     padding: 8px 10px;

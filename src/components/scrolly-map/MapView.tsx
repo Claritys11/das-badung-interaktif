@@ -128,16 +128,39 @@ export function MapView(props: MapViewProps) {
         ],
         { layers: [CLICKABLE_LAYER] },
       );
-      if (hits.length) {
+      if (!hits.length) return;
+      // Beberapa titik bertumpuk di bawah jari (mis. 7 titik dalam 20px di sekitar Pasar Badung pada
+      // zoom mobile) → jangan menebak: zoom ke kumpulan itu dulu, ketukan berikutnya memilih satu titik.
+      if (hits.length > 1 && map.getZoom() < 14) {
+        const lng = hits.map((f) => (f.geometry as GeoJSON.Point).coordinates[0]);
+        const lat = hits.map((f) => (f.geometry as GeoJSON.Point).coordinates[1]);
         popup.remove();
-        cb.current.onPointClick(String(hits[0].id));
+        cb.current.onUserMove();
+        map.fitBounds(
+          [
+            [Math.min(...lng), Math.min(...lat)],
+            [Math.max(...lng), Math.max(...lat)],
+          ],
+          { padding: 60, maxZoom: 16, duration: cb.current.reduceMotion ? 0 : 900 },
+        );
+        return;
       }
+      // Sisa ambiguitas kecil: pilih titik yang paling dekat ke kursor.
+      const dist = (f: MapGeoJSONFeature) => {
+        const p = map.project((f.geometry as GeoJSON.Point).coordinates as [number, number]);
+        return (p.x - e.point.x) ** 2 + (p.y - e.point.y) ** 2;
+      };
+      const nearest = hits.reduce((a, b) => (dist(b) < dist(a) ? b : a));
+      popup.remove();
+      cb.current.onPointClick(String(nearest.id));
     });
     map.on('dragstart', () => cb.current.onUserMove());
     map.on('zoomstart', (e) => {
       if ((e as { originalEvent?: Event }).originalEvent) cb.current.onUserMove();
     });
     if (debug) {
+      // Untuk test e2e & redaksi: akses peta dari console (window.__dasMap).
+      (window as unknown as { __dasMap?: MLMap }).__dasMap = map;
       const show = () => {
         const c = map.getCenter();
         setDebugText(
