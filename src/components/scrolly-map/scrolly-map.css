@@ -46,6 +46,7 @@
   padding: 38vh 0 50vh;
 }
 .das-sm__step {
+  scroll-margin-top: 14vh;
   min-height: 72vh;
   display: flex;
   align-items: center;
@@ -378,19 +379,17 @@
   transform: scale(1.35);
 }
 .das-sm__end {
-  margin: -30vh 0 30vh;
-  font-size: 14px;
-  line-height: 20px;
+  margin: 28px 0 0 !important;
+  font-size: 14px !important;
   font-weight: 600;
   color: var(--das-muted);
-  text-align: center;
 }
 .das-sm__end::after {
   content: '';
   display: block;
   width: 1px;
-  height: 32px;
-  margin: 8px auto 0;
+  height: 28px;
+  margin-top: 8px;
   background: currentColor;
 }
 
@@ -419,6 +418,7 @@
   }
   .das-sm__step,
   .das-sm__step:last-child {
+    scroll-margin-top: 60svh;
     min-height: 56svh;
     align-items: flex-start;
   }
@@ -451,9 +451,6 @@
   .das-sm__reset {
     font-size: 13px;
     min-height: 36px;
-  }
-  .das-sm__end {
-    margin: -20svh 0 24svh;
   }
 }
 

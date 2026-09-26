@@ -119,7 +119,8 @@ export function ScrollyMap({
   const goToStep = useCallback(
     (i: number) => {
       const index = Math.min(Math.max(i, 0), steps.length - 1);
-      stepRefs.current[index]?.scrollIntoView({ behavior: reduceMotion ? 'auto' : 'smooth', block: 'center' });
+      // block 'start' + scroll-margin-top (CSS) → step berhenti tepat di area teks (di mobile: di bawah peta).
+      stepRefs.current[index]?.scrollIntoView({ behavior: reduceMotion ? 'auto' : 'smooth', block: 'start' });
       dispatch({ type: 'enterStep', index });
     },
     [steps.length, reduceMotion],
@@ -232,18 +233,14 @@ export function ScrollyMap({
                   </details>
                 )}
                 {i === steps.length - 1 && <p className="das-sm__source">{teks.sumberData}</p>}
+                {i === steps.length - 1 && scrollMode === 'internal' && <p className="das-sm__end">{teks.lanjutMembaca}</p>}
               </div>
             </li>
           ))}
         </ol>
 
         {scrollMode === 'internal' && (
-          <>
-            <p className="das-sm__end" aria-hidden={state.activeStep !== steps.length - 1}>
-              {teks.lanjutMembaca}
-            </p>
-            <StoryNav steps={steps} active={state.activeStep} onGo={goToStep} labels={{ sebelumnya: teks.sebelumnya, berikutnya: teks.berikutnya }} />
-          </>
+          <StoryNav steps={steps} active={state.activeStep} onGo={goToStep} labels={{ sebelumnya: teks.sebelumnya, berikutnya: teks.berikutnya }} />
         )}
       </div>
 

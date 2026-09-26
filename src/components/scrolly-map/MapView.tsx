@@ -83,6 +83,8 @@ export function MapView(props: MapViewProps) {
         map.addSource('terrain', { type: 'raster-dem', url: `https://api.maptiler.com/tiles/terrain-rgb-v2/tiles.json?key=${encodeURIComponent(apiKey)}` });
         map.setTerrain({ source: 'terrain', exaggeration: 1.4 });
       }
+      // Atribusi compact tampil terbuka saat load; di layar sempit dilipat (tetap bisa dibuka lewat ikon ⓘ).
+      if (isNarrow) containerRef.current?.querySelector('.maplibregl-ctrl-attrib')?.classList.remove('maplibregl-compact-show');
       setReady(true);
     });
     map.on('error', (e) => {
