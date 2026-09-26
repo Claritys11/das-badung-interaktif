@@ -5,7 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "tsc -b && vite build",
+    "build": "tsc -b && vite build && vite build -c vite.framer.config.ts",
     "preview": "vite preview",
     "data": "node scripts/kmz-to-geojson.mjs",
     "images": "node scripts/optimize-images.mjs",

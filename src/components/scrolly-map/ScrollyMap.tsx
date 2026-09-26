@@ -1,9 +1,8 @@
-import { useCallback, useEffect, useMemo, useReducer, useRef, useState } from 'react';
+import { lazy, Suspense, useCallback, useEffect, useMemo, useReducer, useRef, useState } from 'react';
 import { AnimatePresence, useReducedMotion } from 'motion/react';
 import type { KontenTitik, Step } from '../../content/types';
 import type { petaTeks as defaultTeks } from '../../content/story';
 import { initialStoryState, resolveView, storyReducer, type PointLike } from './storyState';
-import { MapView } from './MapView';
 import { PointDetail } from './PointDetail';
 import { Legend } from './Legend';
 import { StoryNav } from './StoryNav';
@@ -33,6 +32,25 @@ export interface ScrollyMapProps {
 }
 
 const NARROW_QUERY = '(max-width: 767px)';
+
+// MapLibre (~290 KB gzip) dimuat terpisah & baru ketika peta mendekati layar — tidak membebani
+// pemuatan awal artikel.
+const MapView = lazy(() => import('./MapView').then((m) => ({ default: m.MapView })));
+
+/** true (dan tetap true) setelah elemen berada ≤ 1 layar dari viewport. */
+function useNearViewport(ref: React.RefObject<Element | null>, enabled: boolean) {
+  const [near, setNear] = useState(!enabled);
+  useEffect(() => {
+    if (!enabled || near || !ref.current || typeof IntersectionObserver === 'undefined') {
+      if (typeof IntersectionObserver === 'undefined') setNear(true);
+      return;
+    }
+    const io = new IntersectionObserver(([e]) => e.isIntersecting && setNear(true), { rootMargin: '100% 0px' });
+    io.observe(ref.current);
+    return () => io.disconnect();
+  }, [ref, enabled, near]);
+  return near;
+}
 
 function useMediaQuery(query: string) {
   const [match, setMatch] = useState(() => typeof window !== 'undefined' && window.matchMedia(query).matches);
@@ -65,6 +83,7 @@ export function ScrollyMap({
   const isNarrow = useMediaQuery(NARROW_QUERY);
   const rootRef = useRef<HTMLElement>(null);
   const stepRefs = useRef<(HTMLElement | null)[]>([]);
+  const mapNear = useNearViewport(rootRef, scrollMode === 'page');
 
   // Data titik banjir: di-fetch sekali, disaring berdasarkan `tampil` di file konten.
   useEffect(() => {
@@ -149,7 +168,8 @@ export function ScrollyMap({
             <div className="das-sm__error" role="alert">
               {errorText}
             </div>
-          ) : (
+          ) : !mapNear ? null : (
+            <Suspense fallback={null}>
             <MapView
               apiKey={apiKey}
               view={view}
@@ -166,6 +186,7 @@ export function ScrollyMap({
               onUserMove={() => setUserMoved(true)}
               onError={setMapError}
             />
+            </Suspense>
           )}
           {showReset && !errorText && (
             <button type="button" className="das-sm__reset" onClick={() => dispatch({ type: 'reset' })}>
