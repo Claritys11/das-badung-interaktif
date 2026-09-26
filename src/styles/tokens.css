@@ -4,7 +4,7 @@
   --das-font: 'Poppins', 'Poppins Placeholder', system-ui, -apple-system, 'Segoe UI', sans-serif;
   --das-ink: #14181c;
   --das-ink-soft: #454a50;
-  --das-muted: #8a8f95;
+  --das-muted: #6b7076; /* ≥ 4.5:1 di atas #FAFAFA (WCAG AA) */
   --das-bg: #fafafa;
   --das-surface: #ffffff;
   --das-line: #e3e4e6;

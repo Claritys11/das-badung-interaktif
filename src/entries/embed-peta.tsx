@@ -11,7 +11,8 @@ const q = new URLSearchParams(location.search);
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
-    <ScrollyMap
+    <main>
+      <ScrollyMap
       steps={story}
       titik={titikBanjir}
       teks={petaTeks}
