@@ -1,0 +1,61 @@
+/* Token visual, diturunkan dari halaman IDN Times Insidenesia (Meramban).
+   Host bisa menimpa variabel ini (mis. --das-bg: #DAEBC6 untuk tema hijau artikel). */
+:root {
+  --das-font: 'Poppins', 'Poppins Placeholder', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --das-ink: #14181c;
+  --das-ink-soft: #454a50;
+  --das-muted: #8a8f95;
+  --das-bg: #fafafa;
+  --das-surface: #ffffff;
+  --das-line: #e3e4e6;
+  --das-accent: #ed2127;
+  --das-accent-ink: #b8141a;
+  --das-river: #8fd8ff;
+  --das-radius: 8px;
+  --das-focus: 0 0 0 3px var(--das-bg), 0 0 0 5px var(--das-accent);
+}
+
+.das-root {
+  font-family: var(--das-font);
+  color: var(--das-ink);
+  -webkit-font-smoothing: antialiased;
+}
+.das-root *,
+.das-root *::before,
+.das-root *::after {
+  box-sizing: border-box;
+}
+.das-root :focus-visible {
+  outline: none;
+  box-shadow: var(--das-focus);
+}
+
+/* Tombol ikon bulat bersama (slideshow & peta). */
+.das-iconbtn {
+  display: inline-grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  border: 1px solid var(--das-line);
+  background: var(--das-surface);
+  color: var(--das-ink);
+  cursor: pointer;
+  transition: background-color 0.15s, border-color 0.15s;
+}
+.das-iconbtn:hover {
+  border-color: var(--das-ink);
+}
+.das-iconbtn svg {
+  width: 18px;
+  height: 18px;
+}
+
+.das-visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}
