@@ -13,12 +13,13 @@ createRoot(document.getElementById('root')!).render(
   <StrictMode>
     <main>
       <ScrollyMap
-      steps={story}
-      titik={titikBanjir}
-      teks={petaTeks}
-      scrollMode="internal"
-      terrain3d={q.get('terrain') === '1'}
-      debug={q.has('debug')}
-    />
+        steps={story}
+        titik={titikBanjir}
+        teks={petaTeks}
+        scrollMode="internal"
+        terrain3d={q.get('terrain') === '1'}
+        debug={q.has('debug')}
+      />
+    </main>
   </StrictMode>,
 );
