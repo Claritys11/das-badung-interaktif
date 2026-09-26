@@ -24,6 +24,7 @@
     "@tmcw/togeojson": "^7.1.2",
     "@turf/bbox": "^7.4.0",
     "@turf/simplify": "^7.4.0",
+    "@types/geojson": "^7946.0.16",
     "@types/node": "^26.6.2",
     "@types/react": "^18.3.31",
     "@types/react-dom": "^18.3.7",

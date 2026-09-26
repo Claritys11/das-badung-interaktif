@@ -6,3 +6,7 @@ body {
 .das-embed--slideshow {
   padding: 0;
 }
+/* Halaman peta: tidak ada scroll dokumen — scroll ditangani komponen. */
+body:has(.das-sm--internal) {
+  overflow: hidden;
+}

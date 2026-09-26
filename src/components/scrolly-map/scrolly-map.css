@@ -1,0 +1,465 @@
+/* ---------- Tata letak ---------- */
+.das-sm {
+  position: relative;
+  display: grid;
+  grid-template-columns: minmax(0, 38fr) minmax(0, 62fr);
+  grid-template-areas: 'text map';
+  background: var(--das-bg);
+}
+.das-sm__mapcol {
+  grid-area: map;
+}
+.das-sm__textcol {
+  grid-area: text;
+  position: relative;
+  padding-inline: clamp(20px, 3vw, 48px);
+}
+.das-sm__sticky {
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  height: 100svh;
+  overflow: hidden;
+  background: #1d2420;
+}
+.das-sm__map {
+  position: absolute;
+  inset: 0;
+}
+
+/* Mode iframe: komponen punya scroll sendiri setinggi layar. */
+.das-sm--internal {
+  height: 100vh;
+  height: 100dvh;
+  overflow-y: auto;
+  overscroll-behavior-y: auto; /* di ujung, scroll diteruskan ke halaman induk */
+}
+.das-sm--internal .das-sm__sticky {
+  height: 100vh;
+  height: 100dvh;
+}
+
+/* ---------- Step ---------- */
+.das-sm__steps {
+  list-style: none;
+  margin: 0;
+  padding: 38vh 0 50vh;
+}
+.das-sm__step {
+  min-height: 72vh;
+  display: flex;
+  align-items: center;
+}
+.das-sm__step:last-child {
+  min-height: 50vh;
+}
+.das-sm__stepcard {
+  max-width: 440px;
+  padding: 4px 0 4px 20px;
+  border-left: 3px solid var(--das-line);
+  opacity: 0.38;
+  transition: opacity 0.35s, border-color 0.35s;
+}
+.das-sm__step.is-active .das-sm__stepcard {
+  opacity: 1;
+  border-left-color: var(--das-accent);
+}
+.das-sm.has-detail .das-sm__stepcard {
+  opacity: 0.12;
+}
+.das-sm__stepnum {
+  margin: 0 0 6px;
+  font-size: 14px;
+  line-height: 20px;
+  font-weight: 700;
+  color: var(--das-accent);
+  font-variant-numeric: tabular-nums;
+}
+.das-sm__stepcard h3 {
+  margin: 0 0 12px;
+  font-size: clamp(22px, 2.1vw, 32px);
+  line-height: 1.2;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+}
+.das-sm__stepcard p {
+  margin: 0 0 12px;
+  font-size: 16px;
+  line-height: 24px;
+}
+.das-sm__source {
+  margin-top: 20px !important;
+  font-size: 12px !important;
+  line-height: 16px !important;
+  color: var(--das-muted);
+}
+
+/* Daftar titik — alternatif keyboard/pembaca layar untuk klik di peta. */
+.das-sm__pointlist {
+  margin-top: 8px;
+  font-size: 14px;
+}
+.das-sm__pointlist summary {
+  cursor: pointer;
+  font-weight: 600;
+  color: var(--das-ink);
+  padding: 8px 0;
+}
+.das-sm__pointlist ul {
+  list-style: none;
+  margin: 4px 0 0;
+  padding: 0;
+  max-height: 240px;
+  overflow-y: auto;
+  border-top: 1px solid var(--das-line);
+}
+.das-sm__pointlist button {
+  display: block;
+  width: 100%;
+  padding: 8px 0;
+  border: 0;
+  border-bottom: 1px solid var(--das-line);
+  background: none;
+  font: inherit;
+  text-align: left;
+  color: var(--das-ink-soft);
+  cursor: pointer;
+}
+.das-sm__pointlist button:hover,
+.das-sm__pointlist button[aria-pressed='true'] {
+  color: var(--das-accent-ink);
+}
+
+/* ---------- Detail titik ---------- */
+.das-sm__detail-slot {
+  position: sticky;
+  top: 0;
+  height: 0;
+  z-index: 5;
+}
+.das-sm__detail {
+  background: var(--das-surface);
+  border-top: 4px solid var(--das-accent);
+  border-radius: var(--das-radius);
+  padding: 20px 24px 24px;
+  box-shadow: 0 16px 40px rgb(20 24 28 / 0.16);
+}
+.das-sm__detail--panel {
+  position: absolute;
+  top: 16vh;
+  left: 0;
+  right: 0;
+  max-width: 460px;
+}
+.das-sm__detail-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+}
+.das-sm__detail h3 {
+  margin: 4px 0 12px;
+  font-size: 24px;
+  line-height: 29px;
+  font-weight: 700;
+  outline: none;
+}
+.das-sm__detail p {
+  margin: 0 0 16px;
+  font-size: 16px;
+  line-height: 24px;
+}
+.das-sm__detail p.is-placeholder {
+  color: var(--das-ink-soft);
+  font-style: italic;
+}
+.das-sm__detail h3:focus-visible {
+  box-shadow: none; /* fokus programatik untuk pembaca layar, bukan navigasi keyboard */
+}
+.das-sm__detail-close {
+  flex: none;
+  width: 36px;
+  height: 36px;
+}
+.das-sm__badge {
+  display: inline-block;
+  margin: 0 !important;
+  font-size: 12px !important;
+  line-height: 16px !important;
+  color: var(--das-muted);
+}
+.das-sm__badge--kmz::before {
+  content: '';
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  margin-right: 6px;
+  border-radius: 50%;
+  background: var(--das-accent);
+}
+
+/* ---------- Kontrol di atas peta ---------- */
+.das-sm__reset {
+  position: absolute;
+  z-index: 3;
+  top: 12px;
+  left: 12px;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 40px;
+  padding: 0 16px 0 12px;
+  border: 0;
+  border-radius: 999px;
+  background: var(--das-surface);
+  color: var(--das-ink);
+  font: 600 14px/20px var(--das-font);
+  cursor: pointer;
+  box-shadow: 0 2px 8px rgb(0 0 0 / 0.25);
+}
+.das-sm__reset svg {
+  width: 16px;
+  height: 16px;
+}
+.das-sm__reset:hover {
+  color: var(--das-accent-ink);
+}
+
+.das-sm__legend {
+  position: absolute;
+  z-index: 3;
+  left: 12px;
+  bottom: 40px;
+  margin: 0;
+  padding: 10px 12px;
+  border-radius: var(--das-radius);
+  background: rgb(255 255 255 / 0.94);
+  font-size: 12px;
+  line-height: 16px;
+  color: var(--das-ink);
+}
+.das-sm__legend figcaption {
+  margin-bottom: 8px;
+  font-weight: 600;
+}
+.das-sm__legend-ramp {
+  display: flex;
+  gap: 2px;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+.das-sm__legend-ramp li {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 62px;
+  font-variant-numeric: tabular-nums;
+  color: var(--das-ink-soft);
+}
+.das-sm__legend-ramp span {
+  height: 10px;
+}
+.das-sm__legend-points {
+  display: grid;
+  gap: 6px;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+.das-sm__legend-points li {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.das-sm__dot {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: var(--das-accent);
+  box-shadow: 0 0 0 1.5px #fff;
+}
+.das-sm__dot--ring {
+  background: #fff;
+  box-shadow: inset 0 0 0 3px var(--das-accent);
+}
+
+.das-sm__maptiler {
+  position: absolute;
+  z-index: 3;
+  left: 10px;
+  bottom: 10px;
+  line-height: 0;
+}
+.das-sm__error {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  padding: 24px;
+  background: #e8e9ea;
+  color: var(--das-ink);
+  font-size: 15px;
+  line-height: 22px;
+  text-align: center;
+}
+.das-sm__debug {
+  position: absolute;
+  z-index: 3;
+  top: 60px;
+  left: 12px;
+  right: 60px;
+  padding: 6px 8px;
+  border-radius: 4px;
+  background: rgb(255 255 255 / 0.92);
+  font-size: 11px;
+  line-height: 14px;
+  user-select: all;
+}
+
+/* Tooltip nama titik & atribusi. */
+.das-sm .maplibregl-popup.das-sm__tooltip .maplibregl-popup-content {
+  padding: 6px 10px;
+  border-radius: 6px;
+  font: 500 13px/18px var(--das-font);
+  color: var(--das-ink);
+}
+.das-sm .maplibregl-ctrl-attrib {
+  font-family: var(--das-font);
+  font-size: 11px;
+}
+
+/* ---------- Navigasi (mode iframe) ---------- */
+.das-sm__nav {
+  position: sticky;
+  bottom: 16px;
+  z-index: 4;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  width: fit-content;
+  margin: 0 auto 16px;
+  padding: 6px;
+  border-radius: 999px;
+  background: rgb(250 250 250 / 0.94);
+  box-shadow: 0 2px 12px rgb(20 24 28 / 0.12);
+}
+.das-sm__nav .das-iconbtn:disabled {
+  opacity: 0.35;
+  cursor: default;
+}
+.das-sm__dots {
+  display: flex;
+  gap: 2px;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+.das-sm__dots button {
+  display: grid;
+  place-items: center;
+  width: 24px;
+  height: 44px;
+  border: 0;
+  background: none;
+  cursor: pointer;
+}
+.das-sm__dots button::before {
+  content: '';
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--das-line);
+  transition: background-color 0.2s, transform 0.2s;
+}
+.das-sm__dots button.is-active::before {
+  background: var(--das-accent);
+  transform: scale(1.35);
+}
+.das-sm__end {
+  margin: -30vh 0 30vh;
+  font-size: 14px;
+  line-height: 20px;
+  font-weight: 600;
+  color: var(--das-muted);
+  text-align: center;
+}
+.das-sm__end::after {
+  content: '';
+  display: block;
+  width: 1px;
+  height: 32px;
+  margin: 8px auto 0;
+  background: currentColor;
+}
+
+/* ---------- Mobile ---------- */
+@media (max-width: 767px) {
+  .das-sm {
+    display: block;
+  }
+  .das-sm__mapcol {
+    position: sticky;
+    top: 0;
+    z-index: 2;
+    height: 58vh;
+    height: 58svh;
+  }
+  .das-sm__sticky,
+  .das-sm--internal .das-sm__sticky {
+    position: relative;
+    height: 100%;
+  }
+  .das-sm__textcol {
+    padding-inline: 20px;
+  }
+  .das-sm__steps {
+    padding: 8svh 0 34svh;
+  }
+  .das-sm__step,
+  .das-sm__step:last-child {
+    min-height: 56svh;
+    align-items: flex-start;
+  }
+  .das-sm__stepcard {
+    padding-left: 16px;
+  }
+  .das-sm__stepcard h3 {
+    font-size: 20px;
+    line-height: 26px;
+  }
+  .das-sm__detail--sheet {
+    position: fixed;
+    z-index: 30;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    max-height: 46svh;
+    overflow-y: auto;
+    border-radius: 16px 16px 0 0;
+    padding-bottom: calc(24px + env(safe-area-inset-bottom, 0px));
+  }
+  .das-sm__legend {
+    bottom: 36px;
+    padding: 8px 10px;
+    font-size: 11px;
+  }
+  .das-sm__legend-ramp li {
+    min-width: 40px;
+  }
+  .das-sm__reset {
+    font-size: 13px;
+    min-height: 36px;
+  }
+  .das-sm__end {
+    margin: -20svh 0 24svh;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .das-sm__stepcard,
+  .das-sm__dots button::before {
+    transition: none;
+  }
+}
