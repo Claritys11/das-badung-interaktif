@@ -1,4 +1,4 @@
-import { lazy, Suspense, useCallback, useEffect, useMemo, useReducer, useRef, useState } from 'react';
+import { Component, lazy, Suspense, useCallback, useEffect, useMemo, useReducer, useRef, useState, type ReactNode } from 'react';
 import { AnimatePresence, useReducedMotion } from 'motion/react';
 import type { KontenTitik, Step } from '../../content/types';
 import type { petaTeks as defaultTeks } from '../../content/story';
@@ -36,6 +36,20 @@ const NARROW_QUERY = '(max-width: 767px)';
 // MapLibre (~290 KB gzip) dimuat terpisah & baru ketika peta mendekati layar — tidak membebani
 // pemuatan awal artikel.
 const MapView = lazy(() => import('./MapView').then((m) => ({ default: m.MapView })));
+
+/** Chunk MapView gagal dimuat (jaringan putus / deploy baru mengganti file ber-hash) → pesan error, bukan layar kosong. */
+class MapErrorBoundary extends Component<{ onError: () => void; children: ReactNode }, { failed: boolean }> {
+  state = { failed: false };
+  static getDerivedStateFromError() {
+    return { failed: true };
+  }
+  componentDidCatch() {
+    this.props.onError();
+  }
+  render() {
+    return this.state.failed ? null : this.props.children;
+  }
+}
 
 /** true (dan tetap true) setelah elemen berada ≤ 1 layar dari viewport. */
 function useNearViewport(ref: React.RefObject<Element | null>, enabled: boolean) {
@@ -77,12 +91,14 @@ export function ScrollyMap({
 }: ScrollyMapProps) {
   const [state, dispatch] = useReducer(storyReducer, initialStoryState);
   const [banjir, setBanjir] = useState<GeoJSON.FeatureCollection | null>(null);
-  const [mapError, setMapError] = useState<'webgl' | 'load' | 'data' | null>(apiKey ? null : 'load');
+  const [mapError, setMapError] = useState<'nokey' | 'webgl' | 'load' | 'data' | null>(apiKey ? null : 'nokey');
   const [userMoved, setUserMoved] = useState(false);
   const reduceMotion = useReducedMotion() ?? false;
   const isNarrow = useMediaQuery(NARROW_QUERY);
   const rootRef = useRef<HTMLElement>(null);
   const stepRefs = useRef<(HTMLElement | null)[]>([]);
+  // Selama scroll programatik (tombol navigasi) step yang dilewati tidak diaktifkan satu per satu.
+  const navLock = useRef(false);
   const mapNear = useNearViewport(rootRef, scrollMode === 'page');
 
   // Data titik banjir: di-fetch sekali, disaring berdasarkan `tampil` di file konten.
@@ -120,6 +136,7 @@ export function ScrollyMap({
     const rootMargin = isNarrow ? '-72% 0px -22% 0px' : '-48% 0px -48% 0px';
     const io = new IntersectionObserver(
       (entries) => {
+        if (navLock.current) return;
         for (const e of entries) {
           if (!e.isIntersecting) continue;
           const i = stepRefs.current.indexOf(e.target as HTMLElement);
@@ -138,11 +155,21 @@ export function ScrollyMap({
   const goToStep = useCallback(
     (i: number) => {
       const index = Math.min(Math.max(i, 0), steps.length - 1);
+      const scroller: HTMLElement | Window = scrollMode === 'internal' && rootRef.current ? rootRef.current : window;
+      navLock.current = true;
+      let timer = 0;
+      const release = () => {
+        navLock.current = false;
+        window.clearTimeout(timer);
+        scroller.removeEventListener('scrollend', release);
+      };
+      scroller.addEventListener('scrollend', release);
+      timer = window.setTimeout(release, 1500); // fallback untuk browser tanpa event scrollend
+      dispatch({ type: 'enterStep', index });
       // block 'start' + scroll-margin-top (CSS) → step berhenti tepat di area teks (di mobile: di bawah peta).
       stepRefs.current[index]?.scrollIntoView({ behavior: reduceMotion ? 'auto' : 'smooth', block: 'start' });
-      dispatch({ type: 'enterStep', index });
     },
-    [steps.length, reduceMotion],
+    [steps.length, reduceMotion, scrollMode],
   );
 
   const selected = state.selectedPointId ? points.get(state.selectedPointId) : undefined;
@@ -159,14 +186,9 @@ export function ScrollyMap({
   const detailLabels = { tutup: teks.tutupDetail, badgeKmz: teks.badgeKmz, badgePlaceholder: teks.badgePlaceholder };
   const sortedPoints = useMemo(() => [...points.values()].sort((a, b) => a.nama.localeCompare(b.nama, 'id')), [points]);
 
-  const errorText =
-    mapError === 'webgl'
-      ? teks.tanpaWebgl
-      : mapError === 'data'
-        ? 'Data peta gagal dimuat. Muat ulang halaman untuk mencoba lagi.'
-        : mapError
-          ? teks.tanpaKey
-          : null;
+  const errorText = mapError
+    ? { nokey: teks.tanpaKey, webgl: teks.tanpaWebgl, data: teks.gagalData, load: teks.gagalMuat }[mapError]
+    : null;
 
   return (
     <section
@@ -181,24 +203,26 @@ export function ScrollyMap({
               {errorText}
             </div>
           ) : !mapNear ? null : (
-            <Suspense fallback={null}>
-              <MapView
-                apiKey={apiKey}
-                view={view}
-                resetToken={state.resetToken}
-                selectedPointId={state.selectedPointId}
-                banjirData={banjir}
-                dataBaseUrl={dataBaseUrl}
-                reduceMotion={reduceMotion}
-                isNarrow={isNarrow}
-                terrain3d={terrain3d}
-                cooperativeGestures={scrollMode === 'page' && !isNarrow}
-                debug={debug}
-                onPointClick={(id) => dispatch({ type: 'selectPoint', id })}
-                onUserMove={() => setUserMoved(true)}
-                onError={setMapError}
-              />
-            </Suspense>
+            <MapErrorBoundary onError={() => setMapError('load')}>
+              <Suspense fallback={null}>
+                <MapView
+                  apiKey={apiKey}
+                  view={view}
+                  resetToken={state.resetToken}
+                  selectedPointId={state.selectedPointId}
+                  banjirData={banjir}
+                  dataBaseUrl={dataBaseUrl}
+                  reduceMotion={reduceMotion}
+                  isNarrow={isNarrow}
+                  terrain3d={terrain3d}
+                  cooperativeGestures={scrollMode === 'page' && !isNarrow}
+                  debug={debug}
+                  onPointClick={(id) => dispatch({ type: 'selectPoint', id })}
+                  onUserMove={() => setUserMoved(true)}
+                  onError={setMapError}
+                />
+              </Suspense>
+            </MapErrorBoundary>
           )}
           {showReset && !errorText && (
             <button type="button" className="das-sm__reset" onClick={() => dispatch({ type: 'reset' })}>

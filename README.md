@@ -243,7 +243,7 @@ npx wrangler pages deploy dist --project-name das-badung-interaktif
 ## Testing & performa
 
 - `pnpm test`: 8 unit test reducer (scroll maju/mundur, pilih titik, reset, ganti step saat detail terbuka).
-- `pnpm e2e`: 6 skenario × 3 viewport (1440 × 900, 834 × 1112, 390 × 844) = 18 test. Isinya: 0 error console, tiap step, klik titik (termasuk titik bertumpuk), reset, scroll mundur, mode halaman penuh, dan `prefers-reduced-motion`. Screenshot tiap step ada di `tests/screenshots/<viewport>/`.
+- `pnpm e2e`: 9 skenario × 3 viewport (1440 × 900, 834 × 1112, 390 × 844) = 27 test. Isinya: 0 error console, tiap step, klik titik (termasuk titik bertumpuk), reset, scroll mundur, lompat step lewat titik progres, mode halaman penuh, crossfade saat navigasi cepat, tombol Play, dan `prefers-reduced-motion`. Screenshot tiap step ada di `tests/screenshots/<viewport>/`.
 - **Ukuran (gzip):**
   - JS awal halaman artikel ±99 KB (React + motion + konten)
   - MapLibre ±280 KB + worker, di-lazy-load

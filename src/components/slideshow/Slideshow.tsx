@@ -68,6 +68,15 @@ export function Slideshow({
 
   const running = playing && !hovered && !focused && inView && pageVisible && slides.length > 1;
 
+  // Menekan Play secara eksplisit selalu menang atas jeda-karena-fokus/hover.
+  const togglePlay = () => {
+    if (!playing) {
+      setFocused(false);
+      setHovered(false);
+    }
+    setPlaying(!playing);
+  };
+
   const goTo = useCallback(
     (i: number) => {
       const n = slides.length;
@@ -115,7 +124,7 @@ export function Slideshow({
       goTo(slides.length - 1);
     } else if ((e.key === ' ' || e.key === 'Spacebar') && !(e.target instanceof HTMLButtonElement)) {
       e.preventDefault();
-      setPlaying((p) => !p);
+      togglePlay();
     }
   };
 
@@ -159,9 +168,11 @@ export function Slideshow({
       className={`das-root das-ss ${className ?? ''}`}
       aria-roledescription="carousel"
       aria-label={judul ?? 'Citra satelit dari tahun ke tahun'}
-      onMouseEnter={() => setHovered(true)}
-      onMouseLeave={() => setHovered(false)}
-      onFocus={() => setFocused(true)}
+      // Jeda saat hover hanya untuk mouse (sentuhan memicu mouseenter tanpa mouseleave).
+      onPointerEnter={(e) => e.pointerType === 'mouse' && setHovered(true)}
+      onPointerLeave={(e) => e.pointerType === 'mouse' && setHovered(false)}
+      // Jeda saat fokus hanya untuk fokus keyboard; klik mouse/sentuh pada tombol tidak menjeda.
+      onFocus={(e) => (e.target as Element).matches(':focus-visible') && setFocused(true)}
       onBlur={(e) => {
         if (!e.currentTarget.contains(e.relatedTarget as Node | null)) setFocused(false);
       }}
@@ -177,16 +188,30 @@ export function Slideshow({
         onPointerUp={onPointerUp}
         onPointerCancel={() => (swipeStart.current = null)}
       >
-        {prevIndex !== null && <SlidePicture slide={slides[prevIndex]} base={assetBaseUrl} style={{ zIndex: 1 }} eager />}
+        {prevIndex !== null && (
+          <SlidePicture
+            // Key terpisah dari slide aktif: layer bawah selalu elemen baru yang buram penuh. (Memakai ulang
+            // node slide aktif akan membawa opacity setengah-fade saat navigasi cepat.) Gambarnya sudah
+            // ada di cache memori, jadi decoding "sync" menggambarnya di frame yang sama — tanpa kedip.
+            key={`prev-${prevIndex}`}
+            slide={slides[prevIndex]}
+            base={assetBaseUrl}
+            eager
+            decodeSync
+            style={{ zIndex: 1 }}
+          />
+        )}
         <SlidePicture
-          key={index}
+          key={`cur-${index}`}
           slide={slide}
           base={assetBaseUrl}
           eager={index === 0}
           style={{ zIndex: 2 }}
-          initial={{ opacity: prevIndex === null ? 1 : 0 }}
-          animate={{ opacity: isLoaded ? 1 : 0 }}
-          transition={{ duration: fade, ease: [0.4, 0, 0.2, 1] }}
+          variants={slideVariants}
+          custom={fade}
+          initial={prevIndex === null ? 'in' : 'out'}
+          // Slide pertama (tanpa slide lama di bawahnya) langsung tampil penuh — tidak memudar menunggu load.
+          animate={isLoaded || prevIndex === null ? 'in' : 'out'}
           onAnimationComplete={() => {
             if (isLoaded) setPos((cur) => (cur.prev === null ? cur : { ...cur, prev: null }));
           }}
@@ -206,7 +231,7 @@ export function Slideshow({
           <button
             type="button"
             className="das-iconbtn das-ss__play"
-            onClick={() => setPlaying((p) => !p)}
+            onClick={togglePlay}
             aria-label={playing ? 'Jeda slideshow' : 'Putar slideshow'}
             aria-pressed={playing}
           >
@@ -262,14 +287,23 @@ export function Slideshow({
   );
 }
 
+// Catatan: di motion, `duration: 0` TIDAK berarti instan (dianggap kosong → transisi default).
+// Transisi instan harus ditulis `type: false`.
+const INSTANT = { type: false } as const;
+const slideVariants = {
+  in: (fade: number) => ({ opacity: 1, transition: fade > 0 ? { duration: fade, ease: [0.4, 0, 0.2, 1] as const } : INSTANT }),
+  out: { opacity: 0, transition: INSTANT },
+};
+
 type SlidePictureProps = {
   slide: Slide;
   base: string;
   eager?: boolean;
+  decodeSync?: boolean;
   onImgLoad?: (img: HTMLImageElement) => void;
 } & Omit<React.ComponentProps<typeof motion.picture>, 'children'>;
 
-function SlidePicture({ slide, base, eager, onImgLoad, ...motionProps }: SlidePictureProps) {
+function SlidePicture({ slide, base, eager, decodeSync, onImgLoad, ...motionProps }: SlidePictureProps) {
   const imgRef = useRef<HTMLImageElement>(null);
   const onLoadRef = useRef(onImgLoad);
   onLoadRef.current = onImgLoad;
@@ -288,7 +322,7 @@ function SlidePicture({ slide, base, eager, onImgLoad, ...motionProps }: SlidePi
         width={1485}
         height={892}
         draggable={false}
-        decoding="async"
+        decoding={decodeSync ? 'sync' : 'async'}
         loading={eager ? 'eager' : 'lazy'}
         // @ts-expect-error — atribut HTML valid; tipe React 18 belum mengenalnya.
         fetchpriority={eager ? 'high' : 'auto'}

@@ -19,9 +19,13 @@ function ensureWorker() {
   workerReady ??= (async () => {
     const abs = new URL(workerUrl, import.meta.url).href;
     if (new URL(abs).origin === location.origin) return setWorkerUrl(abs);
-    const code = await (await fetch(abs)).blob();
-    setWorkerUrl(URL.createObjectURL(new Blob([code], { type: 'text/javascript' })));
-  })();
+    const res = await fetch(abs);
+    if (!res.ok) throw new Error(`Worker MapLibre: HTTP ${res.status}`);
+    setWorkerUrl(URL.createObjectURL(new Blob([await res.blob()], { type: 'text/javascript' })));
+  })().catch((e) => {
+    workerReady = null; // gagal sementara (jaringan) → boleh dicoba lagi saat peta dipasang ulang
+    throw e;
+  });
   return workerReady;
 }
 import type { View } from './storyState';
@@ -101,7 +105,7 @@ export function MapView(props: MapViewProps) {
           maxBounds: BALI_BOUNDS,
           maxPitch: 60,
           attributionControl: false,
-          cooperativeGestures: Boolean(cooperativeGestures),
+          cooperativeGestures: Boolean(cb.current.cooperativeGestures),
           dragRotate: false,
           pitchWithRotate: false,
         });
@@ -114,7 +118,9 @@ export function MapView(props: MapViewProps) {
       map.addControl(new NavigationControl({ showCompass: false }), 'top-right');
       map.addControl(new AttributionControl({ compact: isNarrow }), 'bottom-right');
 
+      let loaded = false;
       map.on('load', () => {
+        loaded = true;
         addDataLayers(map, dataBaseUrl, banjirData);
         if (terrain3d) {
           map.addSource('terrain', {
@@ -128,8 +134,9 @@ export function MapView(props: MapViewProps) {
         setReady(true);
       });
       map.on('error', (e) => {
-        // Error tile sesekali (jaringan) tidak fatal; gagal memuat style = fatal.
-        if (!map.isStyleLoaded() && /style|401|403/i.test(String(e.error?.message))) cb.current.onError('load');
+        // Error tile/sumber data (punya sourceId) tidak fatal. Error lain sebelum 'load' = style gagal
+        // dimuat (key ditolak/origin tidak diizinkan, kuota habis, jaringan putus) → tampilkan pesan.
+        if (!loaded && !(e as { sourceId?: string }).sourceId) cb.current.onError('load');
       });
 
       // Interaksi titik banjir.
@@ -220,7 +227,15 @@ export function MapView(props: MapViewProps) {
     }
     // Peta hanya dibuat ulang bila sumber/konfigurasi dasarnya berubah.
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [apiKey, banjirData, dataBaseUrl, terrain3d, cooperativeGestures, debug]);
+  }, [apiKey, banjirData, dataBaseUrl, terrain3d, debug]);
+
+  // cooperativeGestures berubah saat melewati breakpoint mobile → cukup di-toggle, peta tidak dibangun ulang.
+  useEffect(() => {
+    const map = mapRef.current;
+    if (!map || !ready) return;
+    if (cooperativeGestures) map.cooperativeGestures.enable();
+    else map.cooperativeGestures.disable();
+  }, [cooperativeGestures, ready]);
 
   // 2. Kamera mengikuti view (dan resetToken).
   const cameraKey = JSON.stringify(view.camera);

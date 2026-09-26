@@ -71,7 +71,10 @@ export const petaTeks = {
   legendaTopografi: 'Ketinggian (meter di atas permukaan laut)',
   legendaBanjir: 'Titik banjir',
   legendaFasilitasAir: 'Fasilitas air terdampak',
-  tanpaKey: 'Peta belum bisa dimuat: API key MapTiler belum diatur (VITE_MAPTILER_KEY).',
+  tanpaKey: 'Peta belum bisa dimuat: API key MapTiler belum diisi.',
+  gagalMuat:
+    'Peta gagal dimuat. Periksa koneksi internet, lalu muat ulang halaman. (Untuk pengelola situs: pastikan domain ini ada di "Allowed HTTP origins" key MapTiler dan kuotanya belum habis.)',
+  gagalData: 'Data peta gagal dimuat. Muat ulang halaman untuk mencoba lagi.',
   tanpaWebgl: 'Peta tidak dapat ditampilkan karena browser ini tidak mendukung WebGL2.',
   sumberData: '[Sumber data DAS, sungai, topografi & titik banjir — diisi redaksi]',
 };

@@ -97,3 +97,20 @@ test('peta: reduced motion tetap berfungsi (tanpa animasi)', async ({ page }) =>
     .poll(() => page.evaluate(() => (window as any).__dasMap.getZoom()))
     .toBeCloseTo(story[1].cameraMobile && page.viewportSize()!.width < 768 ? story[1].cameraMobile.zoom! : story[1].camera.zoom, 1);
 });
+
+test('peta: klik titik progres terakhir langsung ke step akhir tanpa mengaktifkan step perantara', async ({ page }) => {
+  await page.goto('/embed/peta.html?debug');
+  await mapIdle(page);
+  await page.evaluate(() => {
+    (window as any).__visited = [];
+    new MutationObserver(() => {
+      const s = document.querySelector('.das-sm__step.is-active')?.getAttribute('data-step');
+      const v = (window as any).__visited;
+      if (s && v[v.length - 1] !== s) v.push(s);
+    }).observe(document.querySelector('.das-sm__steps')!, { subtree: true, attributes: true, attributeFilter: ['class'] });
+  });
+  await page.getByRole('button', { name: `Bagian ${story.length} dari ${story.length}` }).click();
+  await expect.poll(() => activeStep(page)).toBe(story[story.length - 1].id);
+  await page.waitForTimeout(2000);
+  expect(await page.evaluate(() => (window as any).__visited)).toEqual([story[story.length - 1].id]);
+});

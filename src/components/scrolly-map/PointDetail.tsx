@@ -27,7 +27,7 @@ export function PointDetail({ konten, variant, labels, onClose }: Props) {
       aria-labelledby="das-sm-detail-title"
       initial={reduceMotion ? false : { opacity: 0, ...offset }}
       animate={{ opacity: 1, x: 0, y: 0 }}
-      exit={reduceMotion ? { opacity: 0, transition: { duration: 0 } } : { opacity: 0, ...offset, transition: { duration: 0.15 } }}
+      exit={reduceMotion ? { opacity: 0, transition: { type: false } } : { opacity: 0, ...offset, transition: { duration: 0.15 } }}
       transition={{ duration: 0.25, ease: [0.2, 0, 0, 1] }}
       onKeyDown={(e) => e.key === 'Escape' && onClose()}
     >

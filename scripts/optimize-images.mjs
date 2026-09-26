@@ -2,7 +2,7 @@
 // Input : raw/citra/*.jpg   Output: public/citra/<slug>-<lebar>.{avif,webp}
 // Citra TIDAK di-crop: watermark "Google Earth" & "Image © Maxar" harus tetap terlihat.
 import { readdir, stat, mkdir } from 'node:fs/promises';
-import { fileURLToPath } from 'node:url';
+import { fileURLToPath, pathToFileURL } from 'node:url';
 import path from 'node:path';
 import sharp from 'sharp';
 
@@ -72,7 +72,8 @@ async function main() {
   console.log(`Total semua varian         : AVIF ${kb(after.avif)} KB | WebP ${kb(after.webp)} KB`);
 }
 
-if (import.meta.url === `file://${process.argv[1]}`) {
+// pathToFileURL: path dengan spasi/koma di-encode sama seperti import.meta.url.
+if (import.meta.url === pathToFileURL(process.argv[1]).href) {
   main().catch((e) => {
     console.error(e);
     process.exit(1);
