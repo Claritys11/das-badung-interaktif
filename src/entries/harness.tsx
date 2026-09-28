@@ -2,6 +2,8 @@ import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
 import { Slideshow } from '../components/slideshow/Slideshow';
 import { ScrollyMap } from '../components/scrolly-map/ScrollyMap';
+import { FloodTransition } from '../components/flood-transition/FloodTransition';
+import { banjirTeks } from '../content/banjir';
 import { slides, slideshowTeks } from '../content/slides';
 import { story, petaTeks } from '../content/story';
 import { titikBanjir } from '../content/titik-banjir';
@@ -45,6 +47,7 @@ createRoot(document.getElementById('root')!).render(
     <article className="hx-article">
       <Dummy n={5} />
     </article>
+    <FloodTransition teks={banjirTeks} />
     <ScrollyMap
       steps={story}
       titik={titikBanjir}

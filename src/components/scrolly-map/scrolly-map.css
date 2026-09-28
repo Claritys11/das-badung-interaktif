@@ -3,11 +3,21 @@
   position: relative;
   display: grid;
   grid-template-columns: minmax(0, 38fr) minmax(0, 62fr);
-  grid-template-areas: 'text map';
+  grid-template-areas:
+    'intro intro'
+    'text map';
   background: var(--das-bg);
 }
 .das-sm__mapcol {
   grid-area: map;
+}
+.das-sm__intro {
+  grid-area: intro;
+  min-width: 0;
+}
+/* Mode iframe: navigasi fixed di bawah → beri ruang agar caption intro tidak tertutup. */
+.das-sm--internal .das-sm__intro .das-ft__sticky {
+  padding-bottom: 72px;
 }
 .das-sm__textcol {
   grid-area: text;
@@ -333,16 +343,20 @@
 }
 
 /* ---------- Navigasi (mode iframe) ---------- */
+/* Navigasi hanya dirender di mode internal (iframe), di mana komponen mengisi seluruh iframe.
+   position: fixed (bukan sticky di kolom teks) supaya tetap terlihat sejak intro foto banjir. */
 .das-sm__nav {
-  position: sticky;
-  bottom: 16px;
-  z-index: 4;
+  position: fixed;
+  bottom: calc(16px + env(safe-area-inset-bottom, 0px));
+  left: 19%; /* tengah kolom teks (38% lebar) */
+  transform: translateX(-50%);
+  z-index: 10;
   display: flex;
   align-items: center;
   justify-content: center;
   gap: 12px;
   width: fit-content;
-  margin: 0 auto 16px;
+  margin: 0;
   padding: 6px;
   border-radius: 999px;
   background: rgb(250 250 250 / 0.94);
@@ -446,6 +460,7 @@
   }
   /* Mode iframe: navigasi tetap bisa ditekan saat bottom sheet terbuka. */
   .das-sm--internal .das-sm__nav {
+    left: 50%;
     z-index: 31;
   }
   .das-sm--internal .das-sm__detail--sheet {

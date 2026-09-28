@@ -1,0 +1,228 @@
+/* Transisi sebelum → sesudah banjir. Section tinggi, panggung foto sticky setinggi layar. */
+.das-ft {
+  position: relative;
+  height: 260vh;
+  background: #0f1412;
+  color: #fff;
+}
+.das-ft__sticky {
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  height: 100svh;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+.das-ft__stage {
+  position: relative;
+  flex: 1;
+  min-height: 0;
+  margin: clamp(8px, 2vw, 24px) clamp(8px, 2vw, 24px) 0;
+}
+/* Panggung = container query; bingkai = ukuran foto setelah "contain" (rasio 1485:892). */
+.das-ft__stage {
+  container-type: size;
+}
+.das-ft__frame {
+  position: absolute;
+  inset: 0;
+  margin: auto;
+  width: min(100cqw, 100cqh * 1485 / 892);
+  height: auto;
+  aspect-ratio: 1485 / 892;
+  overflow: hidden;
+}
+.das-ft__after {
+  position: absolute;
+  inset: 0;
+}
+.das-ft__photo,
+.das-ft__photo img {
+  position: absolute;
+  inset: 0;
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+/* contain: foto utuh (watermark Google tetap terlihat) di layar landscape maupun HP portrait. */
+.das-ft__photo img {
+  object-fit: contain;
+}
+
+/* Penanda fase. Sesudah = merah IDN (satu-satunya aksen). */
+.das-ft__tag {
+  position: absolute;
+  top: clamp(20px, 3.5vw, 44px);
+  left: clamp(20px, 3.5vw, 44px);
+  z-index: 2;
+  margin: 0;
+  padding: 6px 14px;
+  border-radius: 999px;
+  font-size: clamp(14px, 1.4vw, 18px);
+  line-height: 1.4;
+  font-weight: 700;
+  color: #fff;
+  background: rgb(20 24 28 / 0.78);
+  transition: background-color 0.3s;
+}
+.das-ft__tag--sesudah {
+  background: var(--das-accent);
+}
+
+.das-ft__hint {
+  position: absolute;
+  z-index: 2;
+  left: 50%;
+  bottom: 84px;
+  transform: translateX(-50%);
+  margin: 0;
+  padding: 8px 16px;
+  border-radius: 999px;
+  background: rgb(20 24 28 / 0.72);
+  font-size: 14px;
+  line-height: 20px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+.das-ft__hint::after {
+  content: '';
+  display: block;
+  width: 1px;
+  height: 18px;
+  margin: 6px auto 0;
+  background: currentColor;
+}
+
+.das-ft__caption {
+  flex: none;
+  min-height: 56px;
+  margin: 0;
+  padding: 12px clamp(12px, 2vw, 24px) 16px;
+  font-size: 13px;
+  line-height: 18px;
+  color: rgb(255 255 255 / 0.86);
+}
+.das-ft__credit {
+  color: rgb(255 255 255 / 0.62);
+}
+
+/* Titik henti navigasi & sentinel (tidak terlihat). */
+.das-ft__stop,
+.das-ft__sentinel {
+  position: absolute;
+  left: 0;
+  width: 1px;
+  height: 1px;
+  pointer-events: none;
+}
+.das-ft__stop--sebelum {
+  top: 0;
+}
+.das-ft__sentinel {
+  top: 45%;
+}
+/* Berhenti di sini → sentinel sudah lewat tengah layar, panggung masih sticky → foto sesudah. */
+.das-ft__stop--sesudah {
+  top: 58%;
+}
+
+/* HP portrait: foto + caption sebagai satu blok di tengah layar (bukan foto di tengah & caption
+   jauh di dasar). Panggung setinggi foto; bingkai tetap mengisi panggung. */
+@media (max-width: 767px) and (orientation: portrait) {
+  .das-ft__sticky {
+    justify-content: center;
+  }
+  .das-ft__stage {
+    flex: none;
+    aspect-ratio: 1485 / 892;
+  }
+  .das-ft__hint {
+    bottom: auto;
+    top: calc(50% + 30vw + 48px);
+  }
+}
+
+@media (max-width: 767px) {
+  .das-ft__hint {
+    bottom: 96px;
+    font-size: 13px;
+  }
+  .das-ft__caption {
+    font-size: 12px;
+    line-height: 16px;
+  }
+}
+
+/* ---------- Efek air bah (FloodFx) ---------- */
+.das-ft__fx {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  overflow: hidden;
+  pointer-events: none;
+}
+.das-ft__fx-tint {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to top, rgb(92 64 34 / 0.9), rgb(120 92 58 / 0.35));
+  mix-blend-mode: multiply;
+}
+.das-ft__wave {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 100%;
+  overflow: hidden;
+}
+.das-ft__wave-svg {
+  display: block;
+  width: 200%;
+  height: 100%;
+}
+/* Tekstur air keruh: bintik sedimen + riak horizontal. Gradient CSS statis (murah, tanpa filter). */
+.das-ft__wave::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background:
+    radial-gradient(circle at 20% 30%, rgb(40 26 12 / 0.35) 0 1.5px, transparent 2.5px) 0 0 / 38px 31px,
+    radial-gradient(circle at 70% 60%, rgb(200 172 128 / 0.3) 0 1px, transparent 2px) 0 0 / 27px 23px,
+    repeating-linear-gradient(176deg, transparent 0 14px, rgb(230 210 175 / 0.1) 14px 16px, transparent 16px 34px);
+  -webkit-mask: linear-gradient(to bottom, transparent 0 12%, #000 18%);
+  mask: linear-gradient(to bottom, transparent 0 12%, #000 18%);
+}
+.das-ft__wave-foam {
+  fill: none;
+  stroke: rgb(232 219 192 / 0.8);
+  stroke-width: 7;
+  filter: blur(1.5px);
+  stroke-linejoin: round;
+  vector-effect: non-scaling-stroke;
+}
+.das-ft__wave--back .das-ft__wave-foam {
+  stroke: rgb(226 212 186 / 0.45);
+}
+.das-ft__mud-lane {
+  position: absolute;
+  bottom: 0;
+  height: 100%;
+  display: flex;
+  align-items: flex-end;
+}
+.das-ft__mud {
+  display: block;
+  border-radius: 50% 45% 55% 40%;
+  box-shadow: inset -1px -2px 2px rgb(0 0 0 / 0.35);
+}
+/* Tetes lumpur di lensa: bening kecokelatan dengan kilap kecil. */
+.das-ft__drop {
+  position: absolute;
+  border-radius: 50% 50% 46% 46% / 58% 58% 42% 42%;
+  background:
+    radial-gradient(circle at 36% 30%, rgb(255 240 215 / 0.35) 0 7%, transparent 14%),
+    radial-gradient(circle at 50% 58%, rgb(118 88 50 / 0.78), rgb(84 60 32 / 0.62) 62%, rgb(84 60 32 / 0) 72%);
+  backdrop-filter: blur(2px);
+}

@@ -5,6 +5,7 @@ Dua komponen untuk artikel IDN Times tentang Daerah Aliran Sungai (DAS) Badung, 
 | | Komponen | Isi |
 |---|---|---|
 | **A** | `Slideshow` | 16 citra satelit 2005 → 2023 dengan crossfade, autoplay, dan penggaris waktu yang jaraknya sesuai tanggal |
+| **B0** | `FloodTransition` | Pembuka peta: foto **sebelum** banjir → digulir → layar bergetar, air lumpur naik dengan cipratan tanah, lalu surut → foto **sesudah** banjir |
 | **B** | `ScrollyMap` | Peta scrollytelling (MapLibre + MapTiler) dengan layer DAS, garis sungai, topografi, dan 80 titik banjir yang bisa diklik |
 
 Keduanya tersedia dalam dua bentuk:
@@ -32,7 +33,7 @@ pnpm dev                      # http://localhost:5173
 | `/?tema=hijau` | Harness dengan latar hijau Insidenesia (`#DAEBC6`) |
 | `/?debug` | Menampilkan angka kamera peta (untuk menyusun step baru) |
 | `/embed/slideshow.html` | Halaman iframe slideshow (`?autoplay=0`, `?interval=4000`) |
-| `/embed/peta.html` | Halaman iframe peta (`?terrain=1` untuk terrain 3D, `?debug`) |
+| `/embed/peta.html` | Halaman iframe peta, dibuka dengan transisi banjir (`?intro=0` untuk peta saja, `?terrain=1` untuk terrain 3D, `?debug`) |
 
 ### Perintah
 
@@ -43,6 +44,7 @@ pnpm dev                      # http://localhost:5173
 | `pnpm preview` | Menyajikan `dist/` secara lokal |
 | `pnpm data` | Regenerasi GeoJSON dari KMZ |
 | `pnpm images` | Regenerasi citra AVIF/WebP |
+| `pnpm banjir` | Regenerasi foto sebelum/sesudah banjir (termasuk penyelarasan foto sesudah) |
 | `pnpm test` | Unit test (Vitest) untuk logika state peta |
 | `pnpm e2e` | E2E Playwright di 3 viewport, dengan screenshot ke `tests/screenshots/` |
 
@@ -113,6 +115,22 @@ KMZ di-unzip dan diubah dengan `@tmcw/togeojson` **di Node saat build**. Browser
 4. Kalau citra pertama (`slides[0]`) berganti, sesuaikan juga `<link rel="preload">` di `embed/slideshow.html`.
 
 > Citra adalah screenshot **Google Earth**. Watermark "Google Earth" dan "Image © Maxar Technologies" **tidak boleh dipotong**. Di ukuran mobile watermark jadi tidak terbaca, sehingga caption kredit teks (`slideshowTeks.kredit`) **wajib** tetap tampil.
+
+## Transisi sebelum → sesudah banjir
+
+Posisinya tepat sebelum peta. Foto **sebelum** diam di layar; saat pembaca menggulir melewati titik tengah section, efek berikut berjalan sekali (±1,9 detik):
+
+1. Layar **bergetar** ±0,8 detik.
+2. **Air lumpur** naik dari bawah (dua lapis gelombang bertekstur sedimen dengan buih), disertai **cipratan tanah** yang terlempar lalu jatuh, dan **tetes lumpur di lensa**.
+3. Di puncak air, foto berganti ke **sesudah**; saat air surut, kerusakan terlihat.
+
+Scroll balik → kembali ke foto sebelum **tanpa** getar/efek. `prefers-reduced-motion` → hanya pergantian foto instan. Efek hanya memakai `transform`/`opacity` (ringan di HP) dan tidak ada kedip terang. Getar fisik HP (`haptic`, Vibration API, Android) tersedia sebagai opsi, **default mati**.
+
+- **Konten:** `src/content/banjir.ts` (alt, keterangan, kredit, teks petunjuk).
+- **Foto:** `raw/banjir/sebelum_banjir.jpeg` (Google Street View, **tidak di-crop** — watermark Google tetap utuh) dan `raw/banjir/sesudah_banjir.jpeg`. Jalankan `pnpm banjir`.
+- **Penyelarasan:** foto sesudah diskalakan (0,833), diputar (1,81°), dan digeser agar mural, jendela, dan parabola jatuh di posisi yang sama dengan foto sebelum (selisih 3–10 px). Parameter ada di `scripts/banjir-images.mjs` (`ALIGN`), hasil fit dari 7 titik patokan. Foto sesudah tidak menutupi strip kiri bingkai (±130–160 px); area itu diisi versi **buram & gelap dari foto sesudah sendiri** (bukan isi foto sebelum, supaya tidak menyesatkan). **Kalau salah satu foto diganti, titik patokan harus diukur ulang.**
+- **Di iframe peta**, transisi ini ikut di dalam scroll internal yang sama; tombol Berikutnya/Sebelumnya berhenti di: foto sebelum → foto sesudah → step 1 … step 6.
+- **Di halaman penuh / Framer**, pasang `<FloodTransition teks={banjirTeks} />` tepat sebelum `<ScrollyMap … />` (lihat harness).
 
 ## Mengganti placeholder
 
@@ -243,7 +261,7 @@ npx wrangler pages deploy dist --project-name das-badung-interaktif
 ## Testing & performa
 
 - `pnpm test`: 8 unit test reducer (scroll maju/mundur, pilih titik, reset, ganti step saat detail terbuka).
-- `pnpm e2e`: 9 skenario × 3 viewport (1440 × 900, 834 × 1112, 390 × 844) = 27 test. Isinya: 0 error console, tiap step, klik titik (termasuk titik bertumpuk), reset, scroll mundur, lompat step lewat titik progres, mode halaman penuh, crossfade saat navigasi cepat, tombol Play, dan `prefers-reduced-motion`. Screenshot tiap step ada di `tests/screenshots/<viewport>/`.
+- `pnpm e2e`: 12 skenario × 3 viewport (1440 × 900, 834 × 1112, 390 × 844) = 36 test (termasuk transisi banjir: getar, fase maju-mundur, navigasi tombol, reduced motion). Isinya: 0 error console, tiap step, klik titik (termasuk titik bertumpuk), reset, scroll mundur, lompat step lewat titik progres, mode halaman penuh, crossfade saat navigasi cepat, tombol Play, dan `prefers-reduced-motion`. Screenshot tiap step ada di `tests/screenshots/<viewport>/`.
 - **Ukuran (gzip):**
   - JS awal halaman artikel ±99 KB (React + motion + konten)
   - MapLibre ±280 KB + worker, di-lazy-load
@@ -265,3 +283,4 @@ npx wrangler pages deploy dist --project-name das-badung-interaktif
 - [ ] Pastikan tanggal citra "2014" (saat ini diasumsikan Januari 2014, sebelum Maret 2014)
 - [ ] Sumber data peta (`petaTeks.sumberData`)
 - [ ] Kamera tiap step setelah teks final (pakai `?debug`)
+- [ ] Transisi banjir (`src/content/banjir.ts`): alt & keterangan kedua foto, **kredit foto sesudah**, serta lokasi/waktu pengambilan foto

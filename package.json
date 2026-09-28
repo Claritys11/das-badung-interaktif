@@ -11,7 +11,8 @@
     "images": "node scripts/optimize-images.mjs",
     "test": "vitest run",
     "e2e": "playwright test",
-    "typecheck": "tsc -b"
+    "typecheck": "tsc -b",
+    "banjir": "node scripts/banjir-images.mjs"
   },
   "dependencies": {
     "maplibre-gl": "^6.11.2",

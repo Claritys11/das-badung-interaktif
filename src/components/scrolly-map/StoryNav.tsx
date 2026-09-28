@@ -3,16 +3,21 @@ import { IconDown, IconUp } from '../icons';
 
 interface Props {
   steps: Step[];
+  /** Indeks step aktif; -1 = pembaca masih di konten pembuka (intro). */
   active: number;
   onGo: (index: number) => void;
+  onPrev: () => void;
+  onNext: () => void;
+  prevDisabled: boolean;
+  nextDisabled: boolean;
   labels: { sebelumnya: string; berikutnya: string };
 }
 
 /** Navigasi step untuk mode iframe (scroll internal): tombol + titik progres. */
-export function StoryNav({ steps, active, onGo, labels }: Props) {
+export function StoryNav({ steps, active, onGo, onPrev, onNext, prevDisabled, nextDisabled, labels }: Props) {
   return (
     <nav className="das-sm__nav" aria-label="Navigasi cerita peta">
-      <button type="button" className="das-iconbtn" onClick={() => onGo(active - 1)} disabled={active === 0} aria-label={labels.sebelumnya}>
+      <button type="button" className="das-iconbtn" onClick={onPrev} disabled={prevDisabled} aria-label={labels.sebelumnya}>
         <IconUp />
       </button>
       <ol className="das-sm__dots">
@@ -28,13 +33,7 @@ export function StoryNav({ steps, active, onGo, labels }: Props) {
           </li>
         ))}
       </ol>
-      <button
-        type="button"
-        className="das-iconbtn"
-        onClick={() => onGo(active + 1)}
-        disabled={active === steps.length - 1}
-        aria-label={labels.berikutnya}
-      >
+      <button type="button" className="das-iconbtn" onClick={onNext} disabled={nextDisabled} aria-label={labels.berikutnya}>
         <IconDown />
       </button>
     </nav>

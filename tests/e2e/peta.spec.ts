@@ -24,7 +24,7 @@ async function clickPoint(page: Page, nama: string) {
 
 test('peta (iframe/internal): semua step, klik titik, reset, scroll mundur', async ({ page }, info) => {
   const c = watchConsole(page);
-  await page.goto('/embed/peta.html?debug');
+  await page.goto('/embed/peta.html?debug&intro=0');
   await mapIdle(page);
   await shot(page, info, `peta-1-${story[0].id}`);
 
@@ -88,7 +88,7 @@ test('peta (halaman penuh / harness): scroll maju-mundur mengubah step', async (
 
 test('peta: reduced motion tetap berfungsi (tanpa animasi)', async ({ page }) => {
   await page.emulateMedia({ reducedMotion: 'reduce' });
-  await page.goto('/embed/peta.html?debug');
+  await page.goto('/embed/peta.html?debug&intro=0');
   await mapIdle(page);
   await page.getByRole('button', { name: 'Berikutnya' }).click();
   await expect.poll(() => activeStep(page)).toBe('das');
@@ -99,7 +99,7 @@ test('peta: reduced motion tetap berfungsi (tanpa animasi)', async ({ page }) =>
 });
 
 test('peta: klik titik progres terakhir langsung ke step akhir tanpa mengaktifkan step perantara', async ({ page }) => {
-  await page.goto('/embed/peta.html?debug');
+  await page.goto('/embed/peta.html?debug&intro=0');
   await mapIdle(page);
   await page.evaluate(() => {
     (window as any).__visited = [];
