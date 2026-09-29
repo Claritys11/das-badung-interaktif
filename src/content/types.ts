@@ -41,3 +41,22 @@ export interface KontenTitik {
   sumber: 'kmz' | 'placeholder';
   tampil: boolean;
 }
+
+export interface PeristiwaTimeline {
+  /** Teks asli dari Excel. */
+  teks: string;
+  /** Jam (mis. "03.10"), diekstrak dari frasa "pukul HH.MM" bila ada. */
+  waktu?: string;
+}
+
+export interface HariTimeline {
+  /** Tanggal ISO (YYYY-MM-DD). */
+  tanggal: string;
+  /** Label tampil, mis. "Rabu, 10 September 2025". */
+  label: string;
+  /** Judul kartu (cuplikan) — diisi redaksi. */
+  judul: string;
+  /** Foto asli opsional + kredit (jangan foto stok). */
+  gambar?: { src: string; alt: string; kredit: string };
+  peristiwa: PeristiwaTimeline[];
+}

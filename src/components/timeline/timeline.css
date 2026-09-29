@@ -1,0 +1,404 @@
+/* ---------- Timeline per tanggal ---------- */
+.das-tl {
+  max-width: 980px;
+  margin: 0 auto;
+  padding: clamp(48px, 8vw, 96px) clamp(20px, 3vw, 32px);
+  background: var(--das-bg);
+}
+.das-tl__header {
+  max-width: 680px;
+  margin-bottom: clamp(40px, 6vw, 72px);
+}
+.das-tl__header h2 {
+  margin: 0 0 16px;
+  font-size: clamp(26px, 3vw, 32px);
+  line-height: 1.2;
+  font-weight: 700;
+}
+.das-tl__header p {
+  margin: 0;
+  font-size: 16px;
+  line-height: 24px;
+  color: var(--das-ink-soft);
+}
+
+.das-tl__list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: clamp(40px, 6vw, 72px);
+}
+.das-tl__day {
+  position: relative;
+  display: grid;
+  grid-template-columns: 220px minmax(0, 1fr);
+  gap: clamp(24px, 4vw, 56px);
+  align-items: start;
+}
+
+/* Kolom tanggal: sticky saat kartu (yang lebih tinggi) digulir. */
+.das-tl__meta {
+  position: sticky;
+  top: 32px;
+}
+.das-tl__date {
+  display: block;
+  font-size: 16px;
+  line-height: 22px;
+  font-weight: 700;
+  color: var(--das-ink);
+}
+.das-tl__count {
+  margin: 4px 0 10px;
+  font-size: 13px;
+  line-height: 18px;
+  color: var(--das-muted);
+  font-variant-numeric: tabular-nums;
+}
+/* Tally: satu garis = satu peristiwa. */
+.das-tl__tally {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 3px;
+  max-width: 180px;
+}
+.das-tl__tally i {
+  width: 3px;
+  height: 14px;
+  border-radius: 1px;
+  background: var(--das-line);
+  transition: background-color 0.3s;
+}
+.das-tl__day.is-active .das-tl__tally i {
+  background: var(--das-accent);
+}
+
+/* Kartu = cuplikan ("foreshadow") isi pop-up. */
+.das-tl__card {
+  position: relative;
+  padding: 20px 24px 18px;
+  border: 1px solid var(--das-line);
+  border-left: 3px solid var(--das-line);
+  border-radius: var(--das-radius);
+  background: var(--das-surface);
+  transition:
+    border-color 0.3s,
+    box-shadow 0.3s;
+}
+.das-tl__day.is-active .das-tl__card {
+  border-left-color: var(--das-accent);
+  box-shadow: 0 10px 28px rgb(20 24 28 / 0.08);
+}
+.das-tl__card:hover {
+  border-color: var(--das-ink-soft);
+}
+.das-tl__day.is-active .das-tl__card:hover {
+  border-left-color: var(--das-accent);
+}
+.das-tl__figure {
+  margin: 0 0 16px;
+}
+.das-tl__figure img {
+  display: block;
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  object-fit: cover;
+  border-radius: 6px;
+}
+.das-tl__figure figcaption {
+  margin-top: 6px;
+  font-size: 11px;
+  line-height: 14px;
+  color: var(--das-muted);
+}
+.das-tl__title {
+  margin: 0 0 12px;
+  font-size: 18px;
+  line-height: 26px;
+  font-weight: 700;
+}
+.das-tl__day:not(.is-active) .das-tl__title {
+  color: var(--das-ink-soft);
+}
+.das-tl__teaser {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 10px;
+}
+.das-tl__teaser li {
+  display: flex;
+  gap: 10px;
+  font-size: 15px;
+  line-height: 22px;
+  color: var(--das-ink-soft);
+}
+.das-tl__text {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+  overflow: hidden;
+}
+.das-tl__day:not(.is-active) .das-tl__text {
+  -webkit-line-clamp: 1;
+  line-clamp: 1;
+}
+.das-tl__time {
+  flex: none;
+  min-width: 44px;
+  font-size: 13px;
+  line-height: 22px;
+  font-weight: 700;
+  color: var(--das-accent-ink);
+  font-variant-numeric: tabular-nums;
+}
+.das-tl__foot {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 4px 12px;
+  margin-top: 16px;
+  padding-top: 12px;
+  border-top: 1px solid var(--das-line);
+}
+.das-tl__more {
+  white-space: nowrap;
+  font-size: 13px;
+  line-height: 18px;
+  color: var(--das-muted);
+}
+.das-tl__open {
+  white-space: nowrap;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  margin-left: auto;
+  padding: 8px 0;
+  border: 0;
+  background: none;
+  font: 600 14px/20px var(--das-font);
+  color: var(--das-accent-ink);
+  cursor: pointer;
+}
+.das-tl__open svg {
+  width: 16px;
+  height: 16px;
+  transition: transform 0.2s;
+}
+/* Seluruh kartu jadi area klik tombol. */
+.das-tl__open::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: var(--das-radius);
+}
+.das-tl__card:hover .das-tl__open svg {
+  transform: translateX(3px);
+}
+.das-tl__open:focus-visible {
+  box-shadow: none;
+}
+.das-tl__open:focus-visible::after {
+  box-shadow: var(--das-focus);
+}
+.das-tl__source {
+  margin: 48px 0 0;
+  font-size: 12px;
+  line-height: 16px;
+  color: var(--das-muted);
+}
+
+/* ---------- Pop-up (dialog) ---------- */
+html.das-tl-lock {
+  overflow: hidden;
+}
+.das-tl-dialog {
+  width: min(720px, calc(100vw - 32px));
+  max-height: min(86vh, 900px);
+  padding: 0;
+  border: 0;
+  border-radius: 12px;
+  background: var(--das-surface);
+  color: var(--das-ink);
+  box-shadow: 0 24px 64px rgb(20 24 28 / 0.28);
+  overflow: hidden;
+}
+.das-tl-dialog::backdrop {
+  background: rgb(20 24 28 / 0.55);
+}
+.das-tl-dialog[open] {
+  animation: das-tl-in 0.22s cubic-bezier(0.2, 0, 0, 1);
+}
+.das-tl-dialog[open]::backdrop {
+  animation: das-tl-fade 0.22s ease-out;
+}
+@keyframes das-tl-in {
+  from {
+    opacity: 0;
+    transform: translateY(12px) scale(0.98);
+  }
+}
+@keyframes das-tl-fade {
+  from {
+    opacity: 0;
+  }
+}
+.das-tl-dialog__box {
+  display: flex;
+  flex-direction: column;
+  max-height: inherit;
+}
+.das-tl-dialog__head > .das-iconbtn {
+  flex: none;
+}
+.das-tl-dialog__head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 24px 24px 16px;
+  border-top: 4px solid var(--das-accent);
+  border-bottom: 1px solid var(--das-line);
+}
+.das-tl-dialog__date {
+  display: block;
+  font-size: 13px;
+  line-height: 18px;
+  font-weight: 600;
+  color: var(--das-accent-ink);
+}
+.das-tl-dialog__head h3 {
+  margin: 4px 0 4px;
+  font-size: 22px;
+  line-height: 28px;
+  font-weight: 700;
+}
+.das-tl-dialog__count {
+  margin: 0;
+  font-size: 13px;
+  line-height: 18px;
+  color: var(--das-muted);
+}
+.das-tl-dialog__body {
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding: 8px 24px 16px;
+}
+.das-tl-dialog__events {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+.das-tl-dialog__events li {
+  display: flex;
+  gap: 12px;
+  padding: 14px 0;
+  border-bottom: 1px solid var(--das-line);
+}
+.das-tl-dialog__events li:last-child {
+  border-bottom: 0;
+}
+.das-tl-dialog__events p {
+  margin: 0;
+  font-size: 16px;
+  line-height: 24px;
+}
+.das-tl-dialog__events .das-tl__time {
+  line-height: 24px;
+}
+.das-tl-dialog__foot {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 12px 16px;
+  border-top: 1px solid var(--das-line);
+  background: var(--das-bg);
+}
+.das-tl-dialog__nav {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 40px;
+  padding: 0 12px;
+  border: 1px solid var(--das-line);
+  border-radius: 999px;
+  background: var(--das-surface);
+  font: 600 14px/20px var(--das-font);
+  color: var(--das-ink);
+  cursor: pointer;
+}
+.das-tl-dialog__nav svg {
+  width: 16px;
+  height: 16px;
+}
+.das-tl-dialog__nav:disabled {
+  opacity: 0.35;
+  cursor: default;
+}
+.das-tl-dialog__nav:not(:disabled):hover {
+  border-color: var(--das-ink);
+}
+
+/* ---------- Mobile ---------- */
+@media (max-width: 767px) {
+  .das-tl__day {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 12px;
+  }
+  .das-tl__meta {
+    position: static;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    column-gap: 10px;
+  }
+  .das-tl__count {
+    margin: 0;
+  }
+  .das-tl__tally {
+    flex-basis: 100%;
+    max-width: none;
+    margin-top: 8px;
+  }
+  .das-tl__card {
+    padding: 16px 16px 14px;
+  }
+  /* Pop-up jadi bottom sheet. */
+  .das-tl-dialog {
+    width: 100vw;
+    max-width: 100vw;
+    max-height: 88svh;
+    margin: auto 0 0;
+    border-radius: 16px 16px 0 0;
+  }
+  .das-tl-dialog__head {
+    padding: 20px 16px 12px;
+  }
+  .das-tl-dialog__body {
+    padding: 4px 16px 12px;
+  }
+  .das-tl-dialog__foot {
+    padding-bottom: calc(12px + env(safe-area-inset-bottom, 0px));
+  }
+  @keyframes das-tl-in {
+    from {
+      transform: translateY(40px);
+    }
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .das-tl-dialog[open],
+  .das-tl-dialog[open]::backdrop {
+    animation: none;
+  }
+  .das-tl__tally i,
+  .das-tl__card,
+  .das-tl__open svg {
+    transition: none;
+  }
+}

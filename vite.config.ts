@@ -11,6 +11,7 @@ export default defineConfig({
         harness: resolve(import.meta.dirname, 'index.html'),
         slideshow: resolve(import.meta.dirname, 'embed/slideshow.html'),
         peta: resolve(import.meta.dirname, 'embed/peta.html'),
+        timeline: resolve(import.meta.dirname, 'embed/timeline.html'),
       },
     },
   },

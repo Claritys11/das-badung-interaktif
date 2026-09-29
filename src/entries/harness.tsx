@@ -3,6 +3,8 @@ import { createRoot } from 'react-dom/client';
 import { Slideshow } from '../components/slideshow/Slideshow';
 import { ScrollyMap } from '../components/scrolly-map/ScrollyMap';
 import { FloodTransition } from '../components/flood-transition/FloodTransition';
+import { Timeline } from '../components/timeline/Timeline';
+import { timeline, timelineTeks } from '../content/timeline';
 import { banjirTeks } from '../content/banjir';
 import { slides, slideshowTeks } from '../content/slides';
 import { story, petaTeks } from '../content/story';
@@ -56,8 +58,9 @@ createRoot(document.getElementById('root')!).render(
       terrain3d={q.get('terrain') === '1'}
       debug={q.has('debug')}
     />
+    <Timeline hari={timeline} teks={timelineTeks} />
     <article className="hx-article">
-      <h2>Setelah peta</h2>
+      <h2>Setelah timeline</h2>
       <Dummy n={8} />
     </article>
   </StrictMode>,

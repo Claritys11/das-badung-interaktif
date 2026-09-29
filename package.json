@@ -12,7 +12,8 @@
     "test": "vitest run",
     "e2e": "playwright test",
     "typecheck": "tsc -b",
-    "banjir": "node scripts/banjir-images.mjs"
+    "banjir": "node scripts/banjir-images.mjs",
+    "timeline": "node scripts/timeline-from-xlsx.mjs"
   },
   "dependencies": {
     "maplibre-gl": "^6.11.2",
