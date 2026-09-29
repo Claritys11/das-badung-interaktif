@@ -40,7 +40,7 @@ export default function DasSlideshow(props: { autoplay: boolean; interval: numbe
   );
 }
 
-DasSlideshow.defaultProps = { autoplay: true, interval: 3000, background: '#FAFAFA' };
+DasSlideshow.defaultProps = { autoplay: true, interval: 3000, background: '#FAF7EE' };
 
 addPropertyControls(DasSlideshow, {
   autoplay: { type: ControlType.Boolean, title: 'Autoplay' },

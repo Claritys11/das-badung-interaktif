@@ -359,7 +359,7 @@
   margin: 0;
   padding: 6px;
   border-radius: 999px;
-  background: rgb(250 250 250 / 0.94);
+  background: color-mix(in srgb, var(--das-bg) 94%, transparent);
   box-shadow: 0 2px 12px rgb(20 24 28 / 0.12);
 }
 .das-sm__nav .das-iconbtn:disabled {

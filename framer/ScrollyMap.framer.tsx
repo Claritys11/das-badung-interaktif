@@ -49,7 +49,7 @@ export default function DasScrollyMap(props: { apiKey: string; terrain3d: boolea
   );
 }
 
-DasScrollyMap.defaultProps = { apiKey: '', terrain3d: false, background: '#FAFAFA' };
+DasScrollyMap.defaultProps = { apiKey: '', terrain3d: false, background: '#FAF7EE' };
 
 addPropertyControls(DasScrollyMap, {
   apiKey: { type: ControlType.String, title: 'MapTiler key' },

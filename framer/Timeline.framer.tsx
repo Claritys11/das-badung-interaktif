@@ -30,7 +30,7 @@ export default function DasTimeline(props: { background: string }) {
   );
 }
 
-DasTimeline.defaultProps = { background: '#FAFAFA' };
+DasTimeline.defaultProps = { background: '#FAF7EE' };
 
 addPropertyControls(DasTimeline, {
   background: { type: ControlType.Color, title: 'Latar' },

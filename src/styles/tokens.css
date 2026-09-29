@@ -1,13 +1,13 @@
-/* Token visual, diturunkan dari halaman IDN Times Insidenesia (Meramban).
-   Host bisa menimpa variabel ini (mis. --das-bg: #DAEBC6 untuk tema hijau artikel). */
+/* Token visual: tipografi & aksen dari IDN Times Insidenesia (Meramban); latar krem hangat ala
+   Kontinentalist (#FAF7EE). Host bisa menimpa variabel ini (mis. --das-bg: #DAEBC6 untuk tema hijau). */
 :root {
   --das-font: 'Poppins', 'Poppins Placeholder', system-ui, -apple-system, 'Segoe UI', sans-serif;
   --das-ink: #14181c;
   --das-ink-soft: #454a50;
-  --das-muted: #6b7076; /* ≥ 4.5:1 di atas #FAFAFA (WCAG AA) */
-  --das-bg: #fafafa;
-  --das-surface: #ffffff;
-  --das-line: #e3e4e6;
+  --das-muted: #6b7076; /* 4,66:1 di atas --das-bg, 4,91:1 di atas --das-surface (WCAG AA) */
+  --das-bg: #faf7ee;
+  --das-surface: #fffdf8; /* kartu/pop-up: putih hangat, sedikit lebih terang dari latar */
+  --das-line: #e7e0d0;
   --das-accent: #ed2127;
   --das-accent-ink: #b8141a;
   --das-river: #8fd8ff;

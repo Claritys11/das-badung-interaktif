@@ -163,7 +163,7 @@ Semua teks ada di `src/content/`, dan komponen tidak menyimpan teks redaksi sama
   ```
   `sumber: 'kmz'` = teks asli dari KMZ (9 titik), ditandai badge "Keterangan dari data lapangan". `sumber: 'placeholder'` ditampilkan miring dengan label "Placeholder".
 - **Kamera step:** buka `/?debug`, geser peta ke tampilan yang diinginkan, lalu salin angka `center`, `zoom`, `pitch`, `bearing` ke `story.ts`. `cameraMobile` bisa menimpa kamera khusus untuk layar < 768 px.
-- **Warna tema:** timpa CSS variable, misalnya `--das-bg: #DAEBC6`, di elemen pembungkus (lihat `src/styles/tokens.css`).
+- **Warna tema:** latar default krem hangat `#FAF7EE` (terinspirasi Kontinentalist), kartu/pop-up `#FFFDF8`; aksen tetap merah IDN Times. Transisi banjir sengaja tetap gelap (sinematik). Timpa CSS variable, misalnya `--das-bg: #DAEBC6`, di elemen pembungkus (lihat `src/styles/tokens.css`).
 
 ---
 
