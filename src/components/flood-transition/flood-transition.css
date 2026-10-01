@@ -1,7 +1,6 @@
-/* Transisi sebelum → sesudah banjir. Section tinggi, panggung foto sticky setinggi layar. */
+/* Transisi data banjir: section setinggi (tahap + 1) layar (diatur inline), panggung sticky. */
 .das-ft {
   position: relative;
-  height: 260vh;
   background: #0f1412;
   color: #fff;
 }
@@ -14,14 +13,12 @@
   flex-direction: column;
   overflow: hidden;
 }
+/* Panggung = container query; bingkai = ukuran foto setelah "contain" (rasio 1485:892). */
 .das-ft__stage {
   position: relative;
   flex: 1;
   min-height: 0;
   margin: clamp(8px, 2vw, 24px) clamp(8px, 2vw, 24px) 0;
-}
-/* Panggung = container query; bingkai = ukuran foto setelah "contain" (rasio 1485:892). */
-.das-ft__stage {
   container-type: size;
 }
 .das-ft__frame {
@@ -50,12 +47,81 @@
   object-fit: contain;
 }
 
+/* ---------- Lapisan layar penuh: badai, hujan, muka air ---------- */
+.das-ft__storm,
+.das-ft__rain,
+.das-ft__level {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+.das-ft__storm {
+  z-index: 1;
+  background: radial-gradient(120% 90% at 50% 0%, rgb(30 38 46 / 0.9), rgb(10 14 16 / 0.95));
+  mix-blend-mode: multiply;
+}
+/* Hujan: tile SVG garis miring, digeser terus (murah: hanya background-position). */
+.das-ft__rain {
+  z-index: 2;
+  background-repeat: repeat;
+}
+.das-ft__rain--near {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='220'%3E%3Cg stroke='%23dce6ee' stroke-opacity='.55' stroke-width='1.4' stroke-linecap='round'%3E%3Cpath d='M12 10l-6 30M58 70l-6 30M104 18l-6 30M140 120l-6 30M30 150l-6 30M84 186l-6 30M124 60l-5 26M70 130l-5 26M8 90l-5 26M150 196l-5 22'/%3E%3C/g%3E%3C/svg%3E");
+  animation: das-ft-rain-near 0.42s linear infinite;
+}
+.das-ft__rain--far {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='90' height='130'%3E%3Cg stroke='%23cfdbe4' stroke-opacity='.35' stroke-width='.9' stroke-linecap='round'%3E%3Cpath d='M10 6l-3 16M46 40l-3 16M78 12l-3 16M24 74l-3 16M62 96l-3 16M84 70l-3 14M6 110l-3 14'/%3E%3C/g%3E%3C/svg%3E");
+  animation: das-ft-rain-far 0.7s linear infinite;
+}
+@keyframes das-ft-rain-near {
+  to {
+    background-position: -44px 220px;
+  }
+}
+@keyframes das-ft-rain-far {
+  to {
+    background-position: -24px 130px;
+  }
+}
+/* Muka air: naik dari bawah (translateY diatur per tahap), puncak bergelombang bergerak. */
+.das-ft__level {
+  z-index: 3;
+  top: auto;
+  height: 100%;
+  background: linear-gradient(to bottom, rgb(150 118 74 / 0.88), rgb(96 70 38 / 0.94) 40%, rgb(52 36 18 / 0.97));
+}
+.das-ft__level::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: -15px;
+  height: 16px;
+  /* Tile gelombang halus (sinus) + garis buih tipis, digeser terus ke samping. */
+  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='16' viewBox='0 0 160 16' preserveAspectRatio='none'%3E%3Cpath d='M0 9 C20 3 40 3 60 9 S100 15 120 9 S150 4 160 9 V16 H0Z' fill='rgb(150,118,74)' fill-opacity='.88'/%3E%3Cpath d='M0 9 C20 3 40 3 60 9 S100 15 120 9 S150 4 160 9' fill='none' stroke='rgb(232,219,192)' stroke-opacity='.75' stroke-width='1.6'/%3E%3C/svg%3E")
+    0 0 / 160px 16px repeat-x;
+  animation: das-ft-crest 1.6s linear infinite;
+}
+.das-ft__level::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(circle at 20% 30%, rgb(40 26 12 / 0.35) 0 1.5px, transparent 2.5px) 0 0 / 38px 31px,
+    repeating-linear-gradient(176deg, transparent 0 14px, rgb(230 210 175 / 0.1) 14px 16px, transparent 16px 34px);
+}
+@keyframes das-ft-crest {
+  to {
+    background-position: 160px 0;
+  }
+}
+
 /* Penanda fase. Sesudah = merah IDN (satu-satunya aksen). */
 .das-ft__tag {
   position: absolute;
   top: clamp(20px, 3.5vw, 44px);
   left: clamp(20px, 3.5vw, 44px);
-  z-index: 2;
+  z-index: 6;
   margin: 0;
   padding: 6px 14px;
   border-radius: 999px;
@@ -72,7 +138,7 @@
 
 .das-ft__hint {
   position: absolute;
-  z-index: 2;
+  z-index: 6;
   left: 50%;
   bottom: 84px;
   transform: translateX(-50%);
@@ -95,6 +161,8 @@
 }
 
 .das-ft__caption {
+  position: relative;
+  z-index: 6;
   flex: none;
   min-height: 56px;
   margin: 0;
@@ -107,50 +175,200 @@
   color: rgb(255 255 255 / 0.62);
 }
 
-/* Titik henti navigasi & sentinel (tidak terlihat). */
-.das-ft__stop,
-.das-ft__sentinel {
+/* ---------- Kartu data per tahap ---------- */
+.das-ft__cardslot {
+  position: absolute;
+  z-index: 5;
+  left: clamp(20px, 4vw, 56px);
+  top: 50%;
+  transform: translateY(-50%);
+  width: min(380px, 36vw);
+}
+.das-ft-card {
+  padding: 20px 22px 16px;
+  border-left: 3px solid rgb(255 255 255 / 0.35);
+  border-radius: var(--das-radius);
+  background: rgb(14 19 17 / 0.84);
+  backdrop-filter: blur(6px);
+  box-shadow: 0 12px 32px rgb(0 0 0 / 0.35);
+}
+.das-ft-card.is-meluap {
+  border-left-color: var(--das-accent);
+}
+.das-ft-card__label {
+  margin: 0 0 6px;
+  font-size: 13px;
+  line-height: 18px;
+  font-weight: 600;
+  color: rgb(255 255 255 / 0.72);
+}
+.das-ft-card__angka {
+  margin: 0 0 10px;
+  font-size: clamp(30px, 3.4vw, 44px);
+  line-height: 1.1;
+  font-weight: 800;
+  letter-spacing: -0.01em;
+  font-variant-numeric: tabular-nums;
+}
+.das-ft-card.is-meluap .das-ft-card__angka {
+  color: #ff6a6e;
+}
+.das-ft-card__satuan {
+  font-size: 0.42em;
+  font-weight: 600;
+  letter-spacing: 0;
+  color: rgb(255 255 255 / 0.8);
+}
+.das-ft-card__teks {
+  margin: 0;
+  font-size: 15px;
+  line-height: 22px;
+  color: rgb(255 255 255 / 0.92);
+}
+.das-ft-card__sumber {
+  margin: 14px 0 0;
+  padding-top: 10px;
+  border-top: 1px solid rgb(255 255 255 / 0.14);
+  font-size: 11px;
+  line-height: 15px;
+  color: rgb(255 255 255 / 0.6);
+}
+
+/* Viz: rentang curah hujan vs ambang ekstrem. */
+.das-ft-card__viz {
+  margin: 16px 0 0;
+}
+.das-ft-viz__track {
+  position: relative;
+  height: 12px;
+  border-radius: 6px;
+  background: rgb(255 255 255 / 0.1);
+}
+.das-ft-viz__lead {
+  position: absolute;
+  left: 0;
+  top: 5px;
+  height: 2px;
+  background: rgb(255 255 255 / 0.25);
+}
+.das-ft-viz__range {
+  position: absolute;
+  top: 0;
+  height: 100%;
+  border-radius: 6px;
+  background: #8fd8ff;
+}
+.das-ft-viz__threshold {
+  position: absolute;
+  top: -5px;
+  width: 2px;
+  height: 22px;
+  margin-left: -1px;
+  background: #ff6a6e;
+}
+.das-ft-viz__labels {
+  position: relative;
+  height: 18px;
+  margin-top: 8px;
+  font-size: 11px;
+  line-height: 14px;
+  color: rgb(255 255 255 / 0.75);
+}
+.das-ft-viz__labels span {
+  position: absolute;
+  transform: translateX(-50%);
+  white-space: nowrap;
+}
+/* Viz: dua batang sebelum → sesudah. */
+.das-ft-viz__row {
+  display: grid;
+  grid-template-columns: 120px 1fr 44px;
+  align-items: center;
+  gap: 8px;
+  margin-top: 6px;
+  font-size: 12px;
+  line-height: 16px;
+  color: rgb(255 255 255 / 0.75);
+}
+.das-ft-viz__bar {
+  height: 10px;
+  border-radius: 5px;
+  background: rgb(255 255 255 / 0.1);
+  overflow: hidden;
+}
+.das-ft-viz__bar i {
+  display: block;
+  height: 100%;
+  border-radius: 5px;
+  background: rgb(255 255 255 / 0.45);
+}
+.das-ft-viz__row.is-ke .das-ft-viz__bar i {
+  background: #ff6a6e;
+}
+.das-ft-viz__val {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+  font-weight: 600;
+  color: #fff;
+}
+
+/* Titik henti navigasi (tidak terlihat; posisi top diatur inline per tahap). */
+.das-ft__stop {
   position: absolute;
   left: 0;
   width: 1px;
   height: 1px;
   pointer-events: none;
 }
-.das-ft__stop--sebelum {
-  top: 0;
-}
-.das-ft__sentinel {
-  top: 45%;
-}
-/* Berhenti di sini → sentinel sudah lewat tengah layar, panggung masih sticky → foto sesudah. */
-.das-ft__stop--sesudah {
-  top: 58%;
-}
 
-/* HP portrait: foto + caption sebagai satu blok di tengah layar (bukan foto di tengah & caption
-   jauh di dasar). Panggung setinggi foto; bingkai tetap mengisi panggung. */
+/* HP portrait: foto di atas, kartu data memakai ruang di bawah foto, caption di dasar. */
 @media (max-width: 767px) and (orientation: portrait) {
-  .das-ft__sticky {
-    justify-content: center;
-  }
   .das-ft__stage {
     flex: none;
     aspect-ratio: 1485 / 892;
+    margin-top: 64px;
+  }
+  .das-ft__cardslot {
+    position: relative;
+    left: auto;
+    top: auto;
+    transform: none;
+    width: auto;
+    flex: 1;
+    min-height: 0;
+    margin: 14px 12px 0;
+    overflow-y: auto;
+  }
+  .das-ft-card {
+    padding: 14px 16px 12px;
+  }
+  .das-ft-card__teks {
+    font-size: 14px;
+    line-height: 20px;
   }
   .das-ft__hint {
     bottom: auto;
-    top: calc(50% + 30vw + 48px);
+    top: calc(64px + 60vw - 52px);
   }
 }
 
 @media (max-width: 767px) {
   .das-ft__hint {
-    bottom: 96px;
     font-size: 13px;
   }
   .das-ft__caption {
     font-size: 12px;
     line-height: 16px;
+  }
+  .das-ft-viz__row {
+    grid-template-columns: 96px 1fr 40px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .das-ft__rain,
+  .das-ft__level::before {
+    animation: none;
   }
 }
 
@@ -158,7 +376,7 @@
 .das-ft__fx {
   position: absolute;
   inset: 0;
-  z-index: 1;
+  z-index: 4;
   overflow: hidden;
   pointer-events: none;
 }

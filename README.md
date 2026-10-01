@@ -5,7 +5,7 @@ Dua komponen untuk artikel IDN Times tentang Daerah Aliran Sungai (DAS) Badung, 
 | | Komponen | Isi |
 |---|---|---|
 | **A** | `Slideshow` | 16 citra satelit 2005 → 2023 dengan crossfade, autoplay, dan penggaris waktu yang jaraknya sesuai tanggal |
-| **B0** | `FloodTransition` | Pembuka peta: foto **sebelum** banjir → digulir → layar bergetar, air lumpur naik dengan cipratan tanah, lalu surut → foto **sesudah** banjir |
+| **B0** | `FloodTransition` | Pembuka peta: 6 tahap data hidrologi (hujan ekstrem → limpasan → debit → **meluap**) mengikuti scroll; saat meluap layar bergetar dan air bah menutup seluruh layar → foto **sesudah** banjir |
 | **C** | `Timeline` | Timeline banjir Denpasar 10–19 September 2025 (9 tanggal, 45 peristiwa dari Excel redaksi). Kartu per tanggal berisi cuplikan; klik kartu → pop-up berisi semua peristiwa hari itu |
 | **B** | `ScrollyMap` | Peta scrollytelling (MapLibre + MapTiler) dengan layer DAS, garis sungai, topografi, dan 80 titik banjir yang bisa diklik |
 
@@ -119,21 +119,26 @@ KMZ di-unzip dan diubah dengan `@tmcw/togeojson` **di Node saat build**. Browser
 
 > Citra adalah screenshot **Google Earth**. Watermark "Google Earth" dan "Image © Maxar Technologies" **tidak boleh dipotong**. Di ukuran mobile watermark jadi tidak terbaca, sehingga caption kredit teks (`slideshowTeks.kredit`) **wajib** tetap tampil.
 
-## Transisi sebelum → sesudah banjir
+## Transisi data banjir: sebelum → sesudah
 
-Posisinya tepat sebelum peta. Foto **sebelum** diam di layar; saat pembaca menggulir melewati titik tengah section, efek berikut berjalan sekali (±1,9 detik):
+Posisinya tepat sebelum peta. Transisi ini **mengikuti scroll** dalam 6 tahap (satu layar scroll per tahap). Tiap tahap punya kartu data, intensitas hujan, dan tinggi muka air sendiri. Semua efek **menutup seluruh layar**, atau seluruh area iframe di versi iframe.
 
-1. Layar **bergetar** ±0,8 detik.
-2. **Air lumpur** naik dari bawah (dua lapis gelombang bertekstur sedimen dengan buih), disertai **cipratan tanah** yang terlempar lalu jatuh, dan **tetes lumpur di lensa**.
-3. Di puncak air, foto berganti ke **sesudah**; saat air surut, kerusakan terlihat.
+| Tahap | Data di kartu | Visual |
+|---|---|---|
+| `hujan` | Curah hujan 245,5–385,5 mm/hari (BMKG), ambang ekstrem 150 mm/hari, ±70 mm/jam, dengan grafik rentang vs ambang | hujan sedang, langit menggelap |
+| `atmosfer` | 9–10 Sept 2025: hujan terus-menerus, gelombang Equatorial Rossby & Kelvin | hujan paling deras |
+| `limpasan` | Koefisien limpasan 0,412 → 0,466 (+13,1%) karena alih fungsi lahan, dengan grafik dua batang | muka air mulai naik |
+| `debit` | Volume aliran Tukad Badung 85,85 m³/detik, waktu konsentrasi 2–3 jam | muka air tinggi |
+| `meluap` | Debit puncak DAS Badung ±2.296 m³/s, volume limpasan ±24,3 juta m³ | **getar + air bah, cipratan tanah, dan tetes lumpur layar penuh**; foto berganti ke **sesudah** |
+| `sesudah` | [kalimat penutup — diisi redaksi] | gerimis, foto sesudah |
 
-Scroll balik → kembali ke foto sebelum **tanpa** getar/efek. `prefers-reduced-motion` → hanya pergantian foto instan. Efek hanya memakai `transform`/`opacity` (ringan di HP) dan tidak ada kedip terang. Getar fisik HP (`haptic`, Vibration API, Android) tersedia sebagai opsi, **default mati**.
-
-- **Konten:** `src/content/banjir.ts` (alt, keterangan, kredit, teks petunjuk).
-- **Foto:** `raw/banjir/sebelum_banjir.jpeg` (Google Street View, **tidak di-crop** — watermark Google tetap utuh) dan `raw/banjir/sesudah_banjir.jpeg`. Jalankan `pnpm banjir`.
-- **Penyelarasan:** foto sesudah diskalakan (0,833), diputar (1,81°), dan digeser agar mural, jendela, dan parabola jatuh di posisi yang sama dengan foto sebelum (selisih 3–10 px). Parameter ada di `scripts/banjir-images.mjs` (`ALIGN`), hasil fit dari 7 titik patokan. Foto sesudah tidak menutupi strip kiri bingkai (±130–160 px); area itu diisi versi **buram & gelap dari foto sesudah sendiri** (bukan isi foto sebelum, supaya tidak menyesatkan). **Kalau salah satu foto diganti, titik patokan harus diukur ulang.**
-- **Di iframe peta**, transisi ini ikut di dalam scroll internal yang sama; tombol Berikutnya/Sebelumnya berhenti di: foto sebelum → foto sesudah → step 1 … step 6.
-- **Di halaman penuh / Framer**, pasang `<FloodTransition teks={banjirTeks} />` tepat sebelum `<ScrollyMap … />` (lihat harness).
+- Angka dihitung naik (count-up) dengan format Indonesia. Pembaca layar membacakan nilai akhirnya sekali saja.
+- Klimaks (getar + air bah) dipicu **sekali, saat bergerak maju** melewati tahap `meluap`. Scroll balik tidak memicu efek. `prefers-reduced-motion`: tanpa getar/air bah/animasi hujan, dan foto berganti instan.
+- Sumber data tampil di setiap kartu: analisis Prof. Dr. Ir. I Gusti Agung Putu Eryani, MT (Universitas Warmadewa), data curah hujan PU, beserta keterangan bahwa visualisasi diolah dengan bantuan kecerdasan buatan.
+- **Konten:** `src/content/banjir.ts` (`tahapan`: label, angka, satuan, teks, grafik, intensitas hujan, tinggi air). Kalimat boleh disunting; **angka jangan diubah tanpa sumber**.
+- **Foto:** `raw/banjir/sebelum_banjir.jpeg` (Google Street View, **tidak di-crop**, watermark utuh) dan `raw/banjir/sesudah_banjir.jpeg`. Jalankan `pnpm banjir`. Foto sesudah diselaraskan ke framing foto sebelum (skala 0,833, rotasi 1,81°, selisih 3–10 px; parameter `ALIGN` di `scripts/banjir-images.mjs`). Strip yang tidak tertutup diisi versi buram foto sesudah sendiri. **Kalau foto diganti, titik patokan harus diukur ulang.**
+- **Di iframe peta**, tombol Berikutnya/Sebelumnya berhenti di setiap tahap, lalu lanjut ke step peta.
+- **Di halaman penuh / Framer**, pasang `<FloodTransition teks={banjirTeks} />` tepat sebelum `<ScrollyMap … />`.
 
 ## Timeline banjir (September 2025)
 
@@ -310,4 +315,4 @@ npx wrangler pages deploy dist --project-name das-badung-interaktif
 - [ ] Kamera tiap step setelah teks final (pakai `?debug`)
 - [ ] Timeline (`src/content/timeline.ts`): judul & pengantar timeline, **judul kartu 9 tanggal**, sumber, dan (opsional) foto asli per tanggal
 - [ ] Timeline, cek salah ketik di teks sumber (sengaja belum diubah): "hing**gat** lebat" (16 Sept) dan "Ekuatorial **Rosby**" (10 Sept, Rossby?). Tanggal 14 September tidak ada di Excel; apakah disengaja?
-- [ ] Transisi banjir (`src/content/banjir.ts`): alt & keterangan kedua foto, **kredit foto sesudah**, serta lokasi/waktu pengambilan foto
+- [ ] Transisi banjir (`src/content/banjir.ts`): kalimat penutup tahap `sesudah`, periksa kalimat tiap kartu data, alt & keterangan kedua foto, **kredit foto sesudah**, serta lokasi/waktu pengambilan foto
