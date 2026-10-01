@@ -82,6 +82,22 @@ test('banjir (halaman penuh / harness): tahap mengikuti scroll halaman, maju & m
   const ft = page.locator('.das-ft');
   const goStage = (i: number) =>
     ft.evaluate((el, i) => window.scrollTo(0, el.getBoundingClientRect().top + window.scrollY + i * window.innerHeight), i);
+  // Regresi: di halaman artikel (latar krem), teks di section banjir yang gelap harus tetap terang.
+  // Dulu angka besar & petunjuk scroll mewarisi warna gelap .das-root → hitam di atas hitam.
+  await goStage(0);
+  const luminance = (sel: string) =>
+    page
+      .locator(sel)
+      .first()
+      .evaluate((el) => {
+        const [r, g, b] = getComputedStyle(el)
+          .color.match(/\d+(\.\d+)?/g)!
+          .map(Number);
+        return (0.2126 * r + 0.7152 * g + 0.0722 * b) / 255;
+      });
+  for (const sel of ['.das-ft-card__angka', '.das-ft-card__teks', '.das-ft__hint', '.das-ft__caption']) {
+    await expect.poll(() => luminance(sel), { message: sel }).toBeGreaterThan(0.7);
+  }
   for (const i of [0, 2, climax, tahapan.length - 1, 1, 0]) {
     await goStage(i);
     await expect.poll(() => stage(page)).toBe(tahapan[i].id);

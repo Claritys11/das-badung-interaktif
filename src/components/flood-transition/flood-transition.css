@@ -1,5 +1,8 @@
-/* Transisi data banjir: section setinggi (tahap + 1) layar (diatur inline), panggung sticky. */
-.das-ft {
+/* Transisi data banjir: section setinggi (tahap + 1) layar (diatur inline), panggung sticky.
+   `.das-root.das-ft` (bukan `.das-ft` saja): .das-root memberi warna teks gelap untuk halaman krem;
+   dengan spesifisitas sama, pemenangnya bergantung urutan file CSS (berbeda di halaman artikel,
+   iframe, dan bundle Framer) — teks bisa jadi hitam di atas latar gelap. */
+.das-root.das-ft {
   position: relative;
   background: #0f1412;
   color: #fff;
@@ -139,6 +142,7 @@
 .das-ft__hint {
   position: absolute;
   z-index: 6;
+  color: #fff;
   left: 50%;
   bottom: 84px;
   transform: translateX(-50%);
@@ -204,6 +208,7 @@
 }
 .das-ft-card__angka {
   margin: 0 0 10px;
+  color: #fff;
   font-size: clamp(30px, 3.4vw, 44px);
   line-height: 1.1;
   font-weight: 800;

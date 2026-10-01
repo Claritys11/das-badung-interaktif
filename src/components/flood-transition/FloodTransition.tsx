@@ -165,7 +165,8 @@ export function FloodTransition({
           className="das-ft__level"
           aria-hidden="true"
           initial={false}
-          animate={{ y: `${(1 - tahap.air) * 100}%` }}
+          // Saat air 0, sembunyikan sepenuhnya (puncak gelombang tidak mengintip di dasar layar).
+          animate={{ y: `${(1 - tahap.air) * 100}%`, opacity: tahap.air > 0 ? 1 : 0 }}
           transition={reduceMotion ? { type: false } : { duration: 1.6, ease: [0.3, 0, 0.2, 1] }}
         />
         {/* Klimaks: air bah, cipratan tanah, tetes lumpur — menutup seluruh layar. */}
