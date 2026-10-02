@@ -5,6 +5,24 @@ import { DayDialog } from './DayDialog';
 import '../../styles/tokens.css';
 import './timeline.css';
 
+const HARI_MS = 86400000;
+type TeksJeda = { satuanHari: string; satuanBulan: string; kemudian: string };
+/**
+ * Jeda antar-tanggal; > 7 hari ditandai. ≥ 2 bulan kalender → "6 bulan 18 hari kemudian" (dihitung
+ * per kalender, bukan dibulatkan), selain itu "35 hari kemudian".
+ */
+function jeda(dari: string, ke: string, t: TeksJeda) {
+  const hari = Math.round((Date.parse(ke) - Date.parse(dari)) / HARI_MS);
+  if (hari <= 7) return null;
+  const [y1, m1, d1] = dari.split('-').map(Number);
+  const [y2, m2, d2] = ke.split('-').map(Number);
+  let bulan = (y2 - y1) * 12 + (m2 - m1);
+  if (d2 < d1) bulan -= 1;
+  if (bulan < 2) return `${hari} ${t.satuanHari} ${t.kemudian}`;
+  const sisa = Math.round((Date.parse(ke) - Date.UTC(y1, m1 - 1 + bulan, d1)) / HARI_MS);
+  return `${bulan} ${t.satuanBulan}${sisa ? ` ${sisa} ${t.satuanHari}` : ''} ${t.kemudian}`;
+}
+
 export interface TimelineProps {
   hari: HariTimeline[];
   teks: typeof defaultTeks;
@@ -70,6 +88,9 @@ export function Timeline({ hari, teks, cuplikan = 3, className }: TimelineProps)
           const hidden = n - shown.length;
           return (
             <li key={h.tanggal} className={`das-tl__day${isActive ? ' is-active' : ''}`} aria-current={isActive ? 'step' : undefined}>
+              {i > 0 && jeda(hari[i - 1].tanggal, h.tanggal, teks) && (
+                <p className="das-tl__gap">{jeda(hari[i - 1].tanggal, h.tanggal, teks)}</p>
+              )}
               <div
                 className="das-tl__meta"
                 ref={(el) => {
@@ -114,7 +135,7 @@ export function Timeline({ hari, teks, cuplikan = 3, className }: TimelineProps)
                   )}
                   {/* Tombol "stretched": seluruh kartu dapat diklik, tetap satu target fokus. */}
                   <button type="button" className="das-tl__open" onClick={() => setOpen(i)} aria-haspopup="dialog">
-                    {teks.lihatSemua}
+                    {n === 1 ? teks.bacaSelengkapnya : teks.lihatSemua}
                     <span className="das-visually-hidden">: {h.label}</span>
                     <svg viewBox="0 0 24 24" aria-hidden="true">
                       <path

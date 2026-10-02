@@ -37,6 +37,30 @@
   align-items: start;
 }
 
+/* Penanda jeda antar-tanggal yang berjauhan (mis. "±6 bulan kemudian"). */
+.das-tl__gap {
+  grid-column: 1 / -1;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin: 0 0 clamp(8px, 2vw, 16px);
+  font-size: 13px;
+  line-height: 18px;
+  font-weight: 600;
+  color: var(--das-muted);
+  font-variant-numeric: tabular-nums;
+}
+.das-tl__gap::before,
+.das-tl__gap::after {
+  content: '';
+  flex: 1;
+  height: 0;
+  border-top: 1px dashed var(--das-line);
+}
+.das-tl__gap::before {
+  flex: 0 0 24px;
+}
+
 /* Kolom tanggal: sticky saat kartu (yang lebih tinggi) digulir. */
 .das-tl__meta {
   position: sticky;

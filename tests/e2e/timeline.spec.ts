@@ -57,3 +57,18 @@ test('timeline: kartu bisa dibuka dengan keyboard', async ({ page }) => {
   await page.keyboard.press('Enter');
   await expect(page.locator('dialog.das-tl-dialog[open] time')).toHaveText(timeline[2].label);
 });
+
+test('timeline: penanda jeda antar-tanggal berjauhan & label kartu satu peristiwa', async ({ page }) => {
+  await page.goto('/embed/timeline.html');
+  const gaps = page.locator('.das-tl__gap');
+  // Satu penanda per pasangan tanggal yang berjarak > 7 hari.
+  const expectedGaps = timeline.slice(1).filter((h, i) => (Date.parse(h.tanggal) - Date.parse(timeline[i].tanggal)) / 86400000 > 7).length;
+  await expect(gaps).toHaveCount(expectedGaps);
+  // Jeda panjang dihitung per kalender, bukan dibulatkan (9 Jan → 27 Jul 2026).
+  if (timeline.some((h) => h.tanggal === '2026-07-27')) await expect(gaps.filter({ hasText: '6 bulan 18 hari kemudian' })).toHaveCount(1);
+  // Kartu dengan satu peristiwa: "Baca selengkapnya"; lebih dari satu: "Lihat semua peristiwa".
+  const i1 = timeline.findIndex((h) => h.peristiwa.length === 1);
+  const iN = timeline.findIndex((h) => h.peristiwa.length > 1);
+  await expect(page.locator('.das-tl__open').nth(i1)).toContainText('Baca selengkapnya');
+  await expect(page.locator('.das-tl__open').nth(iN)).toContainText('Lihat semua peristiwa');
+});

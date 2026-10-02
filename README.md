@@ -6,7 +6,7 @@ Dua komponen untuk artikel IDN Times tentang Daerah Aliran Sungai (DAS) Badung, 
 |---|---|---|
 | **A** | `Slideshow` | 16 citra satelit 2005 → 2023 dengan crossfade, autoplay, dan penggaris waktu yang jaraknya sesuai tanggal |
 | **B0** | `FloodTransition` | Pembuka peta: 6 tahap data hidrologi (hujan ekstrem → limpasan → debit → **meluap**) mengikuti scroll; saat meluap layar bergetar dan air bah menutup seluruh layar → foto **sesudah** banjir |
-| **C** | `Timeline` | Timeline banjir Denpasar 10–19 September 2025 (9 tanggal, 45 peristiwa dari Excel redaksi). Kartu per tanggal berisi cuplikan; klik kartu → pop-up berisi semua peristiwa hari itu |
+| **C** | `Timeline` | Timeline banjir Denpasar 8 September 2025 – 3 September 2026 (18 tanggal, 59 peristiwa dari Excel redaksi). Kartu per tanggal berisi cuplikan; klik kartu → pop-up berisi semua peristiwa hari itu |
 | **B** | `ScrollyMap` | Peta scrollytelling (MapLibre + MapTiler) dengan layer DAS, garis sungai, topografi, dan 80 titik banjir yang bisa diklik |
 
 Keduanya tersedia dalam dua bentuk:
@@ -46,7 +46,7 @@ pnpm dev                      # http://localhost:5173
 | `pnpm preview` | Menyajikan `dist/` secara lokal |
 | `pnpm data` | Regenerasi GeoJSON dari KMZ |
 | `pnpm images` | Regenerasi citra AVIF/WebP |
-| `pnpm timeline` | Buat `src/content/timeline.ts` dari Excel (sekali; tidak menimpa hasil edit) |
+| `pnpm timeline` | Buat `src/content/timeline.ts` dari Excel (sekali; tidak menimpa hasil edit). `pnpm timeline --timpa` = buat ulang dari Excel terbaru, judul/gambar yang sudah diisi redaksi tetap dipertahankan |
 | `pnpm banjir` | Regenerasi foto sebelum/sesudah banjir (termasuk penyelarasan foto sesudah) |
 | `pnpm test` | Unit test (Vitest) untuk logika state peta |
 | `pnpm e2e` | E2E Playwright di 3 viewport, dengan screenshot ke `tests/screenshots/` |
@@ -140,11 +140,12 @@ Posisinya tepat sebelum peta. Transisi ini **mengikuti scroll** dalam 6 tahap (s
 - **Di iframe peta**, tombol Berikutnya/Sebelumnya berhenti di setiap tahap, lalu lanjut ke step peta.
 - **Di halaman penuh / Framer**, pasang `<FloodTransition teks={banjirTeks} />` tepat sebelum `<ScrollyMap … />`.
 
-## Timeline banjir (September 2025)
+## Timeline banjir (September 2025 – September 2026)
 
-Posisinya setelah peta. Sumber datanya `raw/timeline/Timeline Banjir Denpasar September 2025.xlsx`: baris 1 berisi tanggal (serial Excel), baris berikutnya berisi peristiwa pada tanggal itu.
+Posisinya setelah peta. Sumber datanya `raw/timeline/Timeline terbaru.xlsx` (versi pertama disimpan sebagai arsip di folder yang sama): baris 1 berisi tanggal (serial Excel), baris berikutnya berisi peristiwa pada tanggal itu.
 
-- `pnpm timeline` mengubah Excel menjadi `src/content/timeline.ts` **sekali saja**. Setelah itu file tersebut milik redaksi: judul kartu, gambar, dan urutan boleh diedit. Kalau Excel diperbarui, script hanya melaporkan tanggal yang belum ada, tidak menimpa file.
+- `pnpm timeline` mengubah Excel menjadi `src/content/timeline.ts` **sekali saja**. Setelah itu file tersebut milik redaksi: judul kartu, gambar, dan urutan boleh diedit. Kalau Excel diperbarui, jalankan `pnpm timeline --timpa`: peristiwa diambil ulang dari Excel, sedangkan **judul kartu & gambar yang sudah diisi redaksi** (bukan placeholder) untuk tanggal yang sama tetap dipertahankan.
+- **Penanda jeda**: tanggal yang berjarak lebih dari 7 hari diberi penanda, mis. "35 hari kemudian" atau "6 bulan 18 hari kemudian" (dihitung per kalender, tidak dibulatkan). Kartu dengan satu peristiwa memakai label "Baca selengkapnya".
 - Teks peristiwa adalah **teks asli** Excel. Label jam (`waktu`) diekstrak otomatis dari frasa "pukul HH.MM" tanpa mengubah teks.
 - **Kartu** (cuplikan, alias "foreshadow" isi pop-up): tanggal, jumlah peristiwa, dan *tally* (satu garis = satu peristiwa, sehingga kepadatan kejadian per hari terlihat sekilas), judul, lalu 1 peristiwa pertama. Kartu yang paling dekat ke 1/3 tinggi layar menjadi **aktif**: garis kiri merah, dan cuplikan terbuka menjadi 3 peristiwa (pola komponen *release-time-line*).
 - **Pop-up** memakai `<dialog>` bawaan browser: berisi semua peristiwa hari itu beserta jamnya, tombol hari sebelumnya/berikutnya, Esc/klik latar untuk menutup, dan fokus kembali ke kartu. Scroll halaman terkunci selama pop-up terbuka. Di HP, pop-up tampil sebagai *bottom sheet*.
@@ -215,7 +216,7 @@ Setelah `dist/` di-hosting (misalnya di `https://das-badung.pages.dev`), gunakan
 ```html
 <iframe
   src="https://das-badung.pages.dev/embed/timeline.html"
-  title="Timeline banjir Denpasar, 10–19 September 2025"
+  title="Timeline banjir Denpasar, September 2025 – September 2026"
   loading="lazy"
   style="display:block;width:100%;height:100vh;height:100svh;min-height:600px;border:0;"
 ></iframe>
@@ -291,7 +292,7 @@ npx wrangler pages deploy dist --project-name das-badung-interaktif
 ## Testing & performa
 
 - `pnpm test`: 8 unit test reducer (scroll maju/mundur, pilih titik, reset, ganti step saat detail terbuka).
-- `pnpm e2e`: 14 skenario × 3 viewport (1440 × 900, 834 × 1112, 390 × 844) = 42 test (termasuk transisi banjir: getar, fase maju-mundur, navigasi tombol, reduced motion). Isinya: 0 error console, tiap step, klik titik (termasuk titik bertumpuk), reset, scroll mundur, lompat step lewat titik progres, mode halaman penuh, crossfade saat navigasi cepat, tombol Play, dan `prefers-reduced-motion`. Screenshot tiap step ada di `tests/screenshots/<viewport>/`.
+- `pnpm e2e`: 15 skenario × 3 viewport (1440 × 900, 834 × 1112, 390 × 844) = 45 test (termasuk transisi banjir: getar, fase maju-mundur, navigasi tombol, reduced motion). Isinya: 0 error console, tiap step, klik titik (termasuk titik bertumpuk), reset, scroll mundur, lompat step lewat titik progres, mode halaman penuh, crossfade saat navigasi cepat, tombol Play, dan `prefers-reduced-motion`. Screenshot tiap step ada di `tests/screenshots/<viewport>/`.
 - **Ukuran (gzip):**
   - JS awal halaman artikel ±99 KB (React + motion + konten)
   - MapLibre ±280 KB + worker, di-lazy-load
@@ -313,6 +314,6 @@ npx wrangler pages deploy dist --project-name das-badung-interaktif
 - [ ] Pastikan tanggal citra "2014" (saat ini diasumsikan Januari 2014, sebelum Maret 2014)
 - [ ] Sumber data peta (`petaTeks.sumberData`)
 - [ ] Kamera tiap step setelah teks final (pakai `?debug`)
-- [ ] Timeline (`src/content/timeline.ts`): judul & pengantar timeline, **judul kartu 9 tanggal**, sumber, dan (opsional) foto asli per tanggal
-- [ ] Timeline, cek salah ketik di teks sumber (sengaja belum diubah): "hing**gat** lebat" (16 Sept) dan "Ekuatorial **Rosby**" (10 Sept, Rossby?). Tanggal 14 September tidak ada di Excel; apakah disengaja?
+- [ ] Timeline (`src/content/timeline.ts`): judul & pengantar timeline, **judul kartu 18 tanggal**, sumber, dan (opsional) foto asli per tanggal
+- [ ] Timeline, cek salah ketik di teks sumber (sengaja belum diubah): "Ekuatorial **Rosby**" (10 Sept, Rossby?). Tanggal 14 September 2025 tidak ada di Excel; apakah disengaja?
 - [ ] Transisi banjir (`src/content/banjir.ts`): kalimat penutup tahap `sesudah`, periksa kalimat tiap kartu data, alt & keterangan kedua foto, **kredit foto sesudah**, serta lokasi/waktu pengambilan foto

@@ -1,8 +1,9 @@
-// Excel timeline → src/content/timeline.ts. Jalankan: pnpm timeline
-// Input : raw/timeline/Timeline Banjir Denpasar September 2025.xlsx
+// Excel timeline → src/content/timeline.ts. Jalankan: pnpm timeline  (atau: pnpm timeline --timpa)
+// Input : raw/timeline/Timeline terbaru.xlsx  (versi lama tetap disimpan di raw/timeline/ sebagai arsip)
 //         Baris 1 = tanggal (serial Excel) per kolom; baris 2 dst. = peristiwa pada tanggal itu.
 // Output: src/content/timeline.ts — dibuat SEKALI (tidak menimpa hasil edit redaksi). Kalau file sudah
-//         ada, script hanya melaporkan perbedaan jumlah peristiwa per tanggal.
+//         ada, script hanya melaporkan tanggal baru. `--timpa` = buat ulang dari Excel; judul kartu &
+//         gambar yang SUDAH diisi redaksi (bukan placeholder) untuk tanggal yang sama tetap dipertahankan.
 import { readFile, writeFile, access } from 'node:fs/promises';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import path from 'node:path';
@@ -10,7 +11,7 @@ import JSZip from 'jszip';
 import { DOMParser } from '@xmldom/xmldom';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
-const SRC = path.join(root, 'raw/timeline/Timeline Banjir Denpasar September 2025.xlsx');
+const SRC = path.join(root, 'raw/timeline/Timeline terbaru.xlsx');
 const OUT = path.join(root, 'src/content/timeline.ts');
 const NS = 'http://schemas.openxmlformats.org/spreadsheetml/2006/main';
 
@@ -64,17 +65,23 @@ export async function readTimeline() {
     .filter(Boolean);
 }
 
-function render(days) {
+function render(days, keep = {}) {
+  const fmtTgl = (iso) => {
+    const [y, m, d] = iso.split('-').map(Number);
+    return `${d} ${BULAN[m - 1]} ${y}`;
+  };
+  const rentang = days.length ? `${fmtTgl(days[0].iso)} – ${fmtTgl(days[days.length - 1].iso)}` : '';
   const body = days
     .map((d) => {
       const items = d.peristiwa
         .map((p) => `      { teks: ${JSON.stringify(p.teks)}${p.waktu ? `, waktu: '${p.waktu}'` : ''} },`)
         .join('\n');
+      const k = keep[d.iso] ?? {};
       return `  {
     tanggal: '${d.iso}',
     label: '${d.label}',
-    judul: '[Judul hari ${d.label} — diisi redaksi]',
-    // gambar: { src: '/timeline/${d.iso}.webp', alt: '[Deskripsi foto — diisi redaksi]', kredit: '[Kredit — diisi redaksi]' },
+    judul: ${k.judul ?? `'[Judul hari ${d.label} — diisi redaksi]'`},
+    ${k.gambar ?? `// gambar: { src: '/timeline/${d.iso}.webp', alt: '[Deskripsi foto — diisi redaksi]', kredit: '[Kredit — diisi redaksi]' },`}
     peristiwa: [
 ${items}
     ],
@@ -89,7 +96,7 @@ import type { HariTimeline } from './types';
 
 export const timelineTeks = {
   judul: '[Judul timeline — diisi redaksi]',
-  pengantar: '[Pengantar singkat timeline banjir Denpasar, 10–19 September 2025 — diisi redaksi]',
+  pengantar: '[Pengantar singkat timeline banjir Denpasar, ${rentang} — diisi redaksi]',
   lihatSemua: 'Lihat semua peristiwa',
   peristiwa: 'peristiwa',
   lainnya: 'peristiwa lainnya',
@@ -97,6 +104,10 @@ export const timelineTeks = {
   hariSebelumnya: 'Hari sebelumnya',
   hariBerikutnya: 'Hari berikutnya',
   sumber: '[Sumber timeline — diisi redaksi]',
+  bacaSelengkapnya: 'Baca selengkapnya',
+  satuanHari: 'hari',
+  satuanBulan: 'bulan',
+  kemudian: 'kemudian',
 };
 
 export const timeline: HariTimeline[] = [
@@ -105,16 +116,47 @@ ${body}
 `;
 }
 
+// Judul & gambar yang sudah diisi redaksi (bukan placeholder) dari file lama, per tanggal.
+function editedFields(src) {
+  const keep = {};
+  const re = /tanggal: '(\d{4}-\d{2}-\d{2})',[\s\S]*?judul: ((?:'[^'\n]*'|"[^"\n]*"|`[^`]*`)),\s*\n\s*((?:gambar: \{[^}]*\},)?)/g;
+  for (const m of src.matchAll(re)) {
+    const [, iso, judul, gambar] = m;
+    keep[iso] = {};
+    if (!judul.includes('diisi redaksi')) keep[iso].judul = judul;
+    if (gambar) keep[iso].gambar = gambar;
+  }
+  return keep;
+}
+
 async function main() {
+  const timpa = process.argv.includes('--timpa');
   const days = await readTimeline();
   const total = days.reduce((n, d) => n + d.peristiwa.length, 0);
-  console.table(days.map((d) => ({ tanggal: d.iso, label: d.label, peristiwa: d.peristiwa.length, berjam: d.peristiwa.filter((p) => p.waktu).length })));
+  console.table(
+    days.map((d) => ({ tanggal: d.iso, label: d.label, peristiwa: d.peristiwa.length, berjam: d.peristiwa.filter((p) => p.waktu).length })),
+  );
   console.log(`${days.length} tanggal, ${total} peristiwa`);
+  if (timpa) {
+    let keep = {};
+    try {
+      keep = editedFields(await readFile(OUT, 'utf8'));
+    } catch {
+      /* belum ada file lama */
+    }
+    const kept = Object.entries(keep)
+      .filter(([, v]) => v.judul || v.gambar)
+      .map(([iso]) => iso);
+    await writeFile(OUT, render(days, keep));
+    console.log(`\nDitimpa: ${path.relative(root, OUT)}${kept.length ? ` (judul/gambar redaksi dipertahankan: ${kept.join(', ')})` : ''}`);
+    return;
+  }
   try {
     await access(OUT);
     const existing = await readFile(OUT, 'utf8');
     console.log(`\n${path.relative(root, OUT)} sudah ada — tidak ditimpa. Cek manual bila Excel berubah:`);
-    for (const d of days) if (!existing.includes(`tanggal: '${d.iso}'`)) console.log(`  - tanggal baru: ${d.iso} (${d.peristiwa.length} peristiwa)`);
+    for (const d of days)
+      if (!existing.includes(`tanggal: '${d.iso}'`)) console.log(`  - tanggal baru: ${d.iso} (${d.peristiwa.length} peristiwa)`);
   } catch {
     await writeFile(OUT, render(days));
     console.log(`\nDibuat: ${path.relative(root, OUT)}`);
