@@ -15,6 +15,9 @@
   line-height: 1.2;
   font-weight: 700;
 }
+.das-tl__header p + p {
+  margin-top: 12px;
+}
 .das-tl__header p {
   margin: 0;
   font-size: 16px;

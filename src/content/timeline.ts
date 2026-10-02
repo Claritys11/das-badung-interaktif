@@ -4,27 +4,11 @@
 // `gambar` opsional: isi dengan foto asli + kredit (jangan foto stok).
 import type { HariTimeline } from './types';
 
-export const timelineTeks = {
-  judul: '[Judul timeline — diisi redaksi]',
-  pengantar: '[Pengantar singkat timeline banjir Denpasar, 8 September 2025 – 3 September 2026 — diisi redaksi]',
-  lihatSemua: 'Lihat semua peristiwa',
-  peristiwa: 'peristiwa',
-  lainnya: 'peristiwa lainnya',
-  tutup: 'Tutup',
-  hariSebelumnya: 'Hari sebelumnya',
-  hariBerikutnya: 'Hari berikutnya',
-  sumber: '[Sumber timeline — diisi redaksi]',
-  bacaSelengkapnya: 'Baca selengkapnya',
-  satuanHari: 'hari',
-  satuanBulan: 'bulan',
-  kemudian: 'kemudian',
-};
-
 export const timeline: HariTimeline[] = [
   {
     tanggal: '2025-09-08',
     label: 'Senin, 8 September 2025',
-    judul: '[Judul hari Senin, 8 September 2025 — diisi redaksi]',
+    judul: 'Peringatan Hujan Lebat',
     // gambar: { src: '/timeline/2025-09-08.webp', alt: '[Deskripsi foto — diisi redaksi]', kredit: '[Kredit — diisi redaksi]' },
     peristiwa: [
       { teks: 'BMKG merilis informasi di laman resminya bahwa Provinsi Bali perlu siaga hujan lebat pada periode 9—11 September 2025' },
@@ -33,7 +17,7 @@ export const timeline: HariTimeline[] = [
   {
     tanggal: '2025-09-09',
     label: 'Selasa, 9 September 2025',
-    judul: '[Judul hari Selasa, 9 September 2025 — diisi redaksi]',
+    judul: 'Banjir Mulai Menerjang',
     // gambar: { src: '/timeline/2025-09-09.webp', alt: '[Deskripsi foto — diisi redaksi]', kredit: '[Kredit — diisi redaksi]' },
     peristiwa: [
       {
@@ -48,7 +32,7 @@ export const timeline: HariTimeline[] = [
   {
     tanggal: '2025-09-10',
     label: 'Rabu, 10 September 2025',
-    judul: '[Judul hari Rabu, 10 September 2025 — diisi redaksi]',
+    judul: 'Banjir Puncak Denpasar',
     // gambar: { src: '/timeline/2025-09-10.webp', alt: '[Deskripsi foto — diisi redaksi]', kredit: '[Kredit — diisi redaksi]' },
     peristiwa: [
       { teks: 'Instalasi Pengolahan Air (IPA) Waribang menghentikan produksi sejak pukul 03.10 Wita', waktu: '03.10' },
@@ -106,7 +90,7 @@ export const timeline: HariTimeline[] = [
   {
     tanggal: '2025-09-11',
     label: 'Kamis, 11 September 2025',
-    judul: '[Judul hari Kamis, 11 September 2025 — diisi redaksi]',
+    judul: 'Korban Ditemukan, Pendataan',
     // gambar: { src: '/timeline/2025-09-11.webp', alt: '[Deskripsi foto — diisi redaksi]', kredit: '[Kredit — diisi redaksi]' },
     peristiwa: [
       { teks: 'Penemuan empat jenazah korban banjir di rawa Muara Waduk Tukad Badung pada pukul 07.59 Wita', waktu: '07.59' },
@@ -127,7 +111,7 @@ export const timeline: HariTimeline[] = [
   {
     tanggal: '2025-09-12',
     label: 'Jumat, 12 September 2025',
-    judul: '[Judul hari Jumat, 12 September 2025 — diisi redaksi]',
+    judul: 'Kunjungan Menteri ke Posko',
     // gambar: { src: '/timeline/2025-09-12.webp', alt: '[Deskripsi foto — diisi redaksi]', kredit: '[Kredit — diisi redaksi]' },
     peristiwa: [
       {
@@ -152,7 +136,7 @@ export const timeline: HariTimeline[] = [
   {
     tanggal: '2025-09-13',
     label: 'Sabtu, 13 September 2025',
-    judul: '[Judul hari Sabtu, 13 September 2025 — diisi redaksi]',
+    judul: 'Presiden Kunjungi Warga',
     // gambar: { src: '/timeline/2025-09-13.webp', alt: '[Deskripsi foto — diisi redaksi]', kredit: '[Kredit — diisi redaksi]' },
     peristiwa: [
       {
@@ -164,7 +148,7 @@ export const timeline: HariTimeline[] = [
   {
     tanggal: '2025-09-15',
     label: 'Senin, 15 September 2025',
-    judul: '[Judul hari Senin, 15 September 2025 — diisi redaksi]',
+    judul: 'Pengungsi dan Alih Fungsi',
     // gambar: { src: '/timeline/2025-09-15.webp', alt: '[Deskripsi foto — diisi redaksi]', kredit: '[Kredit — diisi redaksi]' },
     peristiwa: [
       {
@@ -186,7 +170,7 @@ export const timeline: HariTimeline[] = [
   {
     tanggal: '2025-09-16',
     label: 'Selasa, 16 September 2025',
-    judul: '[Judul hari Selasa, 16 September 2025 — diisi redaksi]',
+    judul: 'Hujan Susulan, Status Transisi',
     // gambar: { src: '/timeline/2025-09-16.webp', alt: '[Deskripsi foto — diisi redaksi]', kredit: '[Kredit — diisi redaksi]' },
     peristiwa: [
       {
@@ -203,7 +187,7 @@ export const timeline: HariTimeline[] = [
   {
     tanggal: '2025-09-17',
     label: 'Rabu, 17 September 2025',
-    judul: '[Judul hari Rabu, 17 September 2025 — diisi redaksi]',
+    judul: 'Tuntutan Stimulus UMKM',
     // gambar: { src: '/timeline/2025-09-17.webp', alt: '[Deskripsi foto — diisi redaksi]', kredit: '[Kredit — diisi redaksi]' },
     peristiwa: [
       {
@@ -214,7 +198,7 @@ export const timeline: HariTimeline[] = [
   {
     tanggal: '2025-09-18',
     label: 'Kamis, 18 September 2025',
-    judul: '[Judul hari Kamis, 18 September 2025 — diisi redaksi]',
+    judul: 'Bantuan untuk Pedagang Pasar',
     // gambar: { src: '/timeline/2025-09-18.webp', alt: '[Deskripsi foto — diisi redaksi]', kredit: '[Kredit — diisi redaksi]' },
     peristiwa: [
       {
@@ -238,7 +222,7 @@ export const timeline: HariTimeline[] = [
   {
     tanggal: '2025-09-19',
     label: 'Jumat, 19 September 2025',
-    judul: '[Judul hari Jumat, 19 September 2025 — diisi redaksi]',
+    judul: 'Pencarian Korban Dihentikan',
     // gambar: { src: '/timeline/2025-09-19.webp', alt: '[Deskripsi foto — diisi redaksi]', kredit: '[Kredit — diisi redaksi]' },
     peristiwa: [
       {
@@ -249,7 +233,7 @@ export const timeline: HariTimeline[] = [
   {
     tanggal: '2025-10-24',
     label: 'Jumat, 24 Oktober 2025',
-    judul: '[Judul hari Jumat, 24 Oktober 2025 — diisi redaksi]',
+    judul: 'Layanan Disabilitas Bencana',
     // gambar: { src: '/timeline/2025-10-24.webp', alt: '[Deskripsi foto — diisi redaksi]', kredit: '[Kredit — diisi redaksi]' },
     peristiwa: [
       {
@@ -260,7 +244,7 @@ export const timeline: HariTimeline[] = [
   {
     tanggal: '2025-11-14',
     label: 'Jumat, 14 November 2025',
-    judul: '[Judul hari Jumat, 14 November 2025 — diisi redaksi]',
+    judul: 'Somasi Pulihkan Bali',
     // gambar: { src: '/timeline/2025-11-14.webp', alt: '[Deskripsi foto — diisi redaksi]', kredit: '[Kredit — diisi redaksi]' },
     peristiwa: [
       {
@@ -271,14 +255,14 @@ export const timeline: HariTimeline[] = [
   {
     tanggal: '2025-12-14',
     label: 'Minggu, 14 Desember 2025',
-    judul: '[Judul hari Minggu, 14 Desember 2025 — diisi redaksi]',
+    judul: 'Peringatan Dini Belum Ada',
     // gambar: { src: '/timeline/2025-12-14.webp', alt: '[Deskripsi foto — diisi redaksi]', kredit: '[Kredit — diisi redaksi]' },
     peristiwa: [{ teks: 'Kalaksa BPBD Provinsi Bali, Gede Teja, menyampaikan Bali belum memiliki sistem peringatan dini bencana banjir' }],
   },
   {
     tanggal: '2026-01-09',
     label: 'Jumat, 9 Januari 2026',
-    judul: '[Judul hari Jumat, 9 Januari 2026 — diisi redaksi]',
+    judul: 'Peringatan Dini Dipasang',
     // gambar: { src: '/timeline/2026-01-09.webp', alt: '[Deskripsi foto — diisi redaksi]', kredit: '[Kredit — diisi redaksi]' },
     peristiwa: [
       {
@@ -289,7 +273,7 @@ export const timeline: HariTimeline[] = [
   {
     tanggal: '2026-07-27',
     label: 'Senin, 27 Juli 2026',
-    judul: '[Judul hari Senin, 27 Juli 2026 — diisi redaksi]',
+    judul: 'Sidang Perdana Citizen Lawsuit',
     // gambar: { src: '/timeline/2026-07-27.webp', alt: '[Deskripsi foto — diisi redaksi]', kredit: '[Kredit — diisi redaksi]' },
     peristiwa: [
       {
@@ -300,7 +284,7 @@ export const timeline: HariTimeline[] = [
   {
     tanggal: '2026-08-19',
     label: 'Rabu, 19 Agustus 2026',
-    judul: '[Judul hari Rabu, 19 Agustus 2026 — diisi redaksi]',
+    judul: 'Sidang Kedua dan Mediasi',
     // gambar: { src: '/timeline/2026-08-19.webp', alt: '[Deskripsi foto — diisi redaksi]', kredit: '[Kredit — diisi redaksi]' },
     peristiwa: [
       {
@@ -314,7 +298,7 @@ export const timeline: HariTimeline[] = [
   {
     tanggal: '2026-09-03',
     label: 'Kamis, 3 September 2026',
-    judul: '[Judul hari Kamis, 3 September 2026 — diisi redaksi]',
+    judul: 'Mediasi Perdana Tertutup',
     // gambar: { src: '/timeline/2026-09-03.webp', alt: '[Deskripsi foto — diisi redaksi]', kredit: '[Kredit — diisi redaksi]' },
     peristiwa: [
       { teks: 'Mediasi perdana digelar tertutup' },

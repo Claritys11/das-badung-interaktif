@@ -16,23 +16,18 @@
   flex-direction: column;
   overflow: hidden;
 }
-/* Panggung = container query; bingkai = ukuran foto setelah "contain" (rasio 1485:892). */
+/* Panggung foto: kedua foto asli (rasio berbeda) ditampilkan utuh ("contain") di tengah. */
 .das-ft__stage {
   position: relative;
   flex: 1;
   min-height: 0;
   margin: clamp(8px, 2vw, 24px) clamp(8px, 2vw, 24px) 0;
-  container-type: size;
 }
 .das-ft__frame {
   position: absolute;
   inset: 0;
-  margin: auto;
-  width: min(100cqw, 100cqh * 1485 / 892);
-  height: auto;
-  aspect-ratio: 1485 / 892;
-  overflow: hidden;
 }
+.das-ft__before,
 .das-ft__after {
   position: absolute;
   inset: 0;
@@ -330,7 +325,8 @@
 @media (max-width: 767px) and (orientation: portrait) {
   .das-ft__stage {
     flex: none;
-    aspect-ratio: 1485 / 892;
+    /* 4:3 = rasio foto sesudah (paling tinggi); foto sebelum (5:3) dapat bilah tipis atas-bawah. */
+    aspect-ratio: 4 / 3;
     margin-top: 64px;
   }
   .das-ft__cardslot {
@@ -353,7 +349,7 @@
   }
   .das-ft__hint {
     bottom: auto;
-    top: calc(64px + 60vw - 52px);
+    top: calc(64px + (100vw - 24px) * 0.75 - 52px);
   }
 }
 

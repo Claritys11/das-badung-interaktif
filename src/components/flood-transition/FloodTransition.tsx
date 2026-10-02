@@ -129,9 +129,13 @@ export function FloodTransition({
       <motion.div className="das-ft__sticky" animate={shake}>
         <div className="das-ft__stage">
           <div className="das-ft__frame">
-            <Photo base={assetBaseUrl} file={teks.sebelum.file} alt={teks.sebelum.alt} hidden={after} />
+            {/* Foto sebelum ikut memudar: foto sesudah (4:3) lebih sempit dari foto sebelum (5:3),
+                jadi tepi foto sebelum akan terlihat di samping kalau tidak disembunyikan. */}
+            <motion.div className="das-ft__before" initial={false} animate={{ opacity: after ? 0 : 1 }} transition={fade}>
+              <Photo base={assetBaseUrl} file={teks.sebelum.file} alt={teks.sebelum.alt} hidden={after} w={1485} h={892} />
+            </motion.div>
             <motion.div className="das-ft__after" initial={false} animate={{ opacity: after ? 1 : 0 }} transition={fade}>
-              <Photo base={assetBaseUrl} file={teks.sesudah.file} alt={teks.sesudah.alt} hidden={!after} />
+              <Photo base={assetBaseUrl} file={teks.sesudah.file} alt={teks.sesudah.alt} hidden={!after} w={1600} h={1200} />
             </motion.div>
           </div>
         </div>
@@ -196,7 +200,8 @@ export function FloodTransition({
   );
 }
 
-function Photo({ base, file, alt, hidden }: { base: string; file: string; alt: string; hidden: boolean }) {
+// Foto asli dengan rasio masing-masing (sebelum 5:3, sesudah 4:3), utuh ("contain") di tengah panggung.
+function Photo({ base, file, alt, hidden, w, h }: { base: string; file: string; alt: string; hidden: boolean; w: number; h: number }) {
   return (
     <picture className="das-ft__photo">
       <source type="image/avif" srcSet={srcSet(base, file, 'avif')} sizes="100vw" />
@@ -205,8 +210,8 @@ function Photo({ base, file, alt, hidden }: { base: string; file: string; alt: s
         src={`${base}${file}-1024.webp`}
         alt={alt}
         aria-hidden={hidden || undefined}
-        width={1485}
-        height={892}
+        width={w}
+        height={h}
         loading="lazy"
         decoding="async"
         draggable={false}

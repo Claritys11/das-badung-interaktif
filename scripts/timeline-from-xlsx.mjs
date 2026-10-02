@@ -66,11 +66,6 @@ export async function readTimeline() {
 }
 
 function render(days, keep = {}) {
-  const fmtTgl = (iso) => {
-    const [y, m, d] = iso.split('-').map(Number);
-    return `${d} ${BULAN[m - 1]} ${y}`;
-  };
-  const rentang = days.length ? `${fmtTgl(days[0].iso)} – ${fmtTgl(days[days.length - 1].iso)}` : '';
   const body = days
     .map((d) => {
       const items = d.peristiwa
@@ -93,22 +88,6 @@ ${items}
 // \`waktu\` diekstrak otomatis dari frasa "pukul HH.MM" (hanya label; teks tidak diubah).
 // \`gambar\` opsional: isi dengan foto asli + kredit (jangan foto stok).
 import type { HariTimeline } from './types';
-
-export const timelineTeks = {
-  judul: '[Judul timeline — diisi redaksi]',
-  pengantar: '[Pengantar singkat timeline banjir Denpasar, ${rentang} — diisi redaksi]',
-  lihatSemua: 'Lihat semua peristiwa',
-  peristiwa: 'peristiwa',
-  lainnya: 'peristiwa lainnya',
-  tutup: 'Tutup',
-  hariSebelumnya: 'Hari sebelumnya',
-  hariBerikutnya: 'Hari berikutnya',
-  sumber: '[Sumber timeline — diisi redaksi]',
-  bacaSelengkapnya: 'Baca selengkapnya',
-  satuanHari: 'hari',
-  satuanBulan: 'bulan',
-  kemudian: 'kemudian',
-};
 
 export const timeline: HariTimeline[] = [
 ${body}

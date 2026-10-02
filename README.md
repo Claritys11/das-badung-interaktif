@@ -47,7 +47,7 @@ pnpm dev                      # http://localhost:5173
 | `pnpm data` | Regenerasi GeoJSON dari KMZ |
 | `pnpm images` | Regenerasi citra AVIF/WebP |
 | `pnpm timeline` | Buat `src/content/timeline.ts` dari Excel (sekali; tidak menimpa hasil edit). `pnpm timeline --timpa` = buat ulang dari Excel terbaru, judul/gambar yang sudah diisi redaksi tetap dipertahankan |
-| `pnpm banjir` | Regenerasi foto sebelum/sesudah banjir (termasuk penyelarasan foto sesudah) |
+| `pnpm banjir` | Regenerasi foto sebelum/sesudah banjir (foto asli, tanpa crop) |
 | `pnpm test` | Unit test (Vitest) untuk logika state peta |
 | `pnpm e2e` | E2E Playwright di 3 viewport, dengan screenshot ke `tests/screenshots/` |
 
@@ -134,9 +134,9 @@ Posisinya tepat sebelum peta. Transisi ini **mengikuti scroll** dalam 6 tahap (s
 
 - Angka dihitung naik (count-up) dengan format Indonesia. Pembaca layar membacakan nilai akhirnya sekali saja.
 - Klimaks (getar + air bah) dipicu **sekali, saat bergerak maju** melewati tahap `meluap`. Scroll balik tidak memicu efek. `prefers-reduced-motion`: tanpa getar/air bah/animasi hujan, dan foto berganti instan.
-- Sumber data tampil di setiap kartu: analisis Prof. Dr. Ir. I Gusti Agung Putu Eryani, MT (Universitas Warmadewa), data curah hujan PU, beserta keterangan bahwa visualisasi diolah dengan bantuan kecerdasan buatan.
+- Keterangan sumber data tampil di setiap kartu: analisis Prof Dr Ir I Gusti Agung Putu Eryani MT (Guru Besar Teknik Sipil Universitas Warmadewa), data curah hujan PU, beserta keterangan bahwa visualisasi dan animasi diolah dengan bantuan kecerdasan buatan.
 - **Konten:** `src/content/banjir.ts` (`tahapan`: label, angka, satuan, teks, grafik, intensitas hujan, tinggi air). Kalimat boleh disunting; **angka jangan diubah tanpa sumber**.
-- **Foto:** `raw/banjir/sebelum_banjir.jpeg` (Google Street View, **tidak di-crop**, watermark utuh) dan `raw/banjir/sesudah_banjir.jpeg`. Jalankan `pnpm banjir`. Foto sesudah diselaraskan ke framing foto sebelum (skala 0,833, rotasi 1,81°, selisih 3–10 px; parameter `ALIGN` di `scripts/banjir-images.mjs`). Strip yang tidak tertutup diisi versi buram foto sesudah sendiri. **Kalau foto diganti, titik patokan harus diukur ulang.**
+- **Foto:** `raw/banjir/sebelum_banjir.jpeg` (Google Earth 2019, 5:3, watermark utuh) dan `raw/banjir/sesudah_banjir.jpeg` (IDN Times/Irma Yudistirani, 4:3). Jalankan `pnpm banjir`. Keduanya ditampilkan **asli** (tanpa crop/penyelarasan), utuh di tengah panggung dengan rasio masing-masing; saat berganti, foto sebelum memudar sepenuhnya agar tepinya tidak terlihat di samping foto sesudah yang lebih sempit.
 - **Di iframe peta**, tombol Berikutnya/Sebelumnya berhenti di setiap tahap, lalu lanjut ke step peta.
 - **Di halaman penuh / Framer**, pasang `<FloodTransition teks={banjirTeks} />` tepat sebelum `<ScrollyMap … />`.
 
@@ -144,6 +144,7 @@ Posisinya tepat sebelum peta. Transisi ini **mengikuti scroll** dalam 6 tahap (s
 
 Posisinya setelah peta. Sumber datanya `raw/timeline/Timeline terbaru.xlsx` (versi pertama disimpan sebagai arsip di folder yang sama): baris 1 berisi tanggal (serial Excel), baris berikutnya berisi peristiwa pada tanggal itu.
 
+- Teks antarmuka (judul linimasa, pengantar, label tombol) ada di `src/content/timeline-teks.ts`, file yang **tidak pernah disentuh script**. Judul kartu per tanggal ada di `src/content/timeline.ts`; di dalam kotak kartu hanya judul yang tampil, sedangkan tanggal ada di kolom kiri.
 - `pnpm timeline` mengubah Excel menjadi `src/content/timeline.ts` **sekali saja**. Setelah itu file tersebut milik redaksi: judul kartu, gambar, dan urutan boleh diedit. Kalau Excel diperbarui, jalankan `pnpm timeline --timpa`: peristiwa diambil ulang dari Excel, sedangkan **judul kartu & gambar yang sudah diisi redaksi** (bukan placeholder) untuk tanggal yang sama tetap dipertahankan.
 - **Penanda jeda**: tanggal yang berjarak lebih dari 7 hari diberi penanda, mis. "35 hari kemudian" atau "6 bulan 18 hari kemudian" (dihitung per kalender, tidak dibulatkan). Kartu dengan satu peristiwa memakai label "Baca selengkapnya".
 - Teks peristiwa adalah **teks asli** Excel. Label jam (`waktu`) diekstrak otomatis dari frasa "pukul HH.MM" tanpa mengubah teks.
@@ -314,6 +315,6 @@ npx wrangler pages deploy dist --project-name das-badung-interaktif
 - [ ] Pastikan tanggal citra "2014" (saat ini diasumsikan Januari 2014, sebelum Maret 2014)
 - [ ] Sumber data peta (`petaTeks.sumberData`)
 - [ ] Kamera tiap step setelah teks final (pakai `?debug`)
-- [ ] Timeline (`src/content/timeline.ts`): judul & pengantar timeline, **judul kartu 18 tanggal**, sumber, dan (opsional) foto asli per tanggal
+- [ ] Timeline: (opsional) foto asli per tanggal di `src/content/timeline.ts`. Judul linimasa, pengantar, dan judul 18 kartu sudah diisi.
 - [ ] Timeline, cek salah ketik di teks sumber (sengaja belum diubah): "Ekuatorial **Rosby**" (10 Sept, Rossby?). Tanggal 14 September 2025 tidak ada di Excel; apakah disengaja?
-- [ ] Transisi banjir (`src/content/banjir.ts`): kalimat penutup tahap `sesudah`, periksa kalimat tiap kartu data, alt & keterangan kedua foto, **kredit foto sesudah**, serta lokasi/waktu pengambilan foto
+- [ ] Transisi banjir (`src/content/banjir.ts`): kalimat penutup tahap `sesudah`. Caption & kredit kedua foto, teks kartu, dan keterangan sumber data sudah diisi.

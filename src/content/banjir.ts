@@ -36,20 +36,21 @@ export const banjirTeks = {
   sebelum: {
     file: 'sebelum',
     penanda: 'Sebelum',
-    alt: '[Deskripsi foto sebelum banjir — diisi redaksi]',
-    keterangan: '[Keterangan foto sebelum banjir: lokasi & waktu — diisi redaksi]',
-    kredit: 'Foto: Google Street View',
+    alt: 'Kondisi Tukad Badung di Jalan Sulawesi sebelum banjir 10 September 2025, dari Google Earth (2019).',
+    keterangan:
+      'Kondisi Tukad Badung di Jalan Sulawesi sebelum banjir 10 September 2025. Foto diambil melalui citra satelit Google Earth pada 2019.',
+    kredit: '(Dok.Google Earth)',
   },
   sesudah: {
     file: 'sesudah',
     penanda: 'Sesudah',
-    alt: '[Deskripsi foto sesudah banjir — diisi redaksi]',
-    keterangan: '[Keterangan foto sesudah banjir: lokasi & waktu — diisi redaksi]',
-    kredit: '[Kredit foto sesudah banjir — diisi redaksi]',
+    alt: 'Bagian belakang Toko Tasnim Textile di Jalan Sulawesi roboh setelah bah di Tukad Badung pada 10 September 2025.',
+    keterangan: 'Bagian belakang Toko Tasnim Textile di Jalan Sulawesi roboh setelah bah di Tukad Badung pada 10 September 2025.',
+    kredit: '(IDN Times/Irma Yudistirani)',
   },
   petunjukScroll: 'Gulir untuk mengikuti bagaimana banjir terjadi',
   sumberData:
-    'Data: analisis Prof. Dr. Ir. I Gusti Agung Putu Eryani, MT (Guru Besar Teknik Sipil, Universitas Warmadewa) dengan data curah hujan dari PU. Visualisasi dan animasi diolah dengan bantuan kecerdasan buatan.',
+    'Keterangan: analisis Prof Dr Ir I Gusti Agung Putu Eryani MT, Guru Besar Teknik Sipil Universitas Warmadewa, dengan data curah hujan dari PU. Visualisasi dan animasi diolah dengan bantuan kecerdasan buatan.',
   tahapan: [
     {
       id: 'hujan',
@@ -80,7 +81,7 @@ export const banjirTeks = {
       id: 'limpasan',
       label: 'Koefisien limpasan (C)',
       angka: [{ n: 0.412, desimal: 3 }, ' → ', { n: 0.466, desimal: 3, dari: 0.412 }],
-      teks: 'Alih fungsi lahan, dari sawah dan area hijau menjadi permukiman, menaikkan koefisien limpasan sekitar 13,1%: lebih banyak air hujan langsung mengalir di permukaan.',
+      teks: 'Alih fungsi lahan, dari sawah dan area hijau menjadi permukiman, menaikkan koefisien limpasan sekitar 13,1 persen. Lebih banyak air hujan langsung mengalir di permukaan.',
       viz: { jenis: 'banding', dari: 0.412, ke: 0.466, maks: 0.5, labelDari: 'Sebelum alih fungsi', labelKe: 'Sesudah', desimal: 3 },
       hujan: 0.8,
       air: 0.16,

@@ -1,6 +1,6 @@
 import { useEffect, useRef } from 'react';
 import type { HariTimeline } from '../../content/types';
-import type { timelineTeks as defaultTeks } from '../../content/timeline';
+import type { timelineTeks as defaultTeks } from '../../content/timeline-teks';
 import { IconClose, IconNext, IconPrev } from '../icons';
 
 interface Props {
