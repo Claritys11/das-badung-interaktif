@@ -13,7 +13,8 @@
     "e2e": "playwright test",
     "typecheck": "tsc -b",
     "banjir": "node scripts/banjir-images.mjs",
-    "timeline": "node scripts/timeline-from-xlsx.mjs"
+    "timeline": "node scripts/timeline-from-xlsx.mjs",
+    "disabilitas": "node scripts/disabilitas-images.mjs"
   },
   "dependencies": {
     "maplibre-gl": "^6.11.2",
@@ -24,7 +25,10 @@
   "devDependencies": {
     "@playwright/test": "^1.63.0",
     "@tmcw/togeojson": "^7.1.2",
+    "@turf/area": "^7.4.0",
     "@turf/bbox": "^7.4.0",
+    "@turf/boolean-point-in-polygon": "^7.4.0",
+    "@turf/line-chunk": "^7.4.0",
     "@turf/simplify": "^7.4.0",
     "@types/geojson": "^7946.0.16",
     "@types/node": "^26.6.2",
@@ -33,6 +37,7 @@
     "@vitejs/plugin-react": "^6.1.1",
     "@xmldom/xmldom": "^0.9.12",
     "jszip": "^3.10.2",
+    "polylabel": "^2.1.0",
     "prettier": "^3.9.9",
     "sharp": "^0.35.4",
     "typescript": "^7.0.2",

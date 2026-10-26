@@ -77,17 +77,6 @@
   opacity: 1;
   border-left-color: var(--das-accent);
 }
-.das-sm.has-detail .das-sm__stepcard {
-  opacity: 0.12;
-}
-.das-sm__stepnum {
-  margin: 0 0 6px;
-  font-size: 14px;
-  line-height: 20px;
-  font-weight: 700;
-  color: var(--das-accent);
-  font-variant-numeric: tabular-nums;
-}
 .das-sm__stepcard h3 {
   margin: 0 0 12px;
   font-size: clamp(22px, 2.1vw, 32px);
@@ -143,72 +132,88 @@
   color: var(--das-accent-ink);
 }
 
-/* ---------- Detail titik ---------- */
-.das-sm__detail-slot {
-  position: sticky;
-  top: 0;
-  height: 0;
-  z-index: 5;
+/* ---------- Data di kartu: batang per wilayah & tabel DAS ---------- */
+.das-sm__bars {
+  margin: 20px 0 0;
 }
-.das-sm__detail {
-  background: var(--das-surface);
-  border-top: 4px solid var(--das-accent);
-  border-radius: var(--das-radius);
-  padding: 20px 24px 24px;
-  box-shadow: 0 16px 40px rgb(20 24 28 / 0.16);
-}
-.das-sm__detail--panel {
-  position: absolute;
-  top: 16vh;
-  left: 0;
-  right: 0;
-  max-width: 460px;
-}
-.das-sm__detail-head {
-  display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
-  gap: 12px;
-}
-.das-sm__detail h3 {
-  margin: 4px 0 12px;
-  font-size: 24px;
-  line-height: 29px;
+.das-sm__bars figcaption,
+.das-sm__table thead th {
+  margin-bottom: 8px;
+  font-size: 13px;
+  line-height: 18px;
   font-weight: 700;
-  outline: none;
-}
-.das-sm__detail p {
-  margin: 0 0 16px;
-  font-size: 16px;
-  line-height: 24px;
-}
-.das-sm__detail p.is-placeholder {
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
   color: var(--das-ink-soft);
-  font-style: italic;
 }
-.das-sm__detail h3:focus-visible {
-  box-shadow: none; /* fokus programatik untuk pembaca layar, bukan navigasi keyboard */
+.das-sm__bars ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 8px;
 }
-.das-sm__detail-close {
-  flex: none;
-  width: 36px;
-  height: 36px;
+.das-sm__bars li {
+  display: grid;
+  grid-template-columns: minmax(0, 9.5em) 1fr auto;
+  align-items: center;
+  gap: 10px;
+  font-size: 14px;
+  line-height: 20px;
 }
-.das-sm__badge {
-  display: inline-block;
-  margin: 0 !important;
-  font-size: 12px !important;
-  line-height: 16px !important;
+.das-sm__bars-label {
+  color: var(--das-ink);
+}
+.das-sm__bars-track {
+  height: 12px;
+}
+.das-sm__bars-track i {
+  display: block;
+  height: 100%;
+  min-width: 3px;
+  border-radius: 0 4px 4px 0;
+}
+.das-sm__bars-val {
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  text-align: right;
+  color: var(--das-ink);
+}
+.das-sm__bars-val span {
+  font-weight: 400;
   color: var(--das-muted);
 }
-.das-sm__badge--kmz::before {
-  content: '';
-  display: inline-block;
-  width: 8px;
-  height: 8px;
-  margin-right: 6px;
-  border-radius: 50%;
-  background: var(--das-accent);
+
+.das-sm__table {
+  width: 100%;
+  margin-top: 20px;
+  border-collapse: collapse;
+  font-size: 14px;
+  line-height: 20px;
+  font-variant-numeric: tabular-nums;
+}
+.das-sm__table th,
+.das-sm__table td {
+  padding: 6px 8px;
+  border-bottom: 1px solid var(--das-line);
+  text-align: right;
+}
+.das-sm__table th:first-child {
+  padding-left: 0;
+  text-align: left;
+}
+.das-sm__table tbody th {
+  font-weight: 500;
+}
+.das-sm__table thead th {
+  font-size: 12px;
+  border-bottom-color: var(--das-ink);
+}
+.das-sm__table tr.is-sorot th,
+.das-sm__table tr.is-sorot td {
+  font-weight: 700;
+  color: var(--das-ink);
+  background: rgb(8 81 156 / 0.08);
 }
 
 /* ---------- Kontrol di atas peta ---------- */
@@ -337,6 +342,13 @@
   font: 500 13px/18px var(--das-font);
   color: var(--das-ink);
 }
+/* Titik yang diklik: nama tempat tampil lebih tegas dan tetap terbuka. */
+.das-sm .maplibregl-popup.das-sm__tooltip--selected .maplibregl-popup-content {
+  padding: 8px 12px;
+  font-weight: 700;
+  font-size: 15px;
+  box-shadow: 0 6px 20px rgb(0 0 0 / 0.3);
+}
 .das-sm .maplibregl-ctrl-attrib {
   font-family: var(--das-font);
   font-size: 11px;
@@ -447,24 +459,9 @@
     font-size: 20px;
     line-height: 26px;
   }
-  .das-sm__detail--sheet {
-    position: fixed;
-    z-index: 30;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    max-height: 46svh;
-    overflow-y: auto;
-    border-radius: 16px 16px 0 0;
-    padding-bottom: calc(24px + env(safe-area-inset-bottom, 0px));
-  }
-  /* Mode iframe: navigasi tetap bisa ditekan saat bottom sheet terbuka. */
+  /* Mobile: kolom teks selebar layar → navigasi di tengah layar. */
   .das-sm--internal .das-sm__nav {
     left: 50%;
-    z-index: 31;
-  }
-  .das-sm--internal .das-sm__detail--sheet {
-    padding-bottom: calc(96px + env(safe-area-inset-bottom, 0px));
   }
   .das-sm__legend {
     bottom: 36px;

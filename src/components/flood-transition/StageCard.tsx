@@ -77,7 +77,14 @@ function Viz({ viz, t }: { viz: VizTahap; t: number }) {
   );
 }
 
-export function StageCard({ tahap, sumber, reduceMotion }: { tahap: TahapBanjir; sumber: string; reduceMotion: boolean }) {
+interface StageCardProps {
+  tahap: TahapBanjir;
+  sumber: string;
+  judulIstilah: string;
+  reduceMotion: boolean;
+}
+
+export function StageCard({ tahap, sumber, judulIstilah, reduceMotion }: StageCardProps) {
   const t = useCountUp(true, reduceMotion);
   return (
     <motion.article
@@ -102,6 +109,19 @@ export function StageCard({ tahap, sumber, reduceMotion }: { tahap: TahapBanjir;
       )}
       <p className="das-ft-card__teks">{tahap.teks}</p>
       {tahap.viz && <Viz viz={tahap.viz} t={t} />}
+      {tahap.istilah && (
+        <section className="das-ft-card__istilah" aria-label={judulIstilah}>
+          <p className="das-ft-card__istilah-judul">{judulIstilah}</p>
+          <dl>
+            {tahap.istilah.map((i) => (
+              <div key={i.istilah}>
+                <dt>{i.istilah}</dt>
+                <dd>{i.arti}</dd>
+              </div>
+            ))}
+          </dl>
+        </section>
+      )}
       <p className="das-ft-card__sumber">{sumber}</p>
     </motion.article>
   );

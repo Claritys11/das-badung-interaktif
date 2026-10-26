@@ -5,7 +5,7 @@ import { story } from '../../src/content/story';
 /**
  * Klik titik banjir langsung di kanvas (posisi piksel dihitung dari koordinat).
  * Titik yang bertumpuk: klik pertama men-zoom ke kumpulan titik, klik berikutnya memilih —
- * jadi klik diulang (maks. 3×) sampai panel detail muncul, persis seperti pengguna.
+ * jadi klik diulang (maks. 3×) sampai nama tempat muncul, persis seperti pengguna.
  */
 async function clickPoint(page: Page, nama: string) {
   for (let i = 0; i < 3; i++) {
@@ -18,7 +18,7 @@ async function clickPoint(page: Page, nama: string) {
     }, nama);
     await page.mouse.click(xy.x, xy.y);
     await mapIdle(page);
-    if (await page.locator('.das-sm__detail').count()) return;
+    if (await page.locator('.das-sm__tooltip--selected').count()) return;
   }
 }
 
@@ -36,40 +36,38 @@ test('peta (iframe/internal): semua step, klik titik, reset, scroll mundur', asy
   }
   await expect(page.getByRole('button', { name: 'Berikutnya' })).toBeDisabled();
 
-  // Kembali ke step titik banjir lalu klik titik yang punya deskripsi KMZ.
-  await page.getByRole('button', { name: 'Sebelumnya' }).click();
-  await expect.poll(() => activeStep(page)).toBe('banjir');
-  await mapIdle(page);
+  // Step terakhir (penutup) titiknya bisa diklik → nama tempat tampil, kamera tidak pindah.
+  const zoomAwal = await page.evaluate(() => (window as any).__dasMap.getZoom());
   await clickPoint(page, 'Jalan Pulau Misol');
-  const detail = page.locator('.das-sm__detail');
-  await expect(detail.locator('h3')).toHaveText('Jalan Pulau Misol');
-  await expect(detail).toContainText('Ketinggian air sepinggang orang dewasa');
-  await expect(detail).toContainText('Keterangan dari data lapangan');
-  await mapIdle(page);
-  expect(await page.evaluate(() => (window as any).__dasMap.getZoom())).toBeGreaterThan(14.5);
-  await shot(page, info, 'peta-detail-kmz');
+  const nama = page.locator('.das-sm__tooltip--selected');
+  await expect(nama).toHaveText('Jalan Pulau Misol');
+  await shot(page, info, 'peta-nama-titik');
 
-  // Titik lain → placeholder berbeda.
+  // Reset → nama tertutup, kamera kembali ke tampilan cerita.
   await page.getByRole('button', { name: 'Kembali ke tampilan cerita' }).click();
-  await expect(detail).toHaveCount(0);
+  await expect(nama).toHaveCount(0);
   await mapIdle(page);
-  expect(await page.evaluate(() => (window as any).__dasMap.getZoom())).toBeLessThan(13.5);
-  await clickPoint(page, 'Pasar Badung');
-  await expect(detail).toContainText('[Penjelasan titik Pasar Badung — diisi redaksi]');
-  await mapIdle(page);
-  await shot(page, info, 'peta-detail-placeholder');
+  expect(await page.evaluate(() => (window as any).__dasMap.getZoom())).toBeCloseTo(zoomAwal, 1);
 
-  // Ganti step saat detail terbuka → detail tertutup.
-  await page.getByRole('button', { name: 'Berikutnya' }).click();
-  await expect.poll(() => activeStep(page)).toBe('penutup');
-  await expect(detail).toHaveCount(0);
+  // Ganti step saat titik terpilih → pilihan dilepas.
+  await clickPoint(page, 'Jalan Pulau Misol');
+  await expect(nama).toHaveCount(1);
+  await page.getByRole('button', { name: 'Sebelumnya' }).click();
+  await expect.poll(() => activeStep(page)).toBe('sungai');
+  await expect(nama).toHaveCount(0);
 
-  // Scroll mundur ke atas → step 1, layer data tersembunyi lagi.
+  // Step sungai: garis menjalar lalu tampil penuh.
+  await expect
+    .poll(() => page.evaluate(() => (window as any).__dasMap.getPaintProperty('sungai-line', 'line-opacity')), { timeout: 20_000 })
+    .toBe(1);
+
+  // Scroll mundur ke atas → step 1: choropleth tampil, titik banjir tersembunyi lagi.
   await page.locator('.das-sm--internal').evaluate((el) => el.scrollTo({ top: 0 }));
-  await expect.poll(() => activeStep(page)).toBe('bali');
+  await expect.poll(() => activeStep(page)).toBe(story[0].id);
   await mapIdle(page);
   const opacity = await page.evaluate(() => (window as any).__dasMap.getPaintProperty('banjir-circle', 'circle-opacity'));
   expect(opacity).toBe(0);
+  expect(await page.evaluate(() => (window as any).__dasMap.getPaintProperty('kab-fill', 'fill-opacity'))).toBeGreaterThan(0.5);
   c.assertClean();
 });
 
@@ -90,12 +88,14 @@ test('peta: reduced motion tetap berfungsi (tanpa animasi)', async ({ page }) =>
   await page.emulateMedia({ reducedMotion: 'reduce' });
   await page.goto('/embed/peta.html?debug&intro=0');
   await mapIdle(page);
-  await page.getByRole('button', { name: 'Berikutnya' }).click();
+  // Step DAS (zoom kabupaten/kota; step pulau bisa dibatasi maxBounds di layar sempit).
+  const i = story.findIndex((s) => s.id === 'das');
+  await page.getByRole('button', { name: `Bagian ${i + 1} dari ${story.length}` }).click();
   await expect.poll(() => activeStep(page)).toBe('das');
   // jumpTo → kamera langsung di tujuan tanpa animasi.
   await expect
     .poll(() => page.evaluate(() => (window as any).__dasMap.getZoom()))
-    .toBeCloseTo(story[1].cameraMobile && page.viewportSize()!.width < 768 ? story[1].cameraMobile.zoom! : story[1].camera.zoom, 1);
+    .toBeCloseTo(story[i].cameraMobile && page.viewportSize()!.width < 768 ? story[i].cameraMobile.zoom! : story[i].camera.zoom, 1);
 });
 
 test('peta: klik titik progres terakhir langsung ke step akhir tanpa mengaktifkan step perantara', async ({ page }) => {
@@ -113,4 +113,20 @@ test('peta: klik titik progres terakhir langsung ke step akhir tanpa mengaktifka
   await expect.poll(() => activeStep(page)).toBe(story[story.length - 1].id);
   await page.waitForTimeout(2000);
   expect(await page.evaluate(() => (window as any).__visited)).toEqual([story[story.length - 1].id]);
+});
+
+test('peta: scroll cepat melewati step sungai — garis tetap tumbuh halus sampai penuh, tidak melompat', async ({ page }) => {
+  await page.goto('/embed/peta.html?debug&intro=0');
+  await mapIdle(page);
+  const iSungai = story.findIndex((s) => s.id === 'sungai');
+  const opacity = () => page.evaluate(() => (window as any).__dasMap.getPaintProperty('sungai-line', 'line-opacity'));
+  await page.getByRole('button', { name: `Bagian ${iSungai + 1} dari ${story.length}` }).click();
+  await expect.poll(() => activeStep(page)).toBe('sungai');
+  await expect.poll(opacity).toEqual(expect.arrayContaining(['case'])); // sedang tumbuh
+  await page.getByRole('button', { name: `Bagian ${iSungai + 2} dari ${story.length}` }).click();
+  await expect.poll(() => activeStep(page)).toBe(story[iSungai + 1].id);
+  // Masih ekspresi bertahap sesaat setelah pindah step (bukan langsung angka penuh)…
+  expect(await opacity()).toEqual(expect.arrayContaining(['case']));
+  // …lalu selesai penuh.
+  await expect.poll(opacity, { timeout: 10_000 }).toBe(1);
 });

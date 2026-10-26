@@ -204,12 +204,6 @@ export const timeline: HariTimeline[] = [
       {
         teks: 'Gubernur Bali, Wayan Koster, menyerahkan bantuan perbaikan Rp2.714.000.000 untuk pedagang di Pasar Badung dan Pasar Kumbasari',
       },
-      {
-        teks: 'Rincian bantuan meliputi Rp720 juta untuk 72 kios yang dimiliki oleh 42 orang (Rp10 juta per kios), Rp740 juta untuk 148 los yang dimiliki 51 orang (Rp5 juta per los), Rp1.254.000.000 untuk 418 dagangan di pelataran yang dimiliki 280 orang (Rp3 juta per dagangan)',
-      },
-      {
-        teks: 'Ahli waris korban meninggal menerima bantuan Rp15 juta dari bantuan Pemerintah Pusat, Rp15 juta dari bantuan Pemprov Bali, dan Rp15 juta dari Pemkot Denpasar',
-      },
       { teks: 'Viral Pemprov Bali menggalang donasi banjir bagi ASN maupun PPPK dengan nominal yang sudah ditentukan' },
       {
         teks: 'Sekda Bali, Dewa Made Indra, menyatakan penggalangan donasi bersifat gotong royong sukarela. Besaran nominal hanya sebagai pedoman, boleh lebih atau rendah, sesuai nominal, atau tidak menyumbang sama sekali',

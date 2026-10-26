@@ -1,6 +1,11 @@
 .das-ss {
+  /* Ruang vertikal untuk judul, kontrol (tombol + penggaris tahun) & keterangan di bawah citra. */
+  --das-ss-chrome: 170px;
   width: 100%;
-  max-width: 1120px;
+  /* Seluruh slideshow (citra + bar tahun) muat dalam satu layar: lebar dibatasi oleh tinggi viewport
+     sesuai rasio citra, supaya pembaca tidak perlu menggulir naik-turun. */
+  max-width: min(1120px, calc((100vh - var(--das-ss-chrome)) * 1485 / 892));
+  max-width: min(1120px, calc((100svh - var(--das-ss-chrome)) * 1485 / 892));
   margin-inline: auto;
 }
 

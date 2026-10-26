@@ -29,6 +29,8 @@ export interface TahapBanjir {
   air: number;
   /** Tahap klimaks: getar + air bah layar penuh, lalu foto berganti ke "sesudah". */
   meluap?: boolean;
+  /** Daftar istilah (glosarium) di kartu — dipakai di tahap penutup. */
+  istilah?: { istilah: string; arti: string }[];
 }
 
 export const banjirTeks = {
@@ -50,7 +52,8 @@ export const banjirTeks = {
   },
   petunjukScroll: 'Gulir untuk mengikuti bagaimana banjir terjadi',
   sumberData:
-    'Keterangan: analisis Prof Dr Ir I Gusti Agung Putu Eryani MT, Guru Besar Teknik Sipil Universitas Warmadewa, dengan data curah hujan dari PU. Visualisasi dan animasi diolah dengan bantuan kecerdasan buatan.',
+    'Keterangan: hasil estimasi model hidrologi dihitung oleh Guru Besar Tetap Bidang Ilmu Teknik Sipil Bidang Hidro, Universitas Warmadewa, Prof Dr Ir I Gusti Agung Putu Eryani MT IPU ASEAN Eng. Angka bisa berbeda dari pengukuran langsung di lapangan. Visualisasi dan animasi diolah dengan bantuan kecerdasan buatan.',
+  judulIstilah: 'Istilah',
   tahapan: [
     {
       id: 'hujan',
@@ -108,9 +111,18 @@ export const banjirTeks = {
     {
       id: 'sesudah',
       label: 'Rabu, 10 September 2025',
-      teks: '[Kalimat penutup kondisi setelah banjir — diisi redaksi]',
+      teks: 'Bagian belakang Toko Tasnim Textile di Jalan Sulawesi, Kecamatan Denpasar Barat, roboh sekitar pukul 05.30 Wita bersamaan dengan hanyutnya dua penghuni di sana. Kedua jenazah ditemukan keesokan hari di bendungan Jalan Tanah Kilap.',
       hujan: 0.15,
       air: 0,
+      istilah: [
+        { istilah: 'Debit', arti: 'jumlah air yang mengalir melewati satu titik sungai setiap detik' },
+        { istilah: 'DAS (Daerah Aliran Sungai)', arti: 'seluruh wilayah yang airnya mengalir ke satu sungai' },
+        {
+          istilah: 'Koefisien limpasan',
+          arti: 'bagian air hujan yang mengalir di permukaan. Makin besar angkanya, makin sedikit air yang meresap',
+        },
+        { istilah: 'Waktu konsentrasi', arti: 'lama air dari titik terjauh di DAS sampai ke sungai utama' },
+      ],
     },
   ] satisfies TahapBanjir[],
 };

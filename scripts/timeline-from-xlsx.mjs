@@ -18,6 +18,10 @@ const NS = 'http://schemas.openxmlformats.org/spreadsheetml/2006/main';
 const HARI = ['Minggu', 'Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu'];
 const BULAN = ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'];
 
+// Peristiwa yang dihapus redaksi (awal teks). Disaring di sini supaya tidak muncul lagi saat
+// timeline dibuat ulang dari Excel (`--timpa`).
+const DIHAPUS = ['Rincian bantuan meliputi Rp720 juta untuk 72 kios', 'Ahli waris korban meninggal menerima bantuan Rp15 juta'];
+
 const textOf = (el) => [...el.getElementsByTagNameNS(NS, 't')].map((t) => t.textContent ?? '').join('');
 const colIndex = (ref) => [...ref.replace(/\d+/g, '')].reduce((n, ch) => n * 26 + ch.charCodeAt(0) - 64, 0) - 1;
 
@@ -59,6 +63,7 @@ export async function readTimeline() {
         .slice(1)
         .map((row) => row?.[col])
         .filter(Boolean)
+        .filter((teks) => !DIHAPUS.some((awal) => teks.startsWith(awal)))
         .map((teks) => ({ teks, waktu: waktuDari(teks) }));
       return { ...excelDate(Number(serial)), peristiwa };
     })

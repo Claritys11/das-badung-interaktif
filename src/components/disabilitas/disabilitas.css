@@ -1,0 +1,277 @@
+/* Visual disabilitas & bencana. Latar krem sama dengan gambar redaksi (sisi kanan gambar memudar ke krem). */
+.das-ds {
+  max-width: 980px;
+  margin: 0 auto;
+  padding: clamp(40px, 7vw, 88px) clamp(16px, 3vw, 32px);
+  background: var(--das-bg);
+  display: grid;
+  gap: clamp(56px, 9vw, 112px);
+}
+
+.das-ds__gambar,
+.das-ds__gambar img {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+.das-ds__gambar img {
+  aspect-ratio: 1050 / 585;
+  border-radius: var(--das-radius);
+  background: var(--das-line);
+}
+
+.das-ds__isi {
+  max-width: 680px;
+  margin: 0 auto;
+}
+.das-ds__gambar + .das-ds__isi {
+  margin-top: clamp(20px, 3vw, 32px);
+}
+.das-ds__label {
+  margin: 0 0 8px;
+  font-size: 13px;
+  line-height: 18px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--das-accent-ink);
+}
+.das-ds__isi h2 {
+  margin: 0 0 20px;
+  font-size: clamp(24px, 3vw, 32px);
+  line-height: 1.2;
+  font-weight: 700;
+}
+.das-ds__p {
+  margin: 0 0 16px;
+  font-size: 17px;
+  line-height: 28px;
+  color: var(--das-ink);
+}
+
+.das-ds__petunjuk {
+  margin: 0 0 12px;
+  padding: 0;
+  font-size: 15px;
+  line-height: 22px;
+  color: var(--das-ink-soft);
+}
+
+/* ---------- Pilihan langkah ---------- */
+.das-ds__pilihan,
+.das-ds__ceklis,
+.das-ds__tab {
+  margin: 28px 0 8px;
+  padding: clamp(18px, 3vw, 28px);
+  border: 1px solid var(--das-line);
+  border-radius: 12px;
+  background: var(--das-surface);
+}
+.das-ds__tanya {
+  margin: 0 0 16px;
+  font-size: 19px;
+  line-height: 27px;
+  font-weight: 700;
+}
+.das-ds__opsi {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 10px;
+}
+.das-ds__opsi button,
+.das-ds__tablist button {
+  min-height: 48px;
+  padding: 12px 16px;
+  border: 1.5px solid var(--das-ink);
+  border-radius: 10px;
+  background: transparent;
+  font: 600 15px/21px var(--das-font);
+  color: var(--das-ink);
+  text-align: left;
+  cursor: pointer;
+  transition:
+    background-color 0.15s,
+    color 0.15s,
+    border-color 0.15s;
+}
+.das-ds__opsi button:hover,
+.das-ds__tablist button:hover {
+  background: rgb(20 24 28 / 0.05);
+}
+.das-ds__opsi button[aria-pressed='true'],
+.das-ds__tablist button[aria-selected='true'] {
+  border-color: var(--das-accent);
+  background: var(--das-accent);
+  color: #fff;
+}
+.das-ds__akibat-isi,
+.das-ds__panel {
+  margin-top: 20px;
+  padding-top: 20px;
+  border-top: 1px solid var(--das-line);
+  animation: das-ds-masuk 0.3s cubic-bezier(0.2, 0, 0, 1);
+}
+.das-ds__akibat-isi > :last-child,
+.das-ds__panel > :last-child {
+  margin-bottom: 0;
+}
+.das-ds__catatan {
+  margin: 4px 0 0;
+  font-size: 13px;
+  line-height: 18px;
+  color: var(--das-muted);
+}
+@keyframes das-ds-masuk {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+}
+
+/* Percakapan petugas ↔ korban: gelembung kiri/kanan. */
+.das-ds__chat {
+  margin: 0 0 18px;
+  display: grid;
+  gap: 10px;
+}
+.das-ds__chat div {
+  max-width: 80%;
+  padding: 10px 14px;
+  border-radius: 14px 14px 14px 4px;
+  background: #eef1f4;
+}
+.das-ds__chat div.is-kanan {
+  justify-self: end;
+  border-radius: 14px 14px 4px 14px;
+  background: #fde8e8;
+}
+.das-ds__chat dt {
+  font-size: 12px;
+  line-height: 16px;
+  font-weight: 700;
+  color: var(--das-ink-soft);
+}
+.das-ds__chat dd {
+  margin: 2px 0 0;
+  font-size: 17px;
+  line-height: 25px;
+  font-weight: 600;
+}
+
+/* ---------- Daftar centang ---------- */
+.das-ds__ceklis {
+  min-width: 0;
+}
+.das-ds__ceklis legend {
+  float: left; /* legend di dalam padding fieldset, bukan di garis tepi */
+  width: 100%;
+}
+.das-ds__ceklis ul {
+  clear: both;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 4px;
+}
+.das-ds__ceklis label {
+  position: relative;
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+  padding: 10px 8px;
+  border-radius: 8px;
+  font-size: 16px;
+  line-height: 24px;
+  cursor: pointer;
+}
+.das-ds__ceklis label:hover {
+  background: rgb(20 24 28 / 0.04);
+}
+.das-ds__ceklis input {
+  position: absolute;
+  opacity: 0;
+  width: 1px;
+  height: 1px;
+}
+.das-ds__kotak {
+  flex: none;
+  width: 22px;
+  height: 22px;
+  margin-top: 1px;
+  border: 2px solid var(--das-ink);
+  border-radius: 6px;
+  transition:
+    background-color 0.15s,
+    border-color 0.15s;
+}
+.das-ds__ceklis input:checked + .das-ds__kotak {
+  border-color: var(--das-accent);
+  background: var(--das-accent)
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='3.2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M5 12.5l4.5 4.5L19 7.5'/%3E%3C/svg%3E")
+    center / 16px no-repeat;
+}
+.das-ds__ceklis input:checked ~ span:last-child {
+  color: var(--das-ink-soft);
+}
+.das-ds__ceklis input:focus-visible + .das-ds__kotak {
+  box-shadow: var(--das-focus);
+}
+.das-ds__progres {
+  height: 6px;
+  margin: 16px 0 8px;
+  border-radius: 3px;
+  background: var(--das-line);
+  overflow: hidden;
+}
+.das-ds__progres i {
+  display: block;
+  height: 100%;
+  background: var(--das-accent);
+  transition: width 0.3s cubic-bezier(0.2, 0, 0, 1);
+}
+.das-ds__progres-teks {
+  margin: 0;
+  font-size: 13px;
+  line-height: 18px;
+  font-weight: 600;
+  color: var(--das-ink-soft);
+}
+
+/* ---------- Tab kelompok disabilitas ---------- */
+.das-ds__tablist {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.das-ds__tablist button {
+  text-align: center;
+  border-radius: 999px;
+  padding: 10px 18px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .das-ds__akibat-isi,
+  .das-ds__panel {
+    animation: none;
+  }
+  .das-ds__progres i {
+    transition: none;
+  }
+}
+
+@media (max-width: 767px) {
+  .das-ds__gambar {
+    margin-inline: calc(-1 * clamp(16px, 3vw, 32px));
+  }
+  .das-ds__gambar img {
+    border-radius: 0;
+  }
+  .das-ds__p {
+    font-size: 16px;
+    line-height: 26px;
+  }
+  .das-ds__chat div {
+    max-width: 90%;
+  }
+}

@@ -4,7 +4,6 @@ import { ScrollyMap } from '../components/scrolly-map/ScrollyMap';
 import { FloodTransition } from '../components/flood-transition/FloodTransition';
 import { banjirTeks } from '../content/banjir';
 import { story, petaTeks } from '../content/story';
-import { titikBanjir } from '../content/titik-banjir';
 import './embed.css';
 
 // Halaman standalone untuk <iframe> — scroll internal + tombol navigasi (opsi C).
@@ -17,7 +16,6 @@ createRoot(document.getElementById('root')!).render(
     <main>
       <ScrollyMap
         steps={story}
-        titik={titikBanjir}
         teks={petaTeks}
         scrollMode="internal"
         terrain3d={q.get('terrain') === '1'}

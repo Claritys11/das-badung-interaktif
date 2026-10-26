@@ -9,4 +9,5 @@ export { timeline } from './content/timeline';
 export { timelineTeks } from './content/timeline-teks';
 export { slides, slideshowTeks } from './content/slides';
 export { story, petaTeks } from './content/story';
-export { titikBanjir } from './content/titik-banjir';
+export { Disabilitas } from './components/disabilitas/Disabilitas';
+export { disabilitas, disabilitasTeks } from './content/disabilitas';

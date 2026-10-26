@@ -1,6 +1,7 @@
 import { expect, test, type Page } from '@playwright/test';
 import { activeStep, shot, watchConsole } from './helpers';
 import { banjirTeks } from '../../src/content/banjir';
+import { story } from '../../src/content/story';
 
 const IDENTITY = /^(none|matrix\(1, 0, 0, 1, 0, 0\))$/;
 const tahapan = banjirTeks.tahapan;
@@ -59,7 +60,7 @@ test('banjir (iframe peta): tahap data → meluap (getar + air bah) → sesudah 
   await next(page);
   await expect.poll(() => stage(page)).toBe('sesudah');
   await next(page);
-  await expect.poll(() => activeStep(page)).toBe('bali');
+  await expect.poll(() => activeStep(page)).toBe(story[0].id);
   await expect(page.locator('.das-sm__dots [aria-current="step"]')).toHaveCount(1);
 
   // Mundur melewati klimaks: tanpa getar/efek, kembali ke foto sebelum.

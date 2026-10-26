@@ -1,4 +1,4 @@
-import type { Camera, LayerId, Step } from '../../content/types';
+import type { Camera, DataWilayah, LayerId, Step } from '../../content/types';
 
 // State cerita peta. Kamera & layer TIDAK disimpan di sini — keduanya diturunkan dari
 // state lewat resolveView(), sehingga scroll maju/mundur selalu menghasilkan tampilan
@@ -6,14 +6,19 @@ import type { Camera, LayerId, Step } from '../../content/types';
 export interface StoryState {
   activeStep: number;
   selectedPointId: string | null;
+  /** true bila titik dipilih dari daftar (peta terbang ke titik); klik langsung di peta → kamera diam. */
+  flyToPoint: boolean;
   /** Naik setiap kali user minta reset → memaksa kamera diterapkan ulang walau state lain sama. */
   resetToken: number;
 }
 
 export type StoryAction =
-  { type: 'enterStep'; index: number } | { type: 'selectPoint'; id: string } | { type: 'clearSelection' } | { type: 'reset' };
+  | { type: 'enterStep'; index: number }
+  | { type: 'selectPoint'; id: string; fly?: boolean }
+  | { type: 'clearSelection' }
+  | { type: 'reset' };
 
-export const initialStoryState: StoryState = { activeStep: 0, selectedPointId: null, resetToken: 0 };
+export const initialStoryState: StoryState = { activeStep: 0, selectedPointId: null, flyToPoint: false, resetToken: 0 };
 
 export function storyReducer(state: StoryState, action: StoryAction): StoryState {
   switch (action.type) {
@@ -24,7 +29,7 @@ export function storyReducer(state: StoryState, action: StoryAction): StoryState
       // Selama step belum berganti (scroll kecil saat membaca detail), detail tetap terbuka.
       return { ...state, activeStep: action.index, selectedPointId: null };
     case 'selectPoint':
-      return { ...state, selectedPointId: action.id };
+      return { ...state, selectedPointId: action.id, flyToPoint: Boolean(action.fly) };
     case 'clearSelection':
       return state.selectedPointId === null ? state : { ...state, selectedPointId: null };
     case 'reset':
@@ -41,6 +46,10 @@ export interface View {
   camera: Camera;
   layers: LayerId[];
   titikInteraktif: boolean;
+  dataWilayah?: DataWilayah;
+  sorotWilayah?: string;
+  sorotDas?: string;
+  sungaiMenjalar: boolean;
 }
 
 export const POINT_ZOOM = 15.5;
@@ -49,10 +58,19 @@ export function resolveView(state: StoryState, steps: Step[], points: Map<string
   const step = steps[Math.min(Math.max(state.activeStep, 0), steps.length - 1)];
   const base: Camera = { pitch: 0, bearing: 0, ...step.camera, ...(isNarrow ? step.cameraMobile : undefined) };
   const point = state.selectedPointId ? points.get(state.selectedPointId) : undefined;
-  const camera: Camera = point
-    ? { center: point.coordinates, zoom: Math.max(POINT_ZOOM - (isNarrow ? 0.5 : 0), base.zoom), pitch: 0, bearing: base.bearing }
-    : base;
+  const camera: Camera =
+    point && state.flyToPoint
+      ? { center: point.coordinates, zoom: Math.max(POINT_ZOOM - (isNarrow ? 0.5 : 0), base.zoom), pitch: 0, bearing: base.bearing }
+      : base;
   // Titik yang sedang dipilih selalu terlihat walau step aktif tidak menampilkan layer banjir.
   const layers: LayerId[] = point && !step.layers.includes('banjir') ? [...step.layers, 'banjir'] : step.layers;
-  return { camera, layers, titikInteraktif: Boolean(step.titikInteraktif) };
+  return {
+    camera,
+    layers,
+    titikInteraktif: Boolean(step.titikInteraktif),
+    dataWilayah: step.dataWilayah,
+    sorotWilayah: step.sorotWilayah,
+    sorotDas: step.sorotDas,
+    sungaiMenjalar: Boolean(step.sungaiMenjalar),
+  };
 }

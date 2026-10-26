@@ -29,7 +29,7 @@ function ensureWorker() {
   return workerReady;
 }
 import type { View } from './storyState';
-import { addDataLayers, applyLayerVisibility, CLICKABLE_LAYER } from './layers';
+import { addDataLayers, applyLayerVisibility, CLICKABLE_LAYER, setRiverProgress } from './layers';
 
 // Batas geser/zoom: Pulau Bali (+ sedikit ruang supaya tampilan pulau utuh muat di layar sempit).
 const BALI_BOUNDS: [number, number, number, number] = [114.2, -9.3, 115.95, -7.6];
@@ -249,24 +249,67 @@ export function MapView(props: MapViewProps) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [cameraKey, resetToken, ready, reduceMotion]);
 
-  // 3. Layer tampil/sembunyi.
-  const layersKey = view.layers.join(',');
+  // 3. Layer tampil/sembunyi (+ choropleth & sorotan wilayah).
+  //    Selama sungai belum tumbuh penuh, opacity-nya dipegang efek 3b, bukan fade biasa.
+  const riverProgress = useRef(1);
+  const layersKey = JSON.stringify([view.layers, view.dataWilayah?.judul, view.sorotWilayah, view.sorotDas, view.sungaiMenjalar]);
   useEffect(() => {
     const map = mapRef.current;
     if (!map || !ready) return;
-    applyLayerVisibility(map, view.layers, reduceMotion ? 0 : 700);
+    const sungaiMenjalar = view.sungaiMenjalar || riverProgress.current < 1;
+    applyLayerVisibility(map, { ...view, sungaiMenjalar }, reduceMotion ? 0 : 700);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [layersKey, ready, reduceMotion]);
 
-  // 4. Sorotan titik terpilih.
+  // 3b. Sungai "menjalar" dari hulu (utara) ke hilir (selatan) setiap kali step-nya dimasuki.
+  //     Mulai sesudah kamera hampir tiba, supaya pembaca melihat garis tumbuh, bukan sudah jadi.
+  //     Bila pembaca scroll ke step berikut sebelum selesai (sungai masih tampil), pertumbuhan
+  //     dilanjutkan cepat dari posisi terakhir — bukan melompat ke penuh.
+  const sungaiTampil = view.layers.includes('sungai');
+  const menjalar = view.sungaiMenjalar && sungaiTampil;
+  useEffect(() => {
+    const map = mapRef.current;
+    if (!map || !ready || !sungaiTampil) return;
+    const from = menjalar ? 0 : riverProgress.current;
+    if (reduceMotion || from >= 1) {
+      if (menjalar || riverProgress.current < 1) setRiverProgress(map, 1);
+      riverProgress.current = 1;
+      return;
+    }
+    const delay = menjalar ? 900 : 0;
+    const duration = menjalar ? 4200 : 1400 * (1 - from);
+    let raf = 0;
+    let start = 0;
+    riverProgress.current = from;
+    setRiverProgress(map, from);
+    const tick = (now: number) => {
+      start ||= now;
+      const p = Math.min(1, Math.max(0, (now - start - delay) / duration));
+      riverProgress.current = from + (1 - from) * (1 - Math.pow(1 - p, 2)); // ease-out: melambat di hilir
+      setRiverProgress(map, riverProgress.current);
+      if (p < 1) raf = requestAnimationFrame(tick);
+    };
+    raf = requestAnimationFrame(tick);
+    return () => cancelAnimationFrame(raf);
+  }, [menjalar, sungaiTampil, ready, reduceMotion]);
+
+  // 4. Sorotan titik terpilih + nama tempatnya (popup tetap terbuka sampai pilihan berganti).
   useEffect(() => {
     const map = mapRef.current;
     if (!map || !ready || !selectedPointId) return;
     map.setFeatureState({ source: 'banjir', id: selectedPointId }, { selected: true });
+    const f = banjirData?.features.find((x) => String(x.properties?.id) === selectedPointId);
+    const popup = f
+      ? new Popup({ closeButton: false, closeOnClick: false, offset: 14, className: 'das-sm__tooltip das-sm__tooltip--selected' })
+          .setLngLat((f.geometry as GeoJSON.Point).coordinates as [number, number])
+          .setText(String(f.properties?.nama))
+          .addTo(map)
+      : null;
     return () => {
+      popup?.remove();
       if (map.getSource('banjir')) map.setFeatureState({ source: 'banjir', id: selectedPointId }, { selected: false });
     };
-  }, [selectedPointId, ready]);
+  }, [selectedPointId, ready, banjirData]);
 
   // 5. Ukuran container berubah (mis. rotasi layar) → resize.
   useEffect(() => {

@@ -4,12 +4,13 @@ import { Slideshow } from '../components/slideshow/Slideshow';
 import { ScrollyMap } from '../components/scrolly-map/ScrollyMap';
 import { FloodTransition } from '../components/flood-transition/FloodTransition';
 import { Timeline } from '../components/timeline/Timeline';
+import { Disabilitas } from '../components/disabilitas/Disabilitas';
+import { disabilitas, disabilitasTeks } from '../content/disabilitas';
 import { timeline } from '../content/timeline';
 import { timelineTeks } from '../content/timeline-teks';
 import { banjirTeks } from '../content/banjir';
 import { slides, slideshowTeks } from '../content/slides';
 import { story, petaTeks } from '../content/story';
-import { titikBanjir } from '../content/titik-banjir';
 import './harness.css';
 
 // Dev harness: meniru artikel IDN Times (Insidenesia) dengan teks dummy panjang di atas/bawah
@@ -36,6 +37,7 @@ createRoot(document.getElementById('root')!).render(
       <h1>[Judul artikel DAS Badung — diisi redaksi]</h1>
       <nav>
         Halaman iframe: <a href="./embed/slideshow.html">slideshow</a> · <a href="./embed/peta.html">peta</a> ·{' '}
+        <a href="./embed/timeline.html">timeline</a> · <a href="./embed/disabilitas.html">disabilitas</a> ·{' '}
         <a href="?tema=hijau">tema hijau</a> · <a href="?debug">debug kamera</a>
       </nav>
     </header>
@@ -51,15 +53,12 @@ createRoot(document.getElementById('root')!).render(
       <Dummy n={5} />
     </article>
     <FloodTransition teks={banjirTeks} />
-    <ScrollyMap
-      steps={story}
-      titik={titikBanjir}
-      teks={petaTeks}
-      scrollMode="page"
-      terrain3d={q.get('terrain') === '1'}
-      debug={q.has('debug')}
-    />
+    <ScrollyMap steps={story} teks={petaTeks} scrollMode="page" terrain3d={q.get('terrain') === '1'} debug={q.has('debug')} />
     <Timeline hari={timeline} teks={timelineTeks} />
+    <article className="hx-article">
+      <Dummy n={3} />
+    </article>
+    <Disabilitas bab={disabilitas} teks={disabilitasTeks} />
     <article className="hx-article">
       <h2>Setelah timeline</h2>
       <Dummy n={8} />

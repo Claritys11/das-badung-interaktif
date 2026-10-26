@@ -11,6 +11,8 @@
   Cache-Control: public, max-age=31536000, immutable
 /citra/*
   Cache-Control: public, max-age=2592000
+/disabilitas/*
+  Cache-Control: public, max-age=2592000
 /data/*
   Access-Control-Allow-Origin: *
   Cache-Control: public, max-age=86400

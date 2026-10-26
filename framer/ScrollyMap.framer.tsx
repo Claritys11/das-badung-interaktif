@@ -6,7 +6,7 @@
 import { addPropertyControls, ControlType, useIsStaticRenderer } from 'framer';
 import { useEffect } from 'react';
 // @ts-ignore — modul URL, di-resolve oleh Framer saat runtime.
-import { ScrollyMap, story, petaTeks, titikBanjir } from 'https://HOST/framer/das-badung.js';
+import { ScrollyMap, story, petaTeks } from 'https://HOST/framer/das-badung.js';
 
 const HOST = 'https://HOST';
 
@@ -38,7 +38,6 @@ export default function DasScrollyMap(props: { apiKey: string; terrain3d: boolea
     <div style={{ width: '100%', ['--das-bg' as string]: props.background }}>
       <ScrollyMap
         steps={story}
-        titik={titikBanjir}
         teks={petaTeks}
         apiKey={props.apiKey}
         dataBaseUrl={`${HOST}/data/`}

@@ -1,7 +1,8 @@
 // Konversi KMZ → GeoJSON statis (build time). Jalankan: pnpm data
 // Input : raw/kmz/*.kmz        Output: public/data/*.geojson
-// Juga membuat src/content/titik-banjir.ts SEKALI (tidak menimpa hasil edit redaksi).
-import { readFile, writeFile, mkdir, access } from 'node:fs/promises';
+// Juga mencetak rekap titik banjir per kabupaten/kota, DAS & kelas ketinggian untuk dicocokkan
+// dengan angka di teks redaksi (src/content/story.ts).
+import { readFile, writeFile, mkdir } from 'node:fs/promises';
 import { fileURLToPath } from 'node:url';
 import path from 'node:path';
 import JSZip from 'jszip';
@@ -9,11 +10,14 @@ import { DOMParser } from '@xmldom/xmldom';
 import { kml } from '@tmcw/togeojson';
 import simplify from '@turf/simplify';
 import bbox from '@turf/bbox';
+import area from '@turf/area';
+import lineChunk from '@turf/line-chunk';
+import booleanPointInPolygon from '@turf/boolean-point-in-polygon';
+import polylabel from 'polylabel';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const KMZ_DIR = path.join(root, 'raw/kmz');
 const OUT_DIR = path.join(root, 'public/data');
-const CONTENT_FILE = path.join(root, 'src/content/titik-banjir.ts');
 
 async function readKmz(file) {
   const zip = await JSZip.loadAsync(await readFile(path.join(KMZ_DIR, file)));
@@ -24,11 +28,11 @@ async function readKmz(file) {
 }
 
 // Bulatkan koordinat (6 desimal ≈ 11 cm) untuk memangkas ukuran file.
-function roundCoords(c) {
-  return typeof c[0] === 'number' ? c.slice(0, 2).map((v) => Math.round(v * 1e6) / 1e6) : c.map(roundCoords);
+function roundCoords(c, k = 1e6) {
+  return typeof c[0] === 'number' ? c.slice(0, 2).map((v) => Math.round(v * k) / k) : c.map((x) => roundCoords(x, k));
 }
-function clean(fc) {
-  for (const f of fc.features) f.geometry.coordinates = roundCoords(f.geometry.coordinates);
+function clean(fc, desimal = 6) {
+  for (const f of fc.features) f.geometry.coordinates = roundCoords(f.geometry.coordinates, 10 ** desimal);
   return fc;
 }
 const fc = (features) => ({ type: 'FeatureCollection', features });
@@ -61,37 +65,126 @@ async function write(name, data) {
   return { name, features: data.features.length, kb: +(json.length / 1024).toFixed(1) };
 }
 
+// "YEH POH" → "Yeh Poh"
+const titleCase = (s) => s.toLowerCase().replace(/(^|\s)\S/g, (c) => c.toUpperCase());
+// Nilai atribut dari deskripsi KMZ ("... <br> NAMA_DAS DAS BADUNG <br> ...").
+const attr = (desc, key) =>
+  text(desc?.value ?? desc)
+    .match(new RegExp(`${key}\\s+([^<]+?)\\s*(?:<br>|$)`))?.[1]
+    ?.trim() ?? null;
+const angkaId = (s) => Number(String(s).replace(',', '.'));
+
+/** Titik label di "kutub tak terjangkau" polygon terbesar (selalu di dalam polygon, beda dengan centroid). */
+function labelPoint(geometry) {
+  const polys = geometry.type === 'MultiPolygon' ? geometry.coordinates : [geometry.coordinates];
+  const largest = polys.reduce((a, b) => (area({ type: 'Polygon', coordinates: b }) > area({ type: 'Polygon', coordinates: a }) ? b : a));
+  const [x, y] = polylabel(largest, 0.0005);
+  return { type: 'Point', coordinates: [x, y] };
+}
+const asPolygonal = (g) =>
+  g.type === 'GeometryCollection'
+    ? { type: 'MultiPolygon', coordinates: g.geometries.filter((x) => x.type === 'Polygon').map((x) => x.coordinates) }
+    : g;
+
 async function main() {
   await mkdir(OUT_DIR, { recursive: true });
   const report = [];
 
-  // 1. DAS — 3 polygon, dibedakan oleh warna asli di KMZ.
-  const das = await readKmz('DAS.kmz');
+  // 1. Titik banjir — 110 Point. Popup hanya menampilkan nama tempat.
+  const banjir = await readKmz('Titik banjir.kmz');
+  const used = new Set();
+  const banjirFeatures = banjir.features.map((f, i) => {
+    const nama = text(f.properties.name).replace(/\s+/g, ' ');
+    let slug = `banjir-${slugify(nama)}`;
+    while (used.has(slug)) slug += '-2';
+    used.add(slug);
+    const [, iconCode] = styleParts(f.properties.styleUrl);
+    return {
+      type: 'Feature',
+      id: i + 1, // id numerik untuk feature-state MapLibre
+      properties: { id: slug, nama, ikon: iconCode === '1703' ? 'fasilitas-air' : 'umum' },
+      geometry: f.geometry,
+    };
+  });
+  const inside = (pt, poly) => booleanPointInPolygon(pt, poly);
+  const countIn = (poly) => banjirFeatures.filter((pt) => inside(pt, poly)).length;
+
+  // 2. Batas kabupaten/kota — 7 wilayah (Buleleng & Bangli tidak ada di KMZ). Untuk choropleth korban & kerusakan.
+  const kab = await readKmz('Batas Administrasi KabupatenKota (Area).kmz');
+  const kabFeatures = kab.features.map((f, i) => {
+    const asli = text(f.properties.name); // "Kab. Badung" / "Kota Denpasar"
+    const geometry = asPolygonal(f.geometry);
+    return {
+      type: 'Feature',
+      id: i + 1,
+      properties: {
+        id: `kab-${slugify(asli.replace(/^(Kab\.|Kota)\s*/, ''))}`,
+        nama: asli.replace(/^Kab\.\s*/, 'Kabupaten '),
+        singkat: asli.replace(/^(Kab\.|Kota)\s*/, ''),
+      },
+      geometry,
+    };
+  });
+  const kabFc = clean(simplify(fc(kabFeatures), { tolerance: 0.0003, highQuality: true }));
+  report.push(await write('kabupaten.geojson', kabFc));
+  // Badung & Gianyar memanjang utara–selatan dan bersebelahan → label otomatis berdempetan di zoom pulau.
+  // Geser ke bagian yang lebih lapang (dicek tetap di dalam wilayahnya).
+  const LABEL_MANUAL = { Badung: [115.2, -8.36], Gianyar: [115.31, -8.55] };
+  const kabLabels = kabFc.features.map((f) => {
+    const manual = LABEL_MANUAL[f.properties.singkat];
+    const geometry = manual ? { type: 'Point', coordinates: manual } : labelPoint(f.geometry);
+    if (manual && !inside(geometry, f)) throw new Error(`Label manual ${f.properties.singkat} di luar wilayahnya`);
+    return { type: 'Feature', properties: f.properties, geometry };
+  });
+  report.push(await write('kabupaten-label.geojson', clean(fc(kabLabels))));
+
+  // 3. DAS — 8 polygon. Nama & luas dari atribut BWS Bali-Penida 2017 di deskripsi.
+  const das = await readKmz('Daerah Aliran Sungai.kmz');
   const dasFeatures = das.features.map((f, i) => {
-    const [, hex] = styleParts(f.properties.styleUrl);
+    const desc = f.properties.description;
+    const nama = titleCase(attr(desc, 'NAMA_DAS').replace(/^DAS\s+/, ''));
+    const geometry = asPolygonal(f.geometry);
     return {
       type: 'Feature',
       id: i + 1,
-      properties: { id: `das-${i + 1}`, nama: text(f.properties.name), warna: `#${hex}` },
-      geometry: f.geometry,
+      properties: { id: `das-${slugify(nama)}`, nama, luasKm2: Math.round(angkaId(attr(desc, 'Area')) * 100) / 100, titik: 0 },
+      geometry,
     };
   });
-  report.push(await write('das.geojson', clean(simplify(fc(dasFeatures), { tolerance: 0.00005, highQuality: true }))));
+  for (const f of dasFeatures) f.properties.titik = countIn(f);
+  const dasFc = clean(simplify(fc(dasFeatures), { tolerance: 0.00005, highQuality: true }));
+  report.push(await write('das.geojson', dasFc));
+  report.push(
+    await write(
+      'das-label.geojson',
+      clean(fc(dasFc.features.map((f) => ({ type: 'Feature', properties: f.properties, geometry: labelPoint(f.geometry) })))),
+    ),
+  );
 
-  // 2. Garis sungai — 19 LineString. Angka di style id (mis. 4273) = lebar garis ×1000 di Google My Maps.
-  const sungai = await readKmz('Garis sungai di kawasan DAS Badung.kmz');
-  const sungaiFeatures = sungai.features.map((f, i) => {
+  // 4. Garis sungai — 76 LineString. Dipotong per ±150 m; `ord` 0 (paling utara) → 1 (paling selatan)
+  //    dipakai animasi "menjalar" dari hulu (atas) ke hilir (bawah): potongan tampil saat ord ≤ progres.
+  //    Angka di style id (mis. 4273) = lebar garis ×1000 di Google My Maps.
+  const sungai = simplify(await readKmz('perlintasan sungai.kmz'), { tolerance: 0.00002, highQuality: true });
+  const potongan = [];
+  sungai.features.forEach((f) => {
     const [, , lebar] = styleParts(f.properties.styleUrl);
-    return {
-      type: 'Feature',
-      id: i + 1,
-      properties: { id: `sungai-${String(i + 1).padStart(2, '0')}`, nama: text(f.properties.name), lebar: Number(lebar) / 1000 || 1 },
-      geometry: f.geometry,
-    };
+    for (const c of lineChunk(f, 0.15, { units: 'kilometers' }).features) {
+      potongan.push({ lebar: Number(lebar) / 1000 || 1, geometry: c.geometry });
+    }
   });
-  report.push(await write('sungai.geojson', clean(fc(sungaiFeatures))));
+  const latMid = (g) => (g.coordinates[0][1] + g.coordinates.at(-1)[1]) / 2;
+  const lats = potongan.map((p) => latMid(p.geometry));
+  const [north, south] = [Math.max(...lats), Math.min(...lats)];
+  const sungaiFeatures = potongan.map((p, i) => ({
+    type: 'Feature',
+    id: i + 1,
+    properties: { lebar: p.lebar, ord: Math.round(((north - latMid(p.geometry)) / (north - south)) * 1000) / 1000 },
+    geometry: p.geometry,
+  }));
+  // 5 desimal (≈ 1 m) cukup untuk garis sungai dan memangkas ukuran file.
+  report.push(await write('sungai.geojson', clean(fc(sungaiFeatures), 5)));
 
-  // 3. Topografi — 5 kelas ketinggian (vektor). Nama "Ketinggian 0-50 Meter", "Ketinggian >1000 Meter".
+  // 5. Topografi — 5 kelas ketinggian (vektor). Nama "Ketinggian 0-50 Meter", "Ketinggian >1000 Meter".
   const topo = await readKmz('Topografi.kmz');
   const topoFeatures = topo.features.map((f, i) => {
     const nama = text(f.properties.name);
@@ -100,82 +193,41 @@ async function main() {
     const minM = m ? Number(m[1]) : Number(lebihDari?.[1] ?? 0);
     const maxM = m ? Number(m[2]) : null;
     // Kelas pertama di KMZ berisi polygon + 1 garis tepi; buang geometri non-polygon.
-    let geometry = f.geometry;
-    if (geometry.type === 'GeometryCollection') {
-      const polys = geometry.geometries.filter((g) => g.type === 'Polygon');
-      geometry = { type: 'MultiPolygon', coordinates: polys.map((p) => p.coordinates) };
-    }
     return {
       type: 'Feature',
       id: i + 1,
       properties: { id: `topo-${i + 1}`, nama, kelas: i + 1, minM, maxM },
-      geometry,
+      geometry: asPolygonal(f.geometry),
     };
   });
   report.push(await write('topografi.geojson', clean(simplify(fc(topoFeatures), { tolerance: 0.0004, highQuality: true }))));
 
-  // 4. Titik banjir — 80 Point. Pertahankan nama & deskripsi asli per titik.
-  const banjir = await readKmz('Titik banjir.kmz');
-  const used = new Set();
-  const banjirFeatures = banjir.features.map((f, i) => {
-    const nama = text(f.properties.name);
-    let slug = `banjir-${slugify(nama)}`;
-    while (used.has(slug)) slug += '-2';
-    used.add(slug);
-    const [, iconCode] = styleParts(f.properties.styleUrl);
-    const deskripsiKmz = [f.properties.deskripsi, f.properties.description].map(text).filter(Boolean).join(' — ') || null;
-    return {
-      type: 'Feature',
-      id: i + 1, // id numerik untuk feature-state MapLibre
-      properties: { id: slug, nama, ikon: iconCode === '1703' ? 'fasilitas-air' : 'umum', deskripsiKmz },
-      geometry: f.geometry,
-    };
-  });
-  const banjirFc = clean(fc(banjirFeatures));
-  report.push(await write('titik-banjir.geojson', banjirFc));
-
+  report.push(await write('titik-banjir.geojson', clean(fc(banjirFeatures))));
   console.table(report);
+
+  // Rekap untuk dicocokkan dengan angka di teks redaksi.
+  const denpasar = kabFeatures.find((f) => f.properties.singkat === 'Denpasar');
+  const dpsPts = banjirFeatures.filter((pt) => inside(pt, denpasar));
   console.log(
-    'bbox DAS       :',
-    bbox(fc(dasFeatures))
-      .map((v) => v.toFixed(4))
-      .join(', '),
+    `titik banjir   : ${banjirFeatures.length} (${banjirFeatures.filter((f) => f.properties.ikon === 'fasilitas-air').length} fasilitas air)`,
   );
+  console.log('per kab/kota   :', Object.fromEntries(kabFeatures.map((k) => [k.properties.singkat, countIn(k)])));
+  console.log(
+    'per DAS        :',
+    Object.fromEntries(dasFeatures.map((d) => [d.properties.nama, d.properties.titik])),
+    `di luar DAS: ${banjirFeatures.filter((pt) => !dasFeatures.some((d) => inside(pt, d))).length}`,
+  );
+  console.log(
+    'Denpasar/topo  :',
+    Object.fromEntries(topoFeatures.map((t) => [t.properties.nama, dpsPts.filter((pt) => inside(pt, t)).length])),
+  );
+  console.log('potongan sungai:', sungaiFeatures.length, 'dari', sungai.features.length, 'garis');
   console.log(
     'bbox titik     :',
-    bbox(banjirFc)
+    bbox(fc(banjirFeatures))
       .map((v) => v.toFixed(4))
       .join(', '),
   );
-  console.log('deskripsi KMZ  :', banjirFeatures.filter((f) => f.properties.deskripsiKmz).length, 'titik');
-
-  // 5. Skeleton konten titik — hanya dibuat jika belum ada.
-  try {
-    await access(CONTENT_FILE);
-    console.log(`\n${path.relative(root, CONTENT_FILE)} sudah ada — tidak ditimpa. Titik baru (jika ada) cek manual:`);
-    const existing = await readFile(CONTENT_FILE, 'utf8');
-    const missing = banjirFeatures.filter((f) => !existing.includes(`'${f.properties.id}'`));
-    console.log(missing.length ? missing.map((f) => `  - ${f.properties.id}`).join('\n') : '  (semua titik sudah punya entri)');
-  } catch {
-    const entries = banjirFeatures
-      .map(({ properties: p }) => {
-        const deskripsi = p.deskripsiKmz
-          ? { teks: p.deskripsiKmz, sumber: 'kmz' }
-          : { teks: `[Penjelasan titik ${p.nama} — diisi redaksi]`, sumber: 'placeholder' };
-        return `  '${p.id}': {\n    judul: ${JSON.stringify(p.nama)},\n    deskripsi: ${JSON.stringify(deskripsi.teks)},\n    sumber: '${deskripsi.sumber}',\n    tampil: true,\n  },`;
-      })
-      .join('\n');
-    await mkdir(path.dirname(CONTENT_FILE), { recursive: true });
-    await writeFile(
-      CONTENT_FILE,
-      `// Konten per titik banjir. Kunci = id stabil dari scripts/kmz-to-geojson.mjs.\n` +
-        `// sumber: 'kmz' = teks asli dari KMZ (data sumber), 'placeholder' = WAJIB diganti redaksi.\n` +
-        `// tampil: false untuk menyembunyikan titik tanpa menghapus data.\n` +
-        `import type { KontenTitik } from './types';\n\n` +
-        `export const titikBanjir: Record<string, KontenTitik> = {\n${entries}\n};\n`,
-    );
-    console.log(`\nDibuat: ${path.relative(root, CONTENT_FILE)}`);
-  }
 }
 
 main().catch((e) => {

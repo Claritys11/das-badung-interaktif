@@ -1,9 +1,9 @@
 import { Component, lazy, Suspense, useCallback, useEffect, useMemo, useReducer, useRef, useState, type ReactNode } from 'react';
-import { AnimatePresence, useReducedMotion } from 'motion/react';
-import type { KontenTitik, Step } from '../../content/types';
+import { useReducedMotion } from 'motion/react';
+import type { Step } from '../../content/types';
 import type { petaTeks as defaultTeks } from '../../content/story';
 import { initialStoryState, resolveView, storyReducer, type PointLike } from './storyState';
-import { PointDetail } from './PointDetail';
+import { StepCard } from './StepCard';
 import { Legend } from './Legend';
 import { StoryNav } from './StoryNav';
 import { IconReset } from '../icons';
@@ -13,7 +13,6 @@ import './scrolly-map.css';
 
 export interface ScrollyMapProps {
   steps: Step[];
-  titik: Record<string, KontenTitik>;
   teks: typeof defaultTeks;
   /** API key MapTiler. Default: VITE_MAPTILER_KEY. */
   apiKey?: string;
@@ -85,7 +84,6 @@ function useMediaQuery(query: string) {
 
 export function ScrollyMap({
   steps,
-  titik,
   teks,
   apiKey = import.meta.env.VITE_MAPTILER_KEY ?? '',
   dataBaseUrl = `${import.meta.env.BASE_URL}data/`,
@@ -110,7 +108,7 @@ export function ScrollyMap({
   // Mode internal: posisi relatif terhadap titik henti (intro + step) — untuk tombol & titik progres.
   const [navPos, setNavPos] = useState({ inIntro: Boolean(intro), atStart: true, atEnd: false });
 
-  // Data titik banjir: di-fetch sekali, disaring berdasarkan `tampil` di file konten.
+  // Data titik banjir: di-fetch sekali (dibutuhkan untuk daftar titik & popup nama).
   useEffect(() => {
     let alive = true;
     fetch(`${dataBaseUrl}titik-banjir.geojson`)
@@ -120,13 +118,13 @@ export function ScrollyMap({
       })
       .then((fc) => {
         if (!alive) return;
-        setBanjir({ ...fc, features: fc.features.filter((f) => titik[String(f.properties?.id)]?.tampil !== false) });
+        setBanjir(fc);
       })
       .catch(() => alive && setMapError('data'));
     return () => {
       alive = false;
     };
-  }, [dataBaseUrl, titik]);
+  }, [dataBaseUrl]);
 
   const points = useMemo(() => {
     const m = new Map<string, PointLike & { nama: string }>();
@@ -268,17 +266,8 @@ export function ScrollyMap({
   );
 
   const selected = state.selectedPointId ? points.get(state.selectedPointId) : undefined;
-  const selectedKonten: KontenTitik | undefined = selected
-    ? (titik[selected.id] ?? {
-        judul: selected.nama,
-        deskripsi: `[Penjelasan titik ${selected.nama} — diisi redaksi]`,
-        sumber: 'placeholder',
-        tampil: true,
-      })
-    : undefined;
   const activeStep = steps[state.activeStep];
   const showReset = Boolean(selected) || userMoved;
-  const detailLabels = { tutup: teks.tutupDetail, badgeKmz: teks.badgeKmz, badgePlaceholder: teks.badgePlaceholder };
   const sortedPoints = useMemo(() => [...points.values()].sort((a, b) => a.nama.localeCompare(b.nama, 'id')), [points]);
 
   const errorText = mapError
@@ -286,11 +275,7 @@ export function ScrollyMap({
     : null;
 
   return (
-    <section
-      ref={rootRef}
-      className={`das-root das-sm das-sm--${scrollMode} ${selected ? 'has-detail' : ''} ${className ?? ''}`}
-      aria-label="Peta interaktif DAS Badung"
-    >
+    <section ref={rootRef} className={`das-root das-sm das-sm--${scrollMode} ${className ?? ''}`} aria-label="Peta interaktif DAS Badung">
       {intro && (
         <div ref={introRef} className="das-sm__intro">
           {intro}
@@ -340,22 +325,6 @@ export function ScrollyMap({
       </div>
 
       <div className="das-sm__textcol">
-        {!isNarrow && (
-          <div className="das-sm__detail-slot">
-            <AnimatePresence>
-              {selectedKonten && (
-                <PointDetail
-                  key={state.selectedPointId}
-                  konten={selectedKonten}
-                  variant="panel"
-                  labels={detailLabels}
-                  onClose={() => dispatch({ type: 'clearSelection' })}
-                />
-              )}
-            </AnimatePresence>
-          </div>
-        )}
-
         <ol className="das-sm__steps">
           {steps.map((step, i) => (
             <li
@@ -366,38 +335,17 @@ export function ScrollyMap({
               className={`das-sm__step${i === state.activeStep ? ' is-active' : ''}`}
               data-step={step.id}
             >
-              <div className="das-sm__stepcard">
-                <p className="das-sm__stepnum" aria-hidden="true">
-                  {i + 1}
-                </p>
-                <h3>{step.judul}</h3>
-                {step.teks.map((p, j) => (
-                  <p key={j}>{p}</p>
-                ))}
-                {step.titikInteraktif && step.legenda === 'banjir' && sortedPoints.length > 0 && (
-                  <details className="das-sm__pointlist">
-                    <summary>Daftar {sortedPoints.length} titik banjir</summary>
-                    <ul>
-                      {sortedPoints.map((p) => (
-                        <li key={p.id}>
-                          <button
-                            type="button"
-                            aria-pressed={state.selectedPointId === p.id}
-                            onClick={() => {
-                              if (state.activeStep !== i) dispatch({ type: 'enterStep', index: i });
-                              dispatch({ type: 'selectPoint', id: p.id });
-                            }}
-                          >
-                            {p.nama}
-                          </button>
-                        </li>
-                      ))}
-                    </ul>
-                  </details>
-                )}
-                {i === steps.length - 1 && <p className="das-sm__source">{teks.sumberData}</p>}
-                {i === steps.length - 1 && scrollMode === 'internal' && <p className="das-sm__end">{teks.lanjutMembaca}</p>}
-              </div>
+              <StepCard
+                step={step}
+                titik={step.daftarTitik ? sortedPoints : undefined}
+                selectedPointId={state.selectedPointId}
+                onSelectPoint={(id) => {
+                  if (state.activeStep !== i) dispatch({ type: 'enterStep', index: i });
+                  dispatch({ type: 'selectPoint', id, fly: true });
+                }}
+                teks={teks}
+                akhir={i === steps.length - 1 && scrollMode === 'internal'}
+              />
             </li>
           ))}
         </ol>
@@ -415,20 +363,6 @@ export function ScrollyMap({
           />
         )}
       </div>
-
-      {isNarrow && (
-        <AnimatePresence>
-          {selectedKonten && (
-            <PointDetail
-              key={state.selectedPointId}
-              konten={selectedKonten}
-              variant="sheet"
-              labels={detailLabels}
-              onClose={() => dispatch({ type: 'clearSelection' })}
-            />
-          )}
-        </AnimatePresence>
-      )}
     </section>
   );
 }

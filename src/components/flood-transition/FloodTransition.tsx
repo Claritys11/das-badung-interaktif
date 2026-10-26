@@ -182,7 +182,7 @@ export function FloodTransition({
 
         <div className="das-ft__cardslot" aria-live="polite">
           <AnimatePresence mode="wait">
-            <StageCard key={tahap.id} tahap={tahap} sumber={teks.sumberData} reduceMotion={reduceMotion} />
+            <StageCard key={tahap.id} tahap={tahap} sumber={teks.sumberData} judulIstilah={teks.judulIstilah} reduceMotion={reduceMotion} />
           </AnimatePresence>
         </div>
 

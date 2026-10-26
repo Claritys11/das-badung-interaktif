@@ -182,6 +182,10 @@
   top: 50%;
   transform: translateY(-50%);
   width: min(380px, 36vw);
+  /* Kartu penutup (dengan istilah) bisa lebih tinggi dari layar pendek → scroll di dalam kartu. */
+  max-height: calc(100% - 140px);
+  overflow-y: auto;
+  scrollbar-width: thin;
 }
 .das-ft-card {
   padding: 20px 22px 16px;
@@ -232,6 +236,44 @@
   font-size: 11px;
   line-height: 15px;
   color: rgb(255 255 255 / 0.6);
+}
+
+/* Glosarium istilah di kartu penutup. */
+.das-ft-card__istilah {
+  margin: 14px 0 0;
+  padding-top: 10px;
+  border-top: 1px solid rgb(255 255 255 / 0.14);
+}
+.das-ft-card__istilah-judul {
+  margin: 0 0 6px;
+  font-size: 12px;
+  line-height: 16px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: rgb(255 255 255 / 0.72);
+}
+.das-ft-card__istilah dl {
+  margin: 0;
+  display: grid;
+  gap: 6px;
+}
+.das-ft-card__istilah dt {
+  display: inline;
+  font-weight: 700;
+  color: #fff;
+}
+.das-ft-card__istilah dt::after {
+  content: ': ';
+}
+.das-ft-card__istilah dd {
+  display: inline;
+  margin: 0;
+}
+.das-ft-card__istilah div {
+  font-size: 13px;
+  line-height: 18px;
+  color: rgb(255 255 255 / 0.85);
 }
 
 /* Viz: rentang curah hujan vs ambang ekstrem. */

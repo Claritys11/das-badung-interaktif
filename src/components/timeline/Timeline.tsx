@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import type { HariTimeline } from '../../content/types';
 import type { timelineTeks as defaultTeks } from '../../content/timeline-teks';
+import { TeksInline } from '../TeksInline';
 import { DayDialog } from './DayDialog';
 import '../../styles/tokens.css';
 import './timeline.css';
@@ -78,7 +79,9 @@ export function Timeline({ hari, teks, cuplikan = 3, className }: TimelineProps)
       <header className="das-tl__header">
         <h2 id="das-tl-judul">{teks.judul}</h2>
         {teks.pengantar.split(/\n\s*\n/).map((para, k) => (
-          <p key={k}>{para}</p>
+          <p key={k}>
+            <TeksInline teks={para} />
+          </p>
         ))}
       </header>
 
@@ -157,7 +160,11 @@ export function Timeline({ hari, teks, cuplikan = 3, className }: TimelineProps)
         })}
       </ol>
 
-      {teks.sumber && <p className="das-tl__source">{teks.sumber}</p>}
+      {teks.sumber && (
+        <p className="das-tl__source">
+          <TeksInline teks={teks.sumber} />
+        </p>
+      )}
 
       <DayDialog hari={hari} index={open} teks={teks} onNavigate={setOpen} onClose={() => setOpen(null)} />
     </section>

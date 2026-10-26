@@ -10,7 +10,7 @@ export interface Slide {
   alt: string;
 }
 
-export type LayerId = 'das' | 'sungai' | 'topografi' | 'banjir';
+export type LayerId = 'kabupaten' | 'das' | 'sungai' | 'topografi' | 'banjir';
 
 export interface Camera {
   center: [number, number];
@@ -19,8 +19,30 @@ export interface Camera {
   bearing?: number;
 }
 
+/** Angka per kabupaten/kota: tampil sebagai daftar batang di kartu step DAN sebagai warna (choropleth) di peta. */
+export interface DataWilayah {
+  judul: string;
+  /** Satuan di belakang angka, mis. "orang" / "fasilitas". */
+  satuan: string;
+  baris: {
+    /** Nama singkat persis seperti di data batas wilayah: "Denpasar", "Badung", "Gianyar", ... */
+    kode: string;
+    /** Label tampil, mis. "Kota Denpasar". */
+    label: string;
+    nilai: number;
+  }[];
+}
+
+export interface TabelStep {
+  kolom: string[];
+  baris: string[][];
+  /** Baris yang disorot (indeks), mis. DAS Badung. */
+  sorot?: number[];
+}
+
 export interface Step {
   id: string;
+  /** Judul kartu; '' = tanpa judul (mis. lanjutan step sebelumnya). */
   judul: string;
   /** Paragraf teks; tiap string = satu paragraf. */
   teks: string[];
@@ -28,18 +50,24 @@ export interface Step {
   /** Kamera alternatif untuk layar sempit (map lebih kecil → biasanya zoom lebih jauh). */
   cameraMobile?: Partial<Camera>;
   layers: LayerId[];
+  /** Kabupaten/kota diwarnai sesuai angka ini (layer 'kabupaten' harus ikut tampil). */
+  dataWilayah?: DataWilayah;
+  /** Tabel kecil di kartu (mis. luas & titik banjir per DAS). */
+  tabel?: TabelStep;
+  /** Garis sungai muncul bertahap dari hulu (utara) ke hilir (selatan) saat step ini aktif. */
+  sungaiMenjalar?: boolean;
+  /** Kabupaten/kota yang batasnya ditebalkan, mis. "Denpasar". */
+  sorotWilayah?: string;
+  /** DAS yang batasnya ditebalkan, mis. "Badung" (tampil tanpa layer 'das'). */
+  sorotDas?: string;
   /** Titik banjir bisa diklik pada step ini. */
   titikInteraktif?: boolean;
-  /** Tampilkan legenda topografi. */
+  /** Tampilkan daftar semua titik banjir di kartu (untuk keyboard & pembaca layar). */
+  daftarTitik?: boolean;
+  /** Legenda di pojok peta. */
   legenda?: 'topografi' | 'banjir';
-}
-
-export interface KontenTitik {
-  judul: string;
-  deskripsi: string;
-  /** 'kmz' = teks asli dari data sumber; 'placeholder' = wajib diganti redaksi. */
-  sumber: 'kmz' | 'placeholder';
-  tampil: boolean;
+  /** Catatan kecil di bawah kartu (mis. sumber data). */
+  keterangan?: string;
 }
 
 export interface PeristiwaTimeline {

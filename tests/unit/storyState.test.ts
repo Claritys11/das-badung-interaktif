@@ -18,11 +18,17 @@ describe('storyReducer', () => {
     expect(resolveView(backToB, steps, points).layers).toEqual(['das']);
   });
 
-  it('memilih titik men-zoom ke titik itu', () => {
-    const s = run({ type: 'enterStep', index: 2 }, { type: 'selectPoint', id: 'banjir-x' });
+  it('memilih titik dari daftar (fly) men-zoom ke titik itu', () => {
+    const s = run({ type: 'enterStep', index: 2 }, { type: 'selectPoint', id: 'banjir-x', fly: true });
     const v = resolveView(s, steps, points);
     expect(v.camera.center).toEqual([115.22, -8.67]);
     expect(v.camera.zoom).toBe(POINT_ZOOM);
+  });
+
+  it('klik titik langsung di peta tidak memindahkan kamera', () => {
+    const s = run({ type: 'enterStep', index: 2 }, { type: 'selectPoint', id: 'banjir-x' });
+    expect(s.selectedPointId).toBe('banjir-x');
+    expect(resolveView(s, steps, points).camera).toEqual(resolveView(run({ type: 'enterStep', index: 2 }), steps, points).camera);
   });
 
   it('detail tetap terbuka selama step tidak berganti', () => {
@@ -48,7 +54,7 @@ describe('storyReducer', () => {
   });
 
   it('titik terpilih tetap tampil walau step tidak punya layer banjir', () => {
-    const s: StoryState = { activeStep: 1, selectedPointId: 'banjir-x', resetToken: 0 };
+    const s: StoryState = { activeStep: 1, selectedPointId: 'banjir-x', flyToPoint: false, resetToken: 0 };
     expect(resolveView(s, steps, points).layers).toContain('banjir');
   });
 
