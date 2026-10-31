@@ -13,6 +13,9 @@
   Cache-Control: public, max-age=2592000
 /disabilitas/*
   Cache-Control: public, max-age=2592000
+/sejarah/*
+  Cache-Control: public, max-age=2592000
+  Access-Control-Allow-Origin: *
 /data/*
   Access-Control-Allow-Origin: *
   Cache-Control: public, max-age=86400

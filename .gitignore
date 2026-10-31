@@ -8,3 +8,6 @@ dist/
 test-results/
 playwright-report/
 *.tsbuildinfo
+
+# GIF sumber hero 54 MB (hanya untuk pnpm sejarah; sumbernya folder redaksi "visual sejarah")
+raw/sejarah/sejarah.gif

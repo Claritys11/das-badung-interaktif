@@ -6,6 +6,8 @@ import { FloodTransition } from '../components/flood-transition/FloodTransition'
 import { Timeline } from '../components/timeline/Timeline';
 import { Disabilitas } from '../components/disabilitas/Disabilitas';
 import { disabilitas, disabilitasTeks } from '../content/disabilitas';
+import { Sejarah } from '../components/sejarah/Sejarah';
+import { sejarah, sejarahTeks } from '../content/sejarah';
 import { timeline } from '../content/timeline';
 import { timelineTeks } from '../content/timeline-teks';
 import { banjirTeks } from '../content/banjir';
@@ -38,6 +40,7 @@ createRoot(document.getElementById('root')!).render(
       <nav>
         Halaman iframe: <a href="./embed/slideshow.html">slideshow</a> · <a href="./embed/peta.html">peta</a> ·{' '}
         <a href="./embed/timeline.html">timeline</a> · <a href="./embed/disabilitas.html">disabilitas</a> ·{' '}
+        <a href="./embed/sejarah.html">sejarah</a> ·{' '}
         <a href="?tema=hijau">tema hijau</a> · <a href="?debug">debug kamera</a>
       </nav>
     </header>
@@ -62,6 +65,10 @@ createRoot(document.getElementById('root')!).render(
     <article className="hx-article">
       <h2>Setelah timeline</h2>
       <Dummy n={8} />
+    </article>
+    <Sejarah bab={sejarah} teks={sejarahTeks} />
+    <article className="hx-article">
+      <Dummy n={3} />
     </article>
   </StrictMode>,
 );
