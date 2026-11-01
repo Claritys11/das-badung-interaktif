@@ -87,16 +87,11 @@
   background: rgb(12 14 13 / 0.8);
 }
 
-.das-sj__pembuka {
-  max-width: 34ch;
+.das-sj .das-sj__pembuka {
+  box-sizing: content-box;
+  max-width: 640px;
   margin: 0;
   padding: clamp(56px, 10vh, 112px) var(--das-sj-tepi);
-  font-size: clamp(24px, 3vw, 40px);
-  line-height: 1.28;
-  font-weight: 500;
-  letter-spacing: -0.015em;
-  max-inline-size: min(100%, 980px);
-  text-wrap: pretty;
 }
 
 /* ---------- Panel media + teks ---------- */
@@ -314,14 +309,6 @@
 }
 .das-sj__p:last-child {
   margin-bottom: 0;
-}
-.das-sj__penutup {
-  margin: 40px 0 0;
-  font-size: clamp(25px, 2.5vw, 34px);
-  line-height: 1.24;
-  font-weight: 700;
-  letter-spacing: -0.02em;
-  color: var(--das-ink);
 }
 /* Desktop: caption tampil di panel; versi alir tetap dibaca pembaca layar. */
 .das-sj__caption-alir {

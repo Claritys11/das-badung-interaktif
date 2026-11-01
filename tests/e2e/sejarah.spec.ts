@@ -71,9 +71,22 @@ test('sejarah: judul muncul saat di-scroll, media & masa peta mengikuti teks', a
   // Foto terakhir & kalimat penutup.
   await keSegmen(page, 'heritage-0');
   await expect(page.locator('.das-sj__foto.is-aktif')).toHaveAttribute('data-foto', 'jalan-gajah-mada');
-  await page.locator('.das-sj__penutup').scrollIntoViewIfNeeded();
-  await expect(page.locator('.das-sj__penutup')).toContainText('Lebih baik dirobohkan');
+  const penutup = page.locator('.das-sj__p', { hasText: 'Lebih baik dirobohkan' });
+  await penutup.scrollIntoViewIfNeeded();
+  await expect(penutup).toBeVisible();
+  await expect(page.locator('.das-sj__foto.is-aktif')).toHaveCSS('opacity', '1');
   await shot(page, info, 'sejarah-penutup');
+
+  // Pembuka dan kalimat penutup berukuran sama dengan paragraf isi.
+  const gayaTeks = (l: import('@playwright/test').Locator) =>
+    l.evaluate((el) => {
+      const g = getComputedStyle(el);
+      return [g.fontSize, g.lineHeight, g.fontWeight, g.letterSpacing];
+    });
+  const gayaIsi = await gayaTeks(page.locator('.das-sj__segmen .das-sj__p').first());
+  expect(await gayaTeks(penutup)).toEqual(gayaIsi);
+  expect(await gayaTeks(page.locator('.das-sj__pembuka'))).toEqual(gayaIsi);
+  await expect(page.getByText('Gambar ini adalah peta lokasi perempatan jalan')).toBeAttached();
   c.assertClean();
 });
 

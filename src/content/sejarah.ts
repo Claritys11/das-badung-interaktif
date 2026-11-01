@@ -124,7 +124,7 @@ export const sejarah: BabSejarah[] = [
         paragraf: [
           'Sebelum Belanda datang, Denpasar adalah pusat Kerajaan Badung yang tertata berdasarkan konsep _catuspatha_, yaitu perempatan agung (_pempatan agung_) berbentuk palang (+) atau dalam istilah Bali disebut _tapak dara_.',
           'Perempatan itu dibagi empat kawasan. Puri (istana raja), pasar, _wantilan_ (bangunan serbaguna untuk budaya dan hiburan), dan ruang terbuka hijau (RTH) milik kerajaan.',
-          'Gambar di samping merupakan peta lokasi perempatan jalan di Lapangan I Gusti Ngurah Made Agung di masa sekarang. Warga lebih mengenalnya dengan nama Lapangan Puputan Badung.',
+          'Gambar ini adalah peta lokasi perempatan jalan di Lapangan I Gusti Ngurah Made Agung di masa sekarang. Warga lebih mengenalnya dengan nama Lapangan Puputan Badung.',
         ],
       },
       {
