@@ -14,6 +14,7 @@ export default defineConfig({
         timeline: resolve(import.meta.dirname, 'embed/timeline.html'),
         disabilitas: resolve(import.meta.dirname, 'embed/disabilitas.html'),
         sejarah: resolve(import.meta.dirname, 'embed/sejarah.html'),
+        kesiapan: resolve(import.meta.dirname, 'embed/kesiapan.html'),
       },
     },
   },

@@ -3,14 +3,7 @@
 // Setiap bab = (gambar opsional) + label + judul + rangkaian blok; saat ini semua bab tanpa foto. Blok interaktif:
 //   'pilihan'  → pembaca memilih satu langkah, akibatnya tampil (bisa ganti pilihan)
 //   'ceklis'   → daftar centang (hanya di browser pembaca, tidak dikirim ke mana pun)
-//   'ceklis-pasangan' → dua daftar centang bersebelahan dengan ukuran sama; daftar yang lebih panjang digulir di dalam kartunya
 //   'tab'      → pilih satu kelompok untuk melihat isinya
-
-export interface CeklisDisabilitas {
-  jenis: 'ceklis';
-  petunjuk: string;
-  item: string[];
-}
 
 export type BlokDisabilitas =
   | { jenis: 'paragraf'; teks: string }
@@ -21,8 +14,7 @@ export type BlokDisabilitas =
       pertanyaan: string;
       opsi: { id: string; label: string; akibat: BlokDisabilitas[] }[];
     }
-  | CeklisDisabilitas
-  | { jenis: 'ceklis-pasangan'; daftar: [CeklisDisabilitas, CeklisDisabilitas] }
+  | { jenis: 'ceklis'; petunjuk: string; item: string[] }
   | { jenis: 'tab'; petunjuk: string; opsi: { id: string; label: string; isi: BlokDisabilitas[] }[] };
 
 export interface BabDisabilitas {
@@ -137,51 +129,14 @@ export const disabilitas: BabDisabilitas[] = [
         '“Kita tidak tahu kapan bencana itu akan terjadi, minimal kita sudah bisa menyelamatkan orang-orang yang berharga. Orang dulu, baru barang-barangnya,” pesan Leni saat ditemui _IDN Times_ pada Selasa, 15 September 2026.',
       ),
       {
-        jenis: 'ceklis-pasangan',
-        daftar: [
-          {
-            jenis: 'ceklis',
-            petunjuk: 'Centang langkah yang sudah kamu atau organisasimu lakukan.',
-            item: [
-              'Simpan berkas penting di kotak plastik kedap air',
-              'Arsipkan dokumen penting secara digital',
-              'Pastikan anggota keluarga disabilitas tercatat dalam data banjar atau desa',
-              'Libatkan orangtua atau keluarga dalam pelatihan kesiapsiagaan bencana',
-              'Saat menolong, tanyakan dulu kebutuhan orangnya sebelum mengangkat atau memindahkan',
-            ],
-          },
-          {
-            jenis: 'ceklis',
-            petunjuk: 'Centang langkah yang sudah berjalan di daerahmu.',
-            item: [
-              'Keruk sedimen dan gelontor drainase rutin sebelum, saat, dan sesudah musim hujan, tidak terlalu dalam agar tak memicu intrusi air laut',
-              'Buat kolam retensi dan ruang hijau',
-              'Arahkan tata guna lahan menjauh dari zona risiko tinggi',
-              'Pasang sistem peringatan dini berbasis pemantauan langsung',
-              'Bangun pengelolaan sampah di permukiman tepi sungai',
-              'Kaji ulang aturan, bagi peran penegakan dan pengerukan secara jelas',
-              'Pendanaan dari pelaku usaha di sepanjang DAS (hotel, vila, restoran) lewat skema mirip CSR',
-              'Libatkan desa adat dalam penegakan sempadan',
-              'Bongkar bangunan yang melanggar sempadan lewat prosedur benar (pemberitahuan dan surat peringatan)',
-              'Riset daya tampung sungai bersama perguruan tinggi',
-              'Mengonsep arsitektur agar rumah di tepi sungai menghadap sungai',
-              'Zonasi dan mitigasi bencana untuk cagar budaya dan ODCB',
-              'Program pengecekan struktur bangunan bersejarah',
-              'Ada kompensasi untuk pemilik cagar budaya/ODCB yang bangunannya mau dirobohkan',
-              'Evakuasi inklusif, ada SOP penyelamatan disabilitas',
-              'Data terpilah penyandang disabilitas di banjar dan desa',
-              'Ada pelibatan penyandang disabilitas dalam musyawarah desa',
-              'SOP evakuasi mandiri warga (siapa, kapan, ke mana)',
-              'Perketat zonasi kawasan rawan banjir dan batasi pembangunan di dalamnya',
-              'Warga rentan bencana mendapatkan pelindungan sosial dan rasa aman',
-              'Warga mendapatkan pendidikan, pelatihan, dan keterampilan penanggulangan bencana',
-              'Warga mendapatkan informasi secara tertulis dan/atau lisan tentang kebijakan penanggulangan bencana',
-              'Warga berperan serta dalam perencanaan, pengoperasian, dan pemeliharaan program penyediaan bantuan pelayanan kesehatan termasuk dukungan psikososial',
-              'Warga berpartisipasi dalam pengambilan keputusan terhadap kegiatan penanggulangan bencana',
-              'Setiap orang yang terkena bencana mendapatkan bantuan pemenuhan kebutuhan dasar',
-              'Setiap orang memperoleh ganti kerugian karena terkena bencana yang disebabkan oleh kegagalan konstruksi',
-            ],
-          },
+        jenis: 'ceklis',
+        petunjuk: 'Centang langkah yang sudah kamu atau organisasimu lakukan.',
+        item: [
+          'Simpan berkas penting di kotak plastik kedap air',
+          'Arsipkan dokumen penting secara digital',
+          'Pastikan anggota keluarga disabilitas tercatat dalam data banjar atau desa',
+          'Libatkan orangtua atau keluarga dalam pelatihan kesiapsiagaan bencana',
+          'Saat menolong, tanyakan dulu kebutuhan orangnya sebelum mengangkat atau memindahkan',
         ],
       },
     ],

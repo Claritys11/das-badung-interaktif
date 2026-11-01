@@ -10,12 +10,13 @@ Komponen untuk artikel IDN Times tentang Daerah Aliran Sungai (DAS) Badung, Bali
 | **B0** | `FloodTransition` | Pembuka peta: 6 tahap data hidrologi (hujan ekstrem → limpasan → debit → **meluap**) mengikuti scroll; saat meluap layar bergetar dan air bah menutup seluruh layar → foto **sesudah** banjir                                   |
 | **C**  | `Timeline`        | Timeline banjir Denpasar 8 September 2025 – 3 September 2026 (18 tanggal, 57 peristiwa dari Excel redaksi; 2 peristiwa dihapus redaksi). Kartu per tanggal berisi cuplikan; klik kartu → pop-up berisi semua peristiwa hari itu |
 | **B**  | `ScrollyMap`      | Peta scrollytelling (MapLibre + MapTiler), 7 step: choropleth korban jiwa & kerusakan per kabupaten/kota, 110 titik banjir (klik → nama tempat), 8 DAS, topografi, garis sungai yang menjalar dari hulu ke hilir                |
-| **D**  | `Disabilitas`     | 5 bab (tanpa foto, keputusan redaksi) tentang penyandang disabilitas saat banjir: pilihan langkah evakuasi, dua daftar centang kesiapsiagaan yang berdampingan, dan tab kanal peringatan dini per kelompok                                                                  |
+| **D**  | `Disabilitas`     | 5 bab (tanpa foto, keputusan redaksi) tentang penyandang disabilitas saat banjir: pilihan langkah evakuasi, daftar centang kesiapsiagaan, dan tab kanal peringatan dini per kelompok                                                                  |
 | **E**  | `Sejarah`         | Sejarah tata ruang Denpasar: video pembuka (judul muncul saat di-scroll), panel media sticky + teks, peta MapLibre dengan 4 masa (kerajaan, 1915, 1930, sekarang), peta lama georeferensi dari KMZ, dan foto |
+| **F**  | `Kesiapan`        | Penutup artikel: 26 langkah kesiapan menghadapi bencana, dipecah dalam 5 kelompok daftar centang |
 
 Semua komponen tersedia dalam dua bentuk:
 
-1. **Halaman standalone untuk `<iframe>`**: `embed/slideshow.html`, `embed/peta.html`, `embed/timeline.html`, `embed/disabilitas.html`, dan `embed/sejarah.html`. Konfigurasi Cloudflare Pages sudah ada, tapi **belum di-deploy**.
+1. **Halaman standalone untuk `<iframe>`**: `embed/slideshow.html`, `embed/peta.html`, `embed/timeline.html`, `embed/disabilitas.html`, `embed/sejarah.html`, dan `embed/kesiapan.html`. Konfigurasi Cloudflare Pages sudah ada, tapi **belum di-deploy**.
 2. **Komponen React + TypeScript** yang bisa dipakai ulang, termasuk wrapper untuk **Framer Code Component**.
 
 > Teks yang masih **placeholder** bertanda `[… — diisi redaksi]`. Daftarnya ada di [TODO redaksi](#todo-redaksi).
@@ -42,6 +43,7 @@ pnpm dev                      # http://localhost:5173
 | `/embed/peta.html`      | Halaman iframe peta, dibuka dengan transisi banjir (`?intro=0` untuk peta saja, `?terrain=1` untuk terrain 3D, `?debug`)        |
 | `/embed/disabilitas.html` | Halaman iframe visual disabilitas |
 | `/embed/sejarah.html`   | Halaman iframe visual sejarah (`?debug` membuka `window.__sjMap` di build produksi) |
+| `/embed/kesiapan.html`  | Halaman iframe daftar langkah penutup |
 
 ### Perintah
 
@@ -92,6 +94,7 @@ src/
     timeline.ts              peristiwa & judul kartu linimasa
     timeline-teks.ts         teks antarmuka linimasa
     disabilitas.ts           5 bab visual disabilitas (teks, gambar opsional, blok interaktif)
+    kesiapan.ts              26 langkah penutup artikel, dalam 5 kelompok
     sejarah.ts               8 bab visual sejarah (teks, caption, alt, media & kamera tiap segmen)
     sejarah-peta.ts          digenerate dari KMZ, jangan diedit
     types.ts
@@ -102,10 +105,11 @@ src/
     scrolly-map/             ScrollyMap.tsx (layout & scroll), MapView.tsx (MapLibre),
                              storyState.ts (reducer), layers.ts (gaya layer),
                              StepCard.tsx (isi kartu step), Legend.tsx, StoryNav.tsx
-    disabilitas/             Disabilitas.tsx, disabilitas.css
+    disabilitas/             Disabilitas.tsx, Ceklis.tsx (dipakai juga oleh Kesiapan), disabilitas.css
+    kesiapan/                Kesiapan.tsx, kesiapan.css
     sejarah/                 Sejarah.tsx (hero, panel, teks), PetaSejarah.tsx (MapLibre, dimuat saat dekat), sejarah.css
   styles/tokens.css          token visual (CSS variable, bisa ditimpa host)
-  entries/                   harness + 5 halaman embed
+  entries/                   harness + 6 halaman embed
   framer-entry.ts            entry bundle Framer
 framer/                      file Code Component untuk ditempel di Framer
 tests/unit, tests/e2e        Vitest & Playwright; tests/screenshots/ = hasil tiap step
@@ -187,7 +191,8 @@ Semua teks ada di `src/content/`, dan komponen tidak menyimpan teks redaksi sama
 - **Slideshow:** `slides.ts` → `alt` per citra, `slideshowTeks.judul/keterangan`.
 - **Peta:** `story.ts` → `judul` dan `teks` (array paragraf; `_teks_` = cetak miring, mis. nama media/istilah asing — berlaku juga di `disabilitas.ts` dan `timeline-teks.ts`) per step, `dataWilayah` (angka per kabupaten/kota: tampil sebagai batang di kartu sekaligus warna di peta), `tabel` (DAS), `keterangan` (sumber data di step terakhir).
 - **Visual sejarah:** `sejarah.ts` → bab, segmen (media + paragraf), caption, alt. Ganti media di tengah bab dengan menambah segmen; `kamera` mengatur posisi peta.
-- **Visual disabilitas:** `disabilitas.ts` → bab, gambar + alt, paragraf, dan blok interaktif (`pilihan`, `ceklis`, `ceklis-pasangan`, `tab`).
+- **Visual disabilitas:** `disabilitas.ts` → bab, gambar + alt, paragraf, dan blok interaktif (`pilihan`, `ceklis`, `tab`).
+- **Daftar langkah penutup:** `kesiapan.ts` → kelompok dan butir.
 - **Kamera step:** buka `/?debug`, geser peta ke tampilan yang diinginkan, lalu salin angka `center`, `zoom`, `pitch`, `bearing` ke `story.ts`. `cameraMobile` bisa menimpa kamera khusus untuk layar < 768 px.
 - **Warna tema:** latar default krem hangat `#FAF7EE` (terinspirasi Kontinentalist), kartu/pop-up `#FFFDF8`; aksen tetap merah IDN Times. Transisi banjir sengaja tetap gelap (sinematik). Timpa CSS variable, misalnya `--das-bg: #DAEBC6`, di elemen pembungkus (lihat `src/styles/tokens.css`).
 
@@ -256,7 +261,7 @@ Setelah `dist/` di-hosting (misalnya di `https://das-badung.pages.dev`), gunakan
 ></iframe>
 ```
 
-**Visual disabilitas** dan **visual sejarah**: setinggi layar, dengan scroll dokumen di dalam iframe:
+**Visual disabilitas**, **visual sejarah**, dan **daftar langkah penutup**: setinggi layar, dengan scroll dokumen di dalam iframe:
 
 ```html
 <iframe
@@ -269,6 +274,13 @@ Setelah `dist/` di-hosting (misalnya di `https://das-badung.pages.dev`), gunakan
 <iframe
   src="https://das-badung.pages.dev/embed/sejarah.html"
   title="Sejarah Tata Ruang Kota Pusaka"
+  loading="lazy"
+  style="display:block;width:100%;height:100vh;height:100svh;min-height:600px;border:0;"
+></iframe>
+
+<iframe
+  src="https://das-badung.pages.dev/embed/kesiapan.html"
+  title="Daftar langkah kesiapan menghadapi bencana"
   loading="lazy"
   style="display:block;width:100%;height:100vh;height:100svh;min-height:600px;border:0;"
 ></iframe>
@@ -335,7 +347,7 @@ npx wrangler pages deploy dist --project-name das-badung-interaktif
 ## Testing & performa
 
 - `pnpm test`: 9 unit test reducer (scroll maju/mundur, pilih titik dari peta vs dari daftar, reset, ganti step saat titik terpilih).
-- `pnpm e2e`: 20 skenario × 3 viewport (1440 × 900, 834 × 1112, 390 × 844) = 60 test, termasuk visual disabilitas (pilihan, kedua daftar centang, tab dengan keyboard), visual sejarah (judul, masa peta, pergantian foto), dan transisi banjir (getar, fase maju-mundur, navigasi tombol, reduced motion). Isinya: 0 error console, tiap step, klik titik (termasuk titik bertumpuk), reset, scroll mundur, lompat step lewat titik progres, mode halaman penuh, crossfade saat navigasi cepat, tombol Play, dan `prefers-reduced-motion`. Screenshot tiap step ada di `tests/screenshots/<viewport>/`.
+- `pnpm e2e`: 22 skenario × 3 viewport (1440 × 900, 834 × 1112, 390 × 844) = 66 test, termasuk visual disabilitas (pilihan, centang, tab dengan keyboard), daftar langkah penutup, visual sejarah (judul, masa peta, pergantian foto), dan transisi banjir (getar, fase maju-mundur, navigasi tombol, reduced motion). Isinya: 0 error console, tiap step, klik titik (termasuk titik bertumpuk), reset, scroll mundur, lompat step lewat titik progres, mode halaman penuh, crossfade saat navigasi cepat, tombol Play, dan `prefers-reduced-motion`. Screenshot tiap step ada di `tests/screenshots/<viewport>/`.
 - **Ukuran (gzip):**
   - JS awal halaman artikel ±99 KB (React + motion + konten)
   - MapLibre ±280 KB + worker, di-lazy-load
@@ -348,7 +360,7 @@ npx wrangler pages deploy dist --project-name das-badung-interaktif
 
 ## TODO redaksi
 
-- [ ] Visual disabilitas: petunjuk daftar centang kedua ("Centang langkah yang sudah berjalan di daerahmu.") ditulis developer dan perlu dicek.
+- [ ] Daftar langkah penutup: nama 5 kelompok di `kesiapan.ts` ditulis developer dan perlu dicek. Isi 26 butirnya dari redaksi.
 - [ ] Visual sejarah: caption peta menyebut "Dok. _Google Earth_", padahal citra yang tampil berasal dari MapTiler (penyedia peta interaktif ini). Ganti kreditnya, atau kirim tangkapan layar Google Earth bila kredit itu harus tetap.
 - [ ] Visual sejarah: nama sumber berbeda antara caption pembuka (_Leiden University Libraries_/KITLV 10113, dari redaksi via chat) dan caption lain (Koleksi Digital Perpustakaan Universitas Leiden | KITLV 10107).
 - [ ] Visual sejarah: caption peta 1915 menulis "DF 11,7", sedangkan lembar petanya bertanda "F 11,7".

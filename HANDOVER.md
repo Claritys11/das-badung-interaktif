@@ -4,7 +4,7 @@ Panduan untuk developer yang melanjutkan proyek ini. Baca dokumen ini dulu. Rinc
 
 ## Proyek ini apa
 
-Enam visual interaktif untuk artikel IDN Times tentang banjir dan Daerah Aliran Sungai (DAS) Badung, Bali. Setiap visual bisa dipasang sebagai iframe, komponen React, atau Framer Code Component. Urutan tampil di artikel:
+Tujuh visual interaktif untuk artikel IDN Times tentang banjir dan Daerah Aliran Sungai (DAS) Badung, Bali. Setiap visual bisa dipasang sebagai iframe, komponen React, atau Framer Code Component. Urutan tampil di artikel:
 
 | Urutan | Komponen | Isi | Halaman embed |
 | --- | --- | --- | --- |
@@ -12,8 +12,9 @@ Enam visual interaktif untuk artikel IDN Times tentang banjir dan Daerah Aliran 
 | 2 | `FloodTransition` | Transisi data banjir, sebelum ke sesudah | Bagian dari `embed/peta.html` |
 | 3 | `ScrollyMap` | Peta scrollytelling 7 step | `embed/peta.html` |
 | 4 | `Timeline` | Linimasa banjir per tanggal | `embed/timeline.html` |
-| 5 | `Disabilitas` | Pilihan langkah, dua daftar centang, tab kanal peringatan | `embed/disabilitas.html` |
+| 5 | `Disabilitas` | Pilihan langkah, daftar centang, tab kanal peringatan | `embed/disabilitas.html` |
 | 6 | `Sejarah` | Tata ruang Denpasar, peta kerajaan sampai sekarang | `embed/sejarah.html` |
+| 7 | `Kesiapan` | Penutup artikel: 26 langkah kesiapan dalam 5 kelompok | `embed/kesiapan.html` |
 
 **Stack:** React 18, TypeScript, Vite, MapLibre GL + MapTiler, motion, CSS biasa dengan token. Tidak ada backend, database, atau Tailwind. Hasil build berupa file statis.
 
@@ -21,7 +22,7 @@ Enam visual interaktif untuk artikel IDN Times tentang banjir dan Daerah Aliran 
 
 **Sudah selesai**
 
-- Keenam visual berjalan dan teruji di desktop, tablet, dan mobile.
+- Ketujuh visual berjalan dan teruji di desktop, tablet, dan mobile.
 
 **Belum dilakukan**
 
@@ -94,7 +95,7 @@ Pilih salah satu dari tiga cara ini.
 
 Jalankan `pnpm build`, hosting folder `dist/`, lalu pasang `https://<host>/embed/<nama>.html` di iframe. Snippet tiap visual ada di [README: Embed via iframe](README.md#embed-via-iframe).
 
-Iframe punya scroll sendiri, terpisah dari scroll artikel. Karena itu `embed/peta.html` memakai mode scroll internal dan tombol navigasi. Halaman `sejarah` dan `disabilitas` memakai scroll dokumen di dalam iframe.
+Iframe punya scroll sendiri, terpisah dari scroll artikel. Karena itu `embed/peta.html` memakai mode scroll internal dan tombol navigasi. Halaman `sejarah`, `disabilitas`, dan `kesiapan` memakai scroll dokumen di dalam iframe.
 
 ### 2. Komponen React (kalau scroll harus menyatu dengan artikel)
 
@@ -107,6 +108,7 @@ Salin komponen beserta file yang dibutuhkannya ke proyek React lain:
 | ScrollyMap | `components/scrolly-map/`, `components/icons.tsx`, `components/TeksInline.tsx`, `content/story.ts`, `content/types.ts` | `maplibre-gl`, `motion` |
 | Timeline | `components/timeline/`, `components/icons.tsx`, `components/TeksInline.tsx`, `content/timeline.ts`, `content/timeline-teks.ts`, `content/types.ts` | Tidak ada |
 | Disabilitas | `components/disabilitas/`, `components/TeksInline.tsx`, `content/disabilitas.ts` | Tidak ada |
+| Kesiapan | `components/kesiapan/`, `components/disabilitas/Ceklis.tsx`, `components/disabilitas/disabilitas.css`, `content/kesiapan.ts` | Tidak ada |
 | Sejarah | `components/sejarah/`, `components/scrolly-map/maplibreWorker.ts`, `components/TeksInline.tsx`, `content/sejarah.ts`, `content/sejarah-peta.ts` | `maplibre-gl`, `motion` |
 
 Semuanya juga butuh `styles/tokens.css`, font Poppins, dan folder aset terkait di `public/`. Lalu pasang seperti ini:
@@ -151,6 +153,7 @@ Edit file di `src/content/`. Komponen tidak perlu disentuh.
 | Peta | `story.ts` |
 | Linimasa | `timeline.ts` untuk peristiwa dan judul kartu, `timeline-teks.ts` untuk teks antarmuka |
 | Disabilitas | `disabilitas.ts` |
+| Daftar langkah penutup | `kesiapan.ts` |
 | Sejarah | `sejarah.ts` |
 
 ### Mengganti aset
@@ -208,15 +211,13 @@ Contoh terlengkap: `Sejarah`.
 
 **`Disabilitas`**
 
-- **Status centang tidak disimpan atau dikirim ke mana pun.** Hilang saat halaman dimuat ulang.
-- **`.das-ds` memakai `container-type: inline-size`,** jadi lebarnya harus datang dari parent. Di parent flex yang menyusut mengikuti isi, komponen ini bisa kolaps. Wrapper Framer sudah memberi `width: 100%`.
-- **Daftar centang berpasangan sama besar.** Daftar 26 poin digulir di dalam kartunya. Tinggi kartu mengikuti daftar yang pendek.
+- **Status centang tidak disimpan atau dikirim ke mana pun.** Hilang saat halaman dimuat ulang. Berlaku juga untuk `Kesiapan`, yang memakai komponen `Ceklis` yang sama.
 
 ## Test
 
 ```bash
 pnpm test      # 9 unit test
-pnpm e2e       # 20 skenario × 3 viewport = 60 test
+pnpm e2e       # 22 skenario × 3 viewport = 66 test
 ```
 
 - E2E menjalankan `pnpm build`, lalu menguji hasil build di port 4173. **Kalau ada server lain yang sudah memakai port itu, Playwright memakainya** dan tidak mem-build ulang. Hentikan dulu supaya tidak menguji build lama.
@@ -254,6 +255,6 @@ Sebelum dipublikasikan:
 ## Pekerjaan yang tersisa
 
 1. Selesaikan [TODO redaksi](README.md#todo-redaksi). Yang paling penting: kredit "Dok. _Google Earth_" di caption peta sejarah, padahal citra yang tampil berasal dari MapTiler.
-2. Cek petunjuk daftar centang kedua di `disabilitas.ts` ("Centang langkah yang sudah berjalan di daerahmu."). Kalimat ini ditulis developer, bukan dari redaksi.
+2. Cek nama 5 kelompok di `src/content/kesiapan.ts`. Nama ini ditulis developer; isi 26 butirnya dari redaksi.
 3. Tentukan cara pemasangan di artikel: iframe, komponen React, atau Framer.
 4. Deploy sesuai daftar di atas, lalu uji di halaman IDN Times sungguhan, termasuk rasa scroll di dalam iframe dan di HP.

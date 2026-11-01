@@ -1,6 +1,5 @@
 /* Visual disabilitas & bencana. Latar krem sama dengan gambar redaksi (sisi kanan gambar memudar ke krem). */
 .das-ds {
-  container-type: inline-size; /* pasangan daftar centang mengikuti lebar komponen, bukan lebar layar */
   max-width: 980px;
   margin: 0 auto;
   padding: clamp(40px, 7vw, 88px) clamp(16px, 3vw, 32px);
@@ -237,53 +236,6 @@
   line-height: 18px;
   font-weight: 600;
   color: var(--das-ink-soft);
-}
-
-/* Dua daftar berdampingan, lebih lebar dari kolom teks, dengan ukuran kartu sama.
-   Tinggi baris mengikuti daftar yang pendek; daftar yang panjang digulir di dalam kartunya. */
-.das-ds__ceklis-pasangan {
-  width: 100cqw;
-  margin: 28px calc((100% - 100cqw) / 2) 8px;
-  display: grid;
-  grid-auto-rows: 1fr;
-  gap: 16px;
-}
-@container (min-width: 720px) {
-  .das-ds__ceklis-pasangan {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
-  /* Petunjuk satu dan dua baris memakai ruang sama, supaya kedua daftar mulai sejajar. */
-  .das-ds__ceklis-pasangan legend {
-    min-height: 44px;
-  }
-}
-.das-ds__ceklis-pasangan .das-ds__ceklis {
-  display: flex;
-  flex-direction: column;
-  margin: 0;
-}
-.das-ds__ceklis-pasangan legend,
-.das-ds__ceklis-pasangan .das-ds__progres,
-.das-ds__ceklis-pasangan .das-ds__progres-teks {
-  flex: none;
-}
-.das-ds__ceklis-pasangan .das-ds__progres {
-  margin-top: auto;
-}
-.das-ds__ceklis-pasangan ul {
-  margin-bottom: 16px;
-}
-.das-ds__ceklis--gulir ul {
-  flex: 1 1 0;
-  height: 0;
-  min-height: 300px;
-  align-content: start;
-  padding-bottom: 28px;
-  overflow-y: auto;
-  scrollbar-width: thin;
-  scrollbar-color: var(--das-muted) transparent;
-  /* Tepi bawah memudar: tanda masih ada isi di bawah. */
-  mask-image: linear-gradient(#000 calc(100% - 28px), transparent);
 }
 
 /* ---------- Tab kelompok disabilitas ---------- */
