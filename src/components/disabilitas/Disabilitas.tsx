@@ -76,6 +76,16 @@ function Blok({ blok, teks }: { blok: BlokDisabilitas[]; teks: typeof defaultTek
             return <Pilihan key={i} blok={b} teks={teks} />;
           case 'ceklis':
             return <Ceklis key={i} blok={b} teks={teks} />;
+          case 'ceklis-pasangan': {
+            const terpendek = Math.min(...b.daftar.map((d) => d.item.length));
+            return (
+              <div key={i} className="das-ds__ceklis-pasangan">
+                {b.daftar.map((d) => (
+                  <Ceklis key={d.petunjuk} blok={d} teks={teks} gulir={d.item.length > terpendek} />
+                ))}
+              </div>
+            );
+          }
           case 'tab':
             return <Tab key={i} blok={b} teks={teks} />;
         }
@@ -116,13 +126,13 @@ function Pilihan({ blok, teks }: { blok: Of<'pilihan'>; teks: typeof defaultTeks
   );
 }
 
-/** Daftar centang pribadi pembaca (state lokal saja; tidak disimpan/dikirim). */
-function Ceklis({ blok, teks }: { blok: Of<'ceklis'>; teks: typeof defaultTeks }) {
+/** Daftar centang pribadi pembaca (state lokal saja; tidak disimpan/dikirim). `gulir`: tinggi mengikuti pasangannya, isi digulir. */
+function Ceklis({ blok, teks, gulir = false }: { blok: Of<'ceklis'>; teks: typeof defaultTeks; gulir?: boolean }) {
   const [centang, setCentang] = useState<boolean[]>(() => blok.item.map(() => false));
   const id = useId();
   const n = centang.filter(Boolean).length;
   return (
-    <fieldset className="das-ds__ceklis">
+    <fieldset className={`das-ds__ceklis ${gulir ? 'das-ds__ceklis--gulir' : ''}`}>
       <legend className="das-ds__petunjuk">{blok.petunjuk}</legend>
       <ul>
         {blok.item.map((item, i) => (
