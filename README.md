@@ -55,7 +55,7 @@ pnpm dev                      # http://localhost:5173
 | `pnpm timeline` | Buat `src/content/timeline.ts` dari Excel (sekali; tidak menimpa hasil edit). `pnpm timeline --timpa` = buat ulang dari Excel terbaru, judul/gambar yang sudah diisi redaksi tetap dipertahankan |
 | `pnpm banjir`   | Regenerasi foto sebelum/sesudah banjir (foto asli, tanpa crop)                                                                                                                                   |
 | `pnpm disabilitas` | Regenerasi gambar visual disabilitas |
-| `pnpm sejarah`  | Regenerasi aset visual sejarah dari KMZ, foto, dan GIF (butuh `ffmpeg` dan `raw/sejarah/sejarah.gif`) |
+| `pnpm sejarah`  | Regenerasi aset visual sejarah dari KMZ dan foto. Video pembuka hanya dibuat ulang kalau `raw/sejarah/sejarah.gif` ada (butuh `ffmpeg`) |
 | `pnpm test`     | Unit test (Vitest) untuk logika state peta                                                                                                                                                       |
 | `pnpm e2e`      | E2E Playwright di 3 viewport, dengan screenshot ke `tests/screenshots/`                                                                                                                          |
 

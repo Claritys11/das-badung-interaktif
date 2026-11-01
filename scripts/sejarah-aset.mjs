@@ -4,10 +4,12 @@
 //         public/sejarah/peta-{1915,1930}.jpg, <foto>-{640,1050}.{avif,webp},
 //         hero.mp4, hero.webm, hero-poster.webp (butuh ffmpeg di PATH)
 import { execFileSync } from 'node:child_process';
+import { existsSync } from 'node:fs';
 import { mkdir, readdir, readFile, stat, writeFile } from 'node:fs/promises';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import path from 'node:path';
 import JSZip from 'jszip';
+import { format, resolveConfig } from 'prettier';
 import sharp from 'sharp';
 import { DOMParser } from '@xmldom/xmldom';
 import { kml } from '@tmcw/togeojson';
@@ -96,6 +98,10 @@ async function fotoFoto() {
 /** GIF 54 MB → video bisu. Tetap 1894×740 & 30 fps; hqdn3d meredam bintik dither palet GIF yang boros bit. */
 async function hero() {
   const gif = path.join(RAW, 'sejarah.gif');
+  if (!existsSync(gif)) {
+    console.warn('! raw/sejarah/sejarah.gif tidak ada (memang tidak di-commit): video pembuka tidak dibuat ulang.');
+    return;
+  }
   const ff = (...a) => execFileSync('ffmpeg', ['-y', '-loglevel', 'error', '-i', gif, ...a], { stdio: 'inherit' });
   const vf = ['-vf', 'hqdn3d=1.5:1.5:4:4,format=yuv420p', '-an'];
   ff(...vf, '-c:v', 'libx264', '-preset', 'veryslow', '-crf', '25', '-movflags', '+faststart', path.join(OUT, 'hero.mp4'));
@@ -121,8 +127,11 @@ export const petaLama = {
   '1930': ${JSON.stringify(peta1930)} as { file: string; sudut: Sudut },
 };
 `;
-  await writeFile(path.join(root, 'src/content/sejarah-peta.ts'), ts);
-  console.log(ts);
+  const tujuan = path.join(root, 'src/content/sejarah-peta.ts');
+  // Format sesuai .prettierrc, supaya membuat ulang dari KMZ yang sama tidak menghasilkan perubahan di Git.
+  const rapi = await format(ts, { ...(await resolveConfig(tujuan)), filepath: tujuan });
+  await writeFile(tujuan, rapi);
+  console.log(rapi);
   await fotoFoto();
   await hero();
 }

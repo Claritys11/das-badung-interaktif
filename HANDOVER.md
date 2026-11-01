@@ -164,9 +164,9 @@ Ganti file di `raw/`, jalankan skrip, lalu commit hasilnya di `public/`.
 | `pnpm banjir` | `raw/banjir/` | Foto ditampilkan apa adanya, tanpa crop |
 | `pnpm timeline` | `raw/timeline/Timeline terbaru.xlsx` | Tidak menimpa `timeline.ts`. Pakai `--timpa` untuk membuat ulang dari Excel; judul dan gambar yang sudah diisi tetap dipertahankan |
 | `pnpm disabilitas` | `raw/disabilitas/` | Saat ini tidak ada bab yang memakai foto |
-| `pnpm sejarah` | `raw/sejarah/` | Butuh `ffmpeg` dan `sejarah.gif` (lihat di bawah) |
+| `pnpm sejarah` | `raw/sejarah/` | Video pembuka hanya dibuat ulang kalau `sejarah.gif` ada (lihat di bawah) |
 
-`raw/sejarah/sejarah.gif` (54 MB) **tidak ada di Git**. Hasilnya, `public/sejarah/hero.*`, sudah di-commit, jadi GIF hanya dibutuhkan untuk membuat ulang video. Minta file itu dari pemilik proyek atau folder redaksi "visual sejarah".
+`raw/sejarah/sejarah.gif` (54 MB) **tidak ada di Git**. Hasilnya, `public/sejarah/hero.*`, sudah di-commit. Tanpa GIF, `pnpm sejarah` tetap memproses KMZ, peta lama, dan foto, lalu melewati video. Untuk membuat ulang video, minta GIF dari pemilik proyek atau folder redaksi "visual sejarah", dan pastikan `ffmpeg` terpasang.
 
 ### Mengatur kamera peta
 
