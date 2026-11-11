@@ -11,3 +11,5 @@ export { slides, slideshowTeks } from './content/slides';
 export { story, petaTeks } from './content/story';
 export { Disabilitas } from './components/disabilitas/Disabilitas';
 export { disabilitas, disabilitasTeks } from './content/disabilitas';
+export { Sejarah } from './components/sejarah/Sejarah';
+export { sejarah, sejarahTeks } from './content/sejarah';

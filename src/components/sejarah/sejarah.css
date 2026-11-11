@@ -1,0 +1,406 @@
+/* Visual sejarah. Panel gelap menempel di tepi kiri (seperti meja arsip), teks di kertas krem kanan.
+   Merah aksen dipakai untuk satu hal: garis tapak dara dan masa peta yang sedang aktif. */
+.das-sj {
+  --das-sj-gelap: #1a1d1c;
+  --das-sj-tepi: clamp(16px, 3vw, 40px);
+  background: var(--das-bg);
+}
+
+/* ---------- Pembuka ---------- */
+.das-sj__hero {
+  height: 260vh;
+  height: 260svh;
+  background: var(--das-sj-gelap);
+}
+.das-sj__hero.is-diam {
+  --das-sj-judul: 1;
+  height: auto;
+}
+.das-sj__hero-panggung {
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  height: 100svh;
+  margin: 0;
+  overflow: hidden;
+  background: var(--das-sj-gelap);
+}
+.das-sj__hero-video {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: 34% 50%;
+}
+.das-sj__hero-redup {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to top, rgb(12 14 13 / 0.92) 0%, rgb(12 14 13 / 0.62) 42%, rgb(12 14 13 / 0.22) 100%);
+  opacity: var(--das-sj-judul, 0);
+}
+.das-sj__hero-teks {
+  position: absolute;
+  left: var(--das-sj-tepi);
+  right: var(--das-sj-tepi);
+  bottom: clamp(24px, 6vh, 64px);
+  color: #fff;
+  opacity: var(--das-sj-judul, 0);
+  transform: translateY(calc((1 - var(--das-sj-judul, 0)) * 28px));
+}
+.das-sj__hero-teks h2 {
+  max-width: 13ch;
+  margin: 0;
+  font-size: clamp(42px, 7.2vw, 112px);
+  line-height: 0.98;
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  text-wrap: balance;
+}
+.das-sj__hero-teks p {
+  max-width: 64ch;
+  margin: clamp(16px, 2.4vh, 24px) 0 0;
+  font-size: 13px;
+  line-height: 20px;
+  color: rgb(255 255 255 / 0.84);
+}
+.das-sj__hero-alih {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  border: 0;
+  border-radius: 50%;
+  background: rgb(12 14 13 / 0.55);
+  color: #fff;
+  cursor: pointer;
+}
+.das-sj__hero-alih svg {
+  width: 18px;
+  height: 18px;
+  fill: currentColor;
+}
+.das-sj__hero-alih:hover {
+  background: rgb(12 14 13 / 0.8);
+}
+
+.das-sj__pembuka {
+  max-width: 34ch;
+  margin: 0;
+  padding: clamp(56px, 10vh, 112px) var(--das-sj-tepi);
+  font-size: clamp(24px, 3vw, 40px);
+  line-height: 1.28;
+  font-weight: 500;
+  letter-spacing: -0.015em;
+  max-inline-size: min(100%, 980px);
+  text-wrap: pretty;
+}
+
+/* ---------- Panel media + teks ---------- */
+.das-sj__badan {
+  display: grid;
+  grid-template-columns: minmax(0, 58fr) minmax(0, 42fr);
+  align-items: start;
+}
+.das-sj__panel {
+  position: sticky;
+  top: 0;
+  z-index: 2;
+  height: 100vh;
+  height: 100svh;
+  display: flex;
+  flex-direction: column;
+  background: var(--das-sj-gelap);
+}
+.das-sj__panggung {
+  position: relative;
+  flex: 1;
+  min-height: 0;
+  overflow: hidden;
+}
+.das-sj__peta {
+  position: absolute;
+  inset: 0;
+}
+.das-sj__maptiler {
+  position: absolute;
+  z-index: 1;
+  left: 10px;
+  bottom: 10px;
+  line-height: 0;
+}
+.das-sj .maplibregl-ctrl-attrib {
+  font-family: var(--das-font);
+  font-size: 11px;
+}
+.das-sj__foto {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  display: grid;
+  place-items: center;
+  padding: clamp(0px, 2vw, 28px);
+  background: var(--das-sj-gelap);
+  opacity: 0;
+  visibility: hidden;
+  transition:
+    opacity 0.6s ease-in-out,
+    visibility 0s 0.6s;
+}
+.das-sj__foto.is-aktif {
+  z-index: 3;
+  opacity: 1;
+  visibility: visible;
+  transition: opacity 0.6s ease-in-out;
+}
+/* Foto ke foto: foto lama tetap penuh di bawah foto baru sampai foto baru selesai muncul.
+   Kalau keduanya memudar bersamaan, peta di belakangnya ikut terlihat. */
+.das-sj__panggung[data-jenis='foto'] .das-sj__foto:not(.is-aktif) {
+  transition:
+    opacity 0s 0.6s,
+    visibility 0s 0.6s;
+}
+.das-sj__foto img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+.das-sj__caption {
+  flex: none;
+  min-height: 96px;
+  margin: 0;
+  padding: 14px var(--das-sj-tepi) 18px;
+  font-size: 13px;
+  line-height: 20px;
+  color: rgb(255 255 255 / 0.84);
+}
+
+/* Pemilih masa peta. */
+.das-sj__kendali {
+  position: absolute;
+  z-index: 4;
+  top: 12px;
+  left: 12px;
+  display: grid;
+  justify-items: start;
+  gap: 8px;
+}
+.das-sj__era {
+  display: flex;
+  background: rgb(20 24 28 / 0.9);
+  border-radius: 4px;
+}
+.das-sj__era button {
+  min-height: 44px;
+  padding: 0 14px;
+  border: 0;
+  background: transparent;
+  color: #fff;
+  font: 600 13px/1 var(--das-font);
+  cursor: pointer;
+}
+.das-sj__era button:hover {
+  background: rgb(255 255 255 / 0.14);
+}
+.das-sj__era button:first-child {
+  border-radius: 4px 0 0 4px;
+}
+.das-sj__era button:last-child {
+  border-radius: 0 4px 4px 0;
+}
+.das-sj__era button[aria-current='true'] {
+  background: #b8141a;
+}
+.das-sj__tebal {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 44px;
+  padding: 0 14px;
+  border-radius: 4px;
+  background: rgb(20 24 28 / 0.9);
+  color: #fff;
+  font-size: 13px;
+  font-weight: 600;
+}
+.das-sj__tebal input {
+  width: 110px;
+  accent-color: #e8434a;
+  cursor: pointer;
+}
+
+/* Penanda nama tempat di peta. */
+.das-sj__penanda {
+  width: 12px;
+  height: 12px;
+  border: 2px solid #fff;
+  border-radius: 50%;
+  background: #c8191f;
+}
+.das-sj__penanda span {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  width: max-content;
+  max-width: 230px;
+  padding: 4px 8px;
+  border-radius: 3px;
+  background: rgb(20 24 28 / 0.9);
+  color: #fff;
+  font: 600 12.5px/17px var(--das-font);
+}
+.das-sj__penanda--kanan span {
+  left: calc(100% + 6px);
+}
+.das-sj__penanda--kiri span {
+  right: calc(100% + 6px);
+}
+.das-sj__pesan {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  align-content: center;
+  gap: 12px;
+  padding: 24px;
+  color: #fff;
+  text-align: center;
+  font-size: 15px;
+}
+.das-sj__pesan img {
+  max-width: 100%;
+  max-height: 70%;
+}
+
+/* Kolom teks. */
+.das-sj__teks {
+  min-width: 0;
+  padding: 0 var(--das-sj-tepi) 22vh clamp(24px, 4vw, 64px);
+}
+.das-sj__bab {
+  max-width: 560px;
+  padding-top: 24vh;
+}
+.das-sj__bab:first-child {
+  padding-top: 10vh;
+}
+.das-sj__label {
+  margin: 0 0 6px;
+  font-size: 17px;
+  line-height: 24px;
+  font-weight: 600;
+  color: var(--das-accent-ink);
+}
+.das-sj__bab h3 {
+  margin: 0 0 28px;
+  font-size: clamp(27px, 2.8vw, 38px);
+  line-height: 1.14;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  text-wrap: balance;
+}
+.das-sj__segmen + .das-sj__segmen {
+  margin-top: 40vh; /* margin, bukan padding: garis baca dihitung dari awal teks segmen */
+}
+.das-sj__p {
+  margin: 0 0 20px;
+  font-size: 17px;
+  line-height: 29px;
+  color: var(--das-ink);
+}
+.das-sj__p:last-child {
+  margin-bottom: 0;
+}
+.das-sj__penutup {
+  margin: 40px 0 0;
+  font-size: clamp(25px, 2.5vw, 34px);
+  line-height: 1.24;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  color: var(--das-ink);
+}
+/* Desktop: caption tampil di panel; versi alir tetap dibaca pembaca layar. */
+.das-sj__caption-alir {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+}
+
+/* ---------- Layar sempit: panel di atas, teks di bawahnya, caption mengalir bersama teks ---------- */
+@media (max-width: 959px) {
+  .das-sj__hero-video {
+    object-position: 20% 50%; /* layar tegak: penunggang kuda terdepan tetap masuk bingkai */
+  }
+  .das-sj__badan {
+    display: block;
+  }
+  .das-sj__panel {
+    height: 46vh;
+    height: 46svh;
+  }
+  .das-sj__caption {
+    display: none;
+  }
+  .das-sj__foto {
+    padding: 0;
+  }
+  .das-sj__teks {
+    padding: 0 16px 16vh;
+  }
+  .das-sj__bab,
+  .das-sj__bab:first-child {
+    max-width: 640px;
+    margin-inline: auto;
+    padding-top: 56px;
+  }
+  .das-sj__segmen + .das-sj__segmen {
+    margin-top: 44px;
+  }
+  .das-sj__caption-alir {
+    position: static;
+    width: auto;
+    height: auto;
+    overflow: visible;
+    clip: auto;
+    margin: 0 0 20px;
+    padding-left: 10px;
+    border-left: 3px solid var(--das-line);
+    font-size: 13px;
+    line-height: 20px;
+    color: var(--das-ink-soft);
+  }
+  .das-sj__p {
+    font-size: 16px;
+    line-height: 27px;
+  }
+  .das-sj__kendali {
+    top: 8px;
+    left: 8px;
+    gap: 6px;
+  }
+  .das-sj__era button {
+    padding: 0 11px;
+  }
+  .das-sj__tebal {
+    min-height: 36px;
+  }
+  .das-sj__penanda span {
+    font-size: 11.5px;
+    line-height: 15px;
+    max-width: 130px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .das-sj__foto,
+  .das-sj__foto.is-aktif,
+  .das-sj__panggung[data-jenis='foto'] .das-sj__foto:not(.is-aktif) {
+    transition: none;
+  }
+}

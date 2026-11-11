@@ -14,7 +14,8 @@
     "typecheck": "tsc -b",
     "banjir": "node scripts/banjir-images.mjs",
     "timeline": "node scripts/timeline-from-xlsx.mjs",
-    "disabilitas": "node scripts/disabilitas-images.mjs"
+    "disabilitas": "node scripts/disabilitas-images.mjs",
+    "sejarah": "node scripts/sejarah-aset.mjs"
   },
   "dependencies": {
     "maplibre-gl": "^6.11.2",

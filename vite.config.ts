@@ -13,6 +13,7 @@ export default defineConfig({
         peta: resolve(import.meta.dirname, 'embed/peta.html'),
         timeline: resolve(import.meta.dirname, 'embed/timeline.html'),
         disabilitas: resolve(import.meta.dirname, 'embed/disabilitas.html'),
+        sejarah: resolve(import.meta.dirname, 'embed/sejarah.html'),
       },
     },
   },

@@ -9,10 +9,11 @@ Komponen untuk artikel IDN Times tentang Daerah Aliran Sungai (DAS) Badung, Bali
 | **C**  | `Timeline`        | Timeline banjir Denpasar 8 September 2025 – 3 September 2026 (18 tanggal, 57 peristiwa dari Excel redaksi; 2 peristiwa dihapus redaksi). Kartu per tanggal berisi cuplikan; klik kartu → pop-up berisi semua peristiwa hari itu |
 | **B**  | `ScrollyMap`      | Peta scrollytelling (MapLibre + MapTiler), 7 step: choropleth korban jiwa & kerusakan per kabupaten/kota, 110 titik banjir (klik → nama tempat), 8 DAS, topografi, garis sungai yang menjalar dari hulu ke hilir                |
 | **D**  | `Disabilitas`     | 5 bab (tanpa foto, keputusan redaksi) tentang penyandang disabilitas saat banjir: pilihan langkah evakuasi, daftar centang kesiapsiagaan, dan tab kanal peringatan dini per kelompok                                                                  |
+| **E**  | `Sejarah`         | Sejarah tata ruang Denpasar: video pembuka (judul muncul saat di-scroll), panel media sticky + teks, peta MapLibre dengan 4 masa (kerajaan, 1915, 1930, sekarang), peta lama georeferensi dari KMZ, dan foto |
 
 Keduanya tersedia dalam dua bentuk:
 
-1. **Halaman standalone untuk `<iframe>`**: `embed/slideshow.html`, `embed/peta.html`, `embed/timeline.html`, dan `embed/disabilitas.html`. Konfigurasi Cloudflare Pages sudah ada, tapi **belum di-deploy**.
+1. **Halaman standalone untuk `<iframe>`**: `embed/slideshow.html`, `embed/peta.html`, `embed/timeline.html`, `embed/disabilitas.html`, dan `embed/sejarah.html`. Konfigurasi Cloudflare Pages sudah ada, tapi **belum di-deploy**.
 2. **Komponen React + TypeScript** yang bisa dipakai ulang, termasuk wrapper untuk **Framer Code Component**.
 
 > Teks yang masih **placeholder** bertanda `[… — diisi redaksi]`. Daftarnya ada di [TODO redaksi](#todo-redaksi).
@@ -63,10 +64,12 @@ raw/                         aset asli dari redaksi (jangan diedit)
   citra/*.jpg                16 citra satelit (screenshot Google Earth)
   kmz/*.kmz                  batas kabupaten/kota, DAS, garis sungai, topografi, titik banjir
   disabilitas/*.png          5 gambar visual disabilitas (berlogo INSIDE NESIA)
+  sejarah/                   KMZ tapak dara & peta lama, foto, sejarah.gif (54 MB, tidak di-commit; salin dari folder redaksi "visual sejarah")
 scripts/
   kmz-to-geojson.mjs         KMZ → public/data/*.geojson (build time)
   optimize-images.mjs        JPG → public/citra/*.{avif,webp} (640/1024/1485 px)
   disabilitas-images.mjs     PNG → public/disabilitas/*.{avif,webp} (640/1050 px)
+  sejarah-aset.mjs           pnpm sejarah: KMZ → src/content/sejarah-peta.ts + peta lama, foto, GIF → hero.mp4/webm (butuh ffmpeg)
 public/
   data/*.geojson             hasil pnpm data (di-commit)
   citra/*                    hasil pnpm images (di-commit)
@@ -76,6 +79,8 @@ src/
     slides.ts                daftar citra, label, dan alt
     story.ts                 step peta (judul, teks, data kabupaten, tabel DAS, kamera, layer) + label UI
     disabilitas.ts           5 bab visual disabilitas (teks, gambar opsional, blok interaktif)
+    sejarah.ts               8 bab visual sejarah (teks, caption, alt, media & kamera tiap segmen)
+    sejarah-peta.ts          digenerate dari KMZ, jangan diedit
     types.ts
   components/
     slideshow/               Slideshow.tsx, useAutoplay.ts, slideshow.css
@@ -83,6 +88,7 @@ src/
                              storyState.ts (reducer), layers.ts (gaya layer),
                              StepCard.tsx (isi kartu step), Legend.tsx, StoryNav.tsx
     disabilitas/             Disabilitas.tsx, disabilitas.css
+    sejarah/                 Sejarah.tsx (hero, panel, teks), PetaSejarah.tsx (MapLibre, dimuat saat dekat), sejarah.css
   styles/tokens.css          token visual (CSS variable, bisa ditimpa host)
   entries/                   harness + 4 halaman embed
   framer-entry.ts            entry bundle Framer
@@ -165,6 +171,7 @@ Semua teks ada di `src/content/`, dan komponen tidak menyimpan teks redaksi sama
 
 - **Slideshow:** `slides.ts` → `alt` per citra, `slideshowTeks.judul/keterangan`.
 - **Peta:** `story.ts` → `judul` dan `teks` (array paragraf; `_teks_` = cetak miring, mis. nama media/istilah asing — berlaku juga di `disabilitas.ts` dan `timeline-teks.ts`) per step, `dataWilayah` (angka per kabupaten/kota: tampil sebagai batang di kartu sekaligus warna di peta), `tabel` (DAS), `keterangan` (sumber data di step terakhir).
+- **Visual sejarah:** `sejarah.ts` → bab, segmen (media + paragraf), caption, alt. Ganti media di tengah bab dengan menambah segmen; `kamera` mengatur posisi peta.
 - **Visual disabilitas:** `disabilitas.ts` → bab, gambar + alt, paragraf, dan blok interaktif (`pilihan`, `ceklis`, `tab`).
 - **Kamera step:** buka `/?debug`, geser peta ke tampilan yang diinginkan, lalu salin angka `center`, `zoom`, `pitch`, `bearing` ke `story.ts`. `cameraMobile` bisa menimpa kamera khusus untuk layar < 768 px.
 - **Warna tema:** latar default krem hangat `#FAF7EE` (terinspirasi Kontinentalist), kartu/pop-up `#FFFDF8`; aksen tetap merah IDN Times. Transisi banjir sengaja tetap gelap (sinematik). Timpa CSS variable, misalnya `--das-bg: #DAEBC6`, di elemen pembungkus (lihat `src/styles/tokens.css`).
@@ -307,6 +314,11 @@ npx wrangler pages deploy dist --project-name das-badung-interaktif
 ---
 
 ## TODO redaksi
+
+- [ ] Visual sejarah: caption peta menyebut "Dok. _Google Earth_", padahal citra yang tampil berasal dari MapTiler (penyedia peta interaktif ini). Ganti kreditnya, atau kirim tangkapan layar Google Earth bila kredit itu harus tetap.
+- [ ] Visual sejarah: nama sumber berbeda antara caption pembuka (_Leiden University Libraries_/KITLV 10113, dari redaksi via chat) dan caption lain (Koleksi Digital Perpustakaan Universitas Leiden | KITLV 10107).
+- [ ] Visual sejarah: caption peta 1915 menulis "DF 11,7", sedangkan lembar petanya bertanda "F 11,7".
+- [ ] Visual sejarah: teks alt semua foto & peta, serta label "Bekas Puri Agung", "Bekas _wantilan_", "Bekas pasar", "Alun-alun" di peta 1915/1930, ditulis developer dan perlu dicek.
 
 - [ ] Angka titik banjir di teks peta vs hitungan ulang dari KMZ (`pnpm data`): Denpasar **64** titik (teks: "sekitar 70"; 56 + 11 = 67), ketinggian Denpasar **53** di 0–50 mdpl dan **11** di 50–100 mdpl (teks, revisi redaksi: 56 dan 11), DAS Yeh Poh **2** (tabel: 3), di luar DAS **29** (teks: 28). DAS lain cocok. Selisih kemungkinan karena titik di dekat garis batas.
 - [ ] Judul untuk step 2 (kerusakan) dan step 7 (penutup) peta: dokumen redaksi tidak memberi judul, jadi saat ini tanpa judul.
