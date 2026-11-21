@@ -89,21 +89,18 @@ export function FloodTransition({
     };
   }, [tahapan.length]);
 
-  // Tombol langsung lanjut ke seksi peta di mobile (1 sentuhan).
+  // Tombol langsung lanjut ke seksi berikutnya di mobile (1 sentuhan).
   const skipToNext = useCallback(() => {
     const el = sectionRef.current;
     if (!el) return;
-    const mapSection = document.querySelector('.das-sm__steps, .das-sm__mapcol, .das-sm') as HTMLElement | null;
-    if (mapSection) {
-      mapSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
-      return;
-    }
-    const nextEl = el.nextElementSibling as HTMLElement | null;
+    const parentContainer = el.closest('.framer-x9bmdk-container, [class*="-container"]') as HTMLElement | null;
+    const refEl = parentContainer ?? el;
+    const nextEl = refEl.nextElementSibling as HTMLElement | null;
     if (nextEl) {
       nextEl.scrollIntoView({ behavior: 'smooth', block: 'start' });
     } else {
       window.scrollTo({
-        top: window.scrollY + el.getBoundingClientRect().bottom + 2,
+        top: window.scrollY + el.getBoundingClientRect().bottom + 4,
         behavior: 'smooth',
       });
     }
@@ -247,9 +244,9 @@ export function FloodTransition({
             type="button"
             className="das-ft__skip"
             onClick={skipToNext}
-            aria-label="Lanjut langsung ke seksi peta interaktif"
+            aria-label="Lanjut langsung ke seksi berikutnya"
           >
-            Lanjut ke Peta ↓
+            Lanjut ↓
           </button>
         )}
 
@@ -287,9 +284,9 @@ export function FloodTransition({
                 type="button"
                 className="das-ft__navbtn das-ft__navbtn--skip"
                 onClick={skipToNext}
-                aria-label="Lanjut ke peta interaktif"
+                aria-label="Lanjut ke seksi berikutnya"
               >
-                Ke Peta ↓
+                Lanjut ↓
               </button>
             )}
           </nav>

@@ -47,30 +47,35 @@ createRoot(document.getElementById('root')!).render(
       </nav>
     </header>
     <article className="hx-article">
-      <Dummy n={6} />
-      <h2>Perubahan wilayah dari tahun ke tahun</h2>
+      <Dummy n={4} />
+      <h2>Apa yang terjadi pada 9—10 September 2025</h2>
+      <Dummy n={2} />
+    </article>
+    <Timeline hari={timeline} teks={timelineTeks} />
+    <article className="hx-article">
+      <h2>Mengapa Denpasar paling parah</h2>
+      <Dummy n={3} />
+    </article>
+    <ScrollyMap steps={story} teks={petaTeks} scrollMode="page" terrain3d={q.get('terrain') === '1'} debug={q.has('debug')} />
+    <FloodTransition teks={banjirTeks} />
+    <article className="hx-article">
+      <h2>Peringatan di DAS Badung sudah tertulis sejak 2023</h2>
+      <Dummy n={2} />
+      <h2>Sungai penuh sedimen dan sampah</h2>
       <Dummy n={2} />
     </article>
     <div className="hx-wide">
       <Slideshow slides={slides} judul={slideshowTeks.judul} kredit={slideshowTeks.kredit} keterangan={slideshowTeks.keterangan} />
     </div>
+    <Sejarah bab={sejarah} teks={sejarahTeks} />
     <article className="hx-article">
-      <Dummy n={5} />
-    </article>
-    <FloodTransition teks={banjirTeks} />
-    <ScrollyMap steps={story} teks={petaTeks} scrollMode="page" terrain3d={q.get('terrain') === '1'} debug={q.has('debug')} />
-    <Timeline hari={timeline} teks={timelineTeks} />
-    <article className="hx-article">
+      <h2>Menyelamatkan disabilitas bukan berdasarkan asumsi</h2>
       <Dummy n={3} />
     </article>
     <Disabilitas bab={disabilitas} teks={disabilitasTeks} />
     <article className="hx-article">
-      <h2>Setelah timeline</h2>
-      <Dummy n={8} />
-    </article>
-    <Sejarah bab={sejarah} teks={sejarahTeks} />
-    <article className="hx-article">
-      <Dummy n={3} />
+      <h2>Kesiapan menghadapi bencana</h2>
+      <Dummy n={2} />
     </article>
     <Kesiapan kelompok={kesiapan} teks={kesiapanTeks} />
   </StrictMode>,

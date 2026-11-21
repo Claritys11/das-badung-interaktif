@@ -1,6 +1,7 @@
-// Framer Code Component — Transisi foto sebelum → sesudah banjir (getar + air bah), dipasang tepat
-// SEBELUM komponen peta. Cara pakai: Assets → Code → New File, tempel isi file ini, ganti HOST.
-// Agar panggung foto bisa "sticky", matikan "Clip content" pada frame pembungkus.
+// Framer Code Component — Transisi foto sebelum → sesudah banjir (getar + air bah), dipasang
+// setelah komponen ScrollyMap (Peta) dan sebelum seksi analisis/citra satelit.
+// Cara pakai: Assets → Code → New File, tempel isi file ini, ganti HOST.
+// Agar panggung foto bisa "sticky", matikan "Clip content" pada frame pembungkus dan buat section full-width.
 import { addPropertyControls, ControlType, useIsStaticRenderer } from 'framer';
 import { useEffect } from 'react';
 // @ts-ignore — modul URL, di-resolve oleh Framer saat runtime.
