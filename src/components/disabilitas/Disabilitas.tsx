@@ -1,6 +1,7 @@
 import { useId, useRef, useState, type KeyboardEvent } from 'react';
 import type { BabDisabilitas, BlokDisabilitas, disabilitasTeks as defaultTeks } from '../../content/disabilitas';
 import { TeksInline } from '../TeksInline';
+import { Ceklis } from './Ceklis';
 import '../../styles/tokens.css';
 import './disabilitas.css';
 
@@ -75,7 +76,7 @@ function Blok({ blok, teks }: { blok: BlokDisabilitas[]; teks: typeof defaultTek
           case 'pilihan':
             return <Pilihan key={i} blok={b} teks={teks} />;
           case 'ceklis':
-            return <Ceklis key={i} blok={b} teks={teks} />;
+            return <Ceklis key={i} petunjuk={b.petunjuk} item={b.item} progres={teks.progresCeklis} />;
           case 'tab':
             return <Tab key={i} blok={b} teks={teks} />;
         }
@@ -113,39 +114,6 @@ function Pilihan({ blok, teks }: { blok: Of<'pilihan'>; teks: typeof defaultTeks
         )}
       </div>
     </div>
-  );
-}
-
-/** Daftar centang pribadi pembaca (state lokal saja; tidak disimpan/dikirim). */
-function Ceklis({ blok, teks }: { blok: Of<'ceklis'>; teks: typeof defaultTeks }) {
-  const [centang, setCentang] = useState<boolean[]>(() => blok.item.map(() => false));
-  const id = useId();
-  const n = centang.filter(Boolean).length;
-  return (
-    <fieldset className="das-ds__ceklis">
-      <legend className="das-ds__petunjuk">{blok.petunjuk}</legend>
-      <ul>
-        {blok.item.map((item, i) => (
-          <li key={item}>
-            <label>
-              <input
-                type="checkbox"
-                checked={centang[i]}
-                onChange={(e) => setCentang((c) => c.map((v, j) => (j === i ? e.target.checked : v)))}
-              />
-              <span className="das-ds__kotak" aria-hidden="true" />
-              <span>{item}</span>
-            </label>
-          </li>
-        ))}
-      </ul>
-      <div className="das-ds__progres" aria-hidden="true">
-        <i style={{ width: `${(n / blok.item.length) * 100}%` }} />
-      </div>
-      <p id={`${id}-progres`} className="das-ds__progres-teks" aria-live="polite">
-        {teks.progresCeklis.replace('{n}', String(n)).replace('{total}', String(blok.item.length))}
-      </p>
-    </fieldset>
   );
 }
 

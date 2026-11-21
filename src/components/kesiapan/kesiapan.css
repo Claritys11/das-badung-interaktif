@@ -1,0 +1,22 @@
+/* Daftar langkah penutup artikel. Bentuk kartu centang berasal dari disabilitas.css. */
+.das-ks {
+  max-width: 980px;
+  margin: 0 auto;
+  padding: clamp(40px, 7vw, 88px) clamp(16px, 3vw, 32px);
+  background: var(--das-bg);
+}
+/* Kolom CSS, bukan grid: kartu yang tingginya berbeda tersusun rapat tanpa ruang kosong. */
+.das-ks__kelompok {
+  columns: 2 380px;
+  column-gap: 16px;
+}
+.das-ks .das-ds__ceklis {
+  break-inside: avoid;
+  margin: 0 0 16px;
+}
+.das-ks .das-ds__ceklis legend {
+  font-size: 19px;
+  line-height: 27px;
+  font-weight: 700;
+  color: var(--das-ink);
+}

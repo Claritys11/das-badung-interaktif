@@ -284,7 +284,7 @@ export function Sejarah({
     <section className={`das-root das-sj ${className ?? ''}`} aria-label={teks.labelBagian}>
       <Hero teks={teks} base={assetBaseUrl} reduceMotion={reduceMotion} />
 
-      <p className="das-sj__pembuka">
+      <p className="das-sj__p das-sj__pembuka">
         <TeksInline teks={teks.pembuka} />
       </p>
 
@@ -386,7 +386,7 @@ export function Sejarah({
                       </p>
                     ))}
                     {s.kutipanPenutup && (
-                      <p className="das-sj__penutup">
+                      <p className="das-sj__p">
                         <TeksInline teks={s.kutipanPenutup} />
                       </p>
                     )}

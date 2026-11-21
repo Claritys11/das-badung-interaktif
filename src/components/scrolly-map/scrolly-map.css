@@ -432,8 +432,9 @@
     position: sticky;
     top: 0;
     z-index: 2;
-    height: 58vh;
-    height: 58svh;
+    height: 38vh;
+    height: 38svh;
+    box-shadow: 0 4px 16px rgb(0 0 0 / 0.12);
   }
   .das-sm__sticky,
   .das-sm--internal .das-sm__sticky {
@@ -441,39 +442,78 @@
     height: 100%;
   }
   .das-sm__textcol {
-    padding-inline: 20px;
+    padding-inline: 16px;
   }
   .das-sm__steps {
-    padding: 8svh 0 34svh;
+    padding: 6svh 0 30svh;
   }
   .das-sm__step,
   .das-sm__step:last-child {
-    scroll-margin-top: 60svh;
-    min-height: 56svh;
+    scroll-margin-top: 40svh;
+    min-height: 60svh;
     align-items: flex-start;
   }
   .das-sm__stepcard {
-    padding-left: 16px;
+    padding: 16px 18px;
+    border-left: 3px solid var(--das-line);
+    border-radius: var(--das-radius);
+    background: color-mix(in srgb, var(--das-bg) 88%, #fff 12%);
+    box-shadow: 0 2px 10px rgb(0 0 0 / 0.05);
+    transition: opacity 0.3s, border-color 0.3s, background-color 0.3s, box-shadow 0.3s;
+  }
+  .das-sm__step.is-active .das-sm__stepcard {
+    border-left-color: var(--das-accent);
+    background: var(--das-surface);
+    box-shadow: 0 4px 18px rgb(0 0 0 / 0.09);
+    opacity: 1;
   }
   .das-sm__stepcard h3 {
-    font-size: 20px;
-    line-height: 26px;
+    font-size: 18px;
+    line-height: 24px;
+    margin-bottom: 8px;
+  }
+  .das-sm__stepcard p {
+    font-size: 14px;
+    line-height: 22px;
+    margin-bottom: 10px;
   }
   /* Mobile: kolom teks selebar layar → navigasi di tengah layar. */
   .das-sm--internal .das-sm__nav {
     left: 50%;
   }
   .das-sm__legend {
-    bottom: 36px;
-    padding: 8px 10px;
+    bottom: 8px;
+    left: 8px;
+    padding: 6px 10px;
     font-size: 11px;
+    background: rgb(255 255 255 / 0.94);
+    backdrop-filter: blur(4px);
+    box-shadow: 0 2px 8px rgb(0 0 0 / 0.15);
   }
   .das-sm__legend-ramp li {
-    min-width: 40px;
+    min-width: 38px;
   }
   .das-sm__reset {
-    font-size: 13px;
-    min-height: 36px;
+    top: 8px;
+    left: 8px;
+    font-size: 12px;
+    min-height: 38px;
+    padding: 0 12px;
+  }
+  .das-sm__table {
+    font-size: 12px;
+    line-height: 18px;
+  }
+  .das-sm__table th,
+  .das-sm__table td {
+    padding: 4px 6px;
+  }
+  .das-sm__bars {
+    margin-top: 14px;
+  }
+  .das-sm__bars li {
+    font-size: 12px;
+    line-height: 18px;
   }
 }
 

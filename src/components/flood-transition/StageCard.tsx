@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { motion } from 'motion/react';
 import type { SegmenAngka, TahapBanjir, VizTahap } from '../../content/banjir';
+import { useMediaQuery } from '../useMediaQuery';
 
 const fmt = (n: number, desimal: number) => n.toLocaleString('id-ID', { minimumFractionDigits: desimal, maximumFractionDigits: desimal });
 
@@ -86,6 +87,7 @@ interface StageCardProps {
 
 export function StageCard({ tahap, sumber, judulIstilah, reduceMotion }: StageCardProps) {
   const t = useCountUp(true, reduceMotion);
+  const isNarrow = useMediaQuery('(max-width: 767px)');
   return (
     <motion.article
       className={`das-ft-card${tahap.meluap ? ' is-meluap' : ''}`}
@@ -110,17 +112,33 @@ export function StageCard({ tahap, sumber, judulIstilah, reduceMotion }: StageCa
       <p className="das-ft-card__teks">{tahap.teks}</p>
       {tahap.viz && <Viz viz={tahap.viz} t={t} />}
       {tahap.istilah && (
-        <section className="das-ft-card__istilah" aria-label={judulIstilah}>
-          <p className="das-ft-card__istilah-judul">{judulIstilah}</p>
-          <dl>
-            {tahap.istilah.map((i) => (
-              <div key={i.istilah}>
-                <dt>{i.istilah}</dt>
-                <dd>{i.arti}</dd>
-              </div>
-            ))}
-          </dl>
-        </section>
+        <details className="das-ft-card__istilah" open={!isNarrow}>
+          <summary className="das-ft-card__istilah-summary">
+            <span className="das-ft-card__istilah-label">
+              <svg className="das-ft-card__istilah-icon" viewBox="0 0 20 20" fill="none" aria-hidden="true">
+                <path d="M4 3.5A1.5 1.5 0 0 1 5.5 2H16v14.5a1.5 1.5 0 0 1-1.5 1.5H5.5A1.5 1.5 0 0 1 4 16.5V3.5Z" stroke="currentColor" strokeWidth="1.4" />
+                <path d="M7 6h6M7 9.5h6M7 13h4" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" />
+              </svg>
+              <span>{judulIstilah}</span>
+              <span className="das-ft-card__istilah-badge">{tahap.istilah.length} istilah</span>
+            </span>
+            <span className="das-ft-card__istilah-chevron" aria-hidden="true">
+              <svg viewBox="0 0 16 16" fill="none">
+                <path d="M4 6l4 4 4-4" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
+              </svg>
+            </span>
+          </summary>
+          <div className="das-ft-card__istilah-body">
+            <dl>
+              {tahap.istilah.map((i) => (
+                <div key={i.istilah}>
+                  <dt>{i.istilah}</dt>
+                  <dd>{i.arti}</dd>
+                </div>
+              ))}
+            </dl>
+          </div>
+        </details>
       )}
       <p className="das-ft-card__sumber">{sumber}</p>
     </motion.article>

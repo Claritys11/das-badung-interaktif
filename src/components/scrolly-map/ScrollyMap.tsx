@@ -7,6 +7,7 @@ import { StepCard } from './StepCard';
 import { Legend } from './Legend';
 import { StoryNav } from './StoryNav';
 import { IconReset } from '../icons';
+import { useMediaQuery } from '../useMediaQuery';
 import 'maplibre-gl/dist/maplibre-gl.css';
 import '../../styles/tokens.css';
 import './scrolly-map.css';
@@ -70,18 +71,6 @@ function useNearViewport(ref: React.RefObject<Element | null>, enabled: boolean)
   return near;
 }
 
-function useMediaQuery(query: string) {
-  const [match, setMatch] = useState(() => typeof window !== 'undefined' && window.matchMedia(query).matches);
-  useEffect(() => {
-    const mq = window.matchMedia(query);
-    const on = () => setMatch(mq.matches);
-    on();
-    mq.addEventListener('change', on);
-    return () => mq.removeEventListener('change', on);
-  }, [query]);
-  return match;
-}
-
 export function ScrollyMap({
   steps,
   teks,
@@ -140,7 +129,7 @@ export function ScrollyMap({
   // Step aktif = step yang melewati garis pemicu (tengah layar di desktop, bawah peta di mobile).
   useEffect(() => {
     const root = scrollMode === 'internal' ? rootRef.current : null;
-    const rootMargin = isNarrow ? '-72% 0px -22% 0px' : '-48% 0px -48% 0px';
+    const rootMargin = isNarrow ? '-42% 0px -42% 0px' : '-48% 0px -48% 0px';
     const io = new IntersectionObserver(
       (entries) => {
         if (navLock.current) return;
