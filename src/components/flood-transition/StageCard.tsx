@@ -91,10 +91,10 @@ export function StageCard({ tahap, sumber, judulIstilah, reduceMotion }: StageCa
   return (
     <motion.article
       className={`das-ft-card${tahap.meluap ? ' is-meluap' : ''}`}
-      initial={reduceMotion ? false : { opacity: 0, y: 16 }}
+      initial={reduceMotion ? false : { opacity: 0, y: 12 }}
       animate={{ opacity: 1, y: 0 }}
-      exit={reduceMotion ? { opacity: 0, transition: { type: false } } : { opacity: 0, y: -10, transition: { duration: 0.2 } }}
-      transition={{ duration: 0.35, ease: [0.2, 0, 0, 1] }}
+      exit={reduceMotion ? { opacity: 0, transition: { type: false } } : { opacity: 0, transition: { duration: 0.15 } }}
+      transition={{ duration: 0.25, ease: [0.2, 0, 0, 1] }}
     >
       <p className="das-ft-card__label">{tahap.label}</p>
       {tahap.angka && (

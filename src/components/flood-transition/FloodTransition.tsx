@@ -14,6 +14,8 @@ export interface FloodTransitionProps {
   /** Getar fisik perangkat (Vibration API, Android) saat meluap. Default mati. */
   haptic?: boolean;
   className?: string;
+  /** Komponen disematkan di dalam kontainer yang sudah punya kontrol navigasi (mis. embed-peta). */
+  embedded?: boolean;
 }
 
 export type FloodPhase = 'sebelum' | 'sesudah';
@@ -39,6 +41,7 @@ export function FloodTransition({
   assetBaseUrl = `${import.meta.env.BASE_URL}banjir/`,
   haptic = false,
   className,
+  embedded = false,
 }: FloodTransitionProps) {
   const reduceMotion = useReducedMotion() ?? false;
   const tahapan = teks.tahapan;
@@ -53,6 +56,13 @@ export function FloodTransition({
   // Seed efek air bah; null = tidak ada efek yang sedang berjalan.
   const [fxSeed, setFxSeed] = useState<number | null>(null);
   const isNarrow = useMediaQuery('(max-width: 767px)');
+  const [isEmbedded, setIsEmbedded] = useState(embedded);
+
+  useEffect(() => {
+    if (!embedded && sectionRef.current?.closest('.das-sm')) {
+      setIsEmbedded(true);
+    }
+  }, [embedded]);
 
   // Tahap = berapa layar sudah digulir di dalam section (dihitung dari event scroll fase capture →
   // ikut menangkap scroll container internal di iframe). Titik tengah layar sebagai patokan.
@@ -99,20 +109,35 @@ export function FloodTransition({
     }
   }, []);
 
-  // Di mobile, tap kartu untuk langsung maju ke tahap berikutnya (atau ke peta di tahap akhir).
-  const handleCardClick = useCallback((e: React.MouseEvent) => {
-    if (!isNarrow) return;
-    if ((e.target as HTMLElement).closest('details, button, a')) return;
+  // Navigasi manual per tahap (Previous / Next) di mobile yang aman dari accidental tap.
+  const goToStage = useCallback((targetStage: number) => {
     const el = sectionRef.current;
     if (!el) return;
-    if (stage < tahapan.length - 1) {
-      const vh = window.innerHeight;
-      const targetY = window.scrollY + el.getBoundingClientRect().top + (stage + 1) * vh + 10;
+    const clamped = Math.min(Math.max(targetStage, 0), tahapan.length - 1);
+    const scrollContainer = el.closest<HTMLElement>('.das-sm--scrollable');
+    const vh = window.innerHeight;
+    if (scrollContainer) {
+      const containerTop = scrollContainer.getBoundingClientRect().top;
+      const elTop = el.getBoundingClientRect().top;
+      const targetTop = scrollContainer.scrollTop + (elTop - containerTop) + clamped * vh;
+      scrollContainer.scrollTo({ top: targetTop, behavior: 'smooth' });
+    } else {
+      const targetY = window.scrollY + el.getBoundingClientRect().top + clamped * vh;
       window.scrollTo({ top: targetY, behavior: 'smooth' });
+    }
+  }, [tahapan.length]);
+
+  const goToPrev = useCallback(() => {
+    if (stage > 0) goToStage(stage - 1);
+  }, [stage, goToStage]);
+
+  const goToNext = useCallback(() => {
+    if (stage < tahapan.length - 1) {
+      goToStage(stage + 1);
     } else {
       skipToNext();
     }
-  }, [isNarrow, stage, tahapan.length, skipToNext]);
+  }, [stage, tahapan.length, goToStage, skipToNext]);
 
   // Klimaks hanya saat MELINTASI tahap meluap ke depan (bukan saat scroll balik / halaman dibuka di tengah).
   useEffect(() => {
@@ -153,7 +178,7 @@ export function FloodTransition({
     <section
       ref={sectionRef}
       className={`das-root das-ft ${className ?? ''}`}
-      style={{ height: `${(tahapan.length + 1) * 100}vh` }}
+      style={{ height: `${tahapan.length * 100}vh` }}
       aria-label={teks.label}
       data-phase={phase}
       data-stage={tahap.id}
@@ -217,7 +242,7 @@ export function FloodTransition({
           {current.penanda}
         </p>
 
-        {isNarrow && (
+        {isNarrow && !isEmbedded && (
           <button
             type="button"
             className="das-ft__skip"
@@ -228,16 +253,47 @@ export function FloodTransition({
           </button>
         )}
 
-        <div className="das-ft__cardslot" onClick={handleCardClick} aria-live="polite">
-          <AnimatePresence mode="wait">
+        <div className="das-ft__cardslot" aria-live="polite">
+          <AnimatePresence mode="wait" initial={false}>
             <StageCard key={tahap.id} tahap={tahap} sumber={teks.sumberData} judulIstilah={teks.judulIstilah} reduceMotion={reduceMotion} />
           </AnimatePresence>
-          {isNarrow && (
-            <p className="das-ft__cardtap" aria-hidden="true">
-              {stage < tahapan.length - 1 ? 'Ketuk kartu untuk tahap berikutnya ▸' : 'Ketuk untuk langsung ke peta ↓'}
-            </p>
-          )}
         </div>
+
+        {isNarrow && !isEmbedded && (
+          <nav className="das-ft__mobilenav" aria-label="Navigasi tahap banjir">
+            <button
+              type="button"
+              className="das-ft__navbtn das-ft__navbtn--prev"
+              onClick={goToPrev}
+              disabled={stage === 0}
+              aria-label="Tahap sebelumnya"
+            >
+              ◂ Sebelumnya
+            </button>
+            <span className="das-ft__navstep" aria-live="polite">
+              {stage + 1} / {tahapan.length}
+            </span>
+            {stage < tahapan.length - 1 ? (
+              <button
+                type="button"
+                className="das-ft__navbtn das-ft__navbtn--next"
+                onClick={goToNext}
+                aria-label="Tahap berikutnya"
+              >
+                Berikutnya ▸
+              </button>
+            ) : (
+              <button
+                type="button"
+                className="das-ft__navbtn das-ft__navbtn--skip"
+                onClick={skipToNext}
+                aria-label="Lanjut ke peta interaktif"
+              >
+                Ke Peta ↓
+              </button>
+            )}
+          </nav>
+        )}
 
         {stage === 0 && (
           <p className="das-ft__hint" aria-hidden="true">

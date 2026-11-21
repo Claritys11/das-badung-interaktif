@@ -137,7 +137,7 @@
 .das-ft__skip {
   display: none;
 }
-.das-ft__cardtap {
+.das-ft__mobilenav {
   display: none;
 }
 
@@ -493,15 +493,61 @@
     transform: scale(0.96);
     background: rgb(30 38 46 / 0.95);
   }
-  .das-ft__cardtap {
-    display: block;
-    margin: 8px 0 0;
-    text-align: center;
-    font-size: 11px;
-    line-height: 15px;
+  .das-ft__mobilenav {
+    order: 4;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    margin: 8px 12px 0;
+    padding: 0 2px;
+  }
+  .das-ft__navbtn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 36px;
+    padding: 6px 14px;
+    border: 1px solid rgb(255 255 255 / 0.22);
+    border-radius: 999px;
+    background: rgb(20 26 24 / 0.85);
+    backdrop-filter: blur(8px);
+    color: #fff;
+    font-size: 12px;
+    line-height: 16px;
     font-weight: 600;
-    color: rgb(255 255 255 / 0.65);
-    letter-spacing: 0.02em;
+    cursor: pointer;
+    touch-action: manipulation;
+    transition: background-color 0.2s, transform 0.12s, opacity 0.2s;
+  }
+  .das-ft__navbtn:active:not(:disabled) {
+    transform: scale(0.96);
+    background: rgb(35 45 42 / 0.95);
+  }
+  .das-ft__navbtn:disabled {
+    opacity: 0.35;
+    cursor: not-allowed;
+  }
+  .das-ft__navbtn--next {
+    background: rgb(25 35 32 / 0.92);
+    border-color: rgb(255 255 255 / 0.3);
+  }
+  .das-ft__navbtn--skip {
+    background: var(--das-accent);
+    border-color: transparent;
+    color: #fff;
+    font-weight: 700;
+  }
+  .das-ft__navstep {
+    font-size: 12px;
+    line-height: 16px;
+    font-weight: 700;
+    color: rgb(255 255 255 / 0.7);
+    font-variant-numeric: tabular-nums;
+  }
+  /* Sembunyikan navigasi duplikat jika berada di dalam iframe yang punya StoryNav */
+  .das-sm--scrollable .das-ft__mobilenav {
+    display: none !important;
   }
   .das-ft__caption {
     order: 2;

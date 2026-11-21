@@ -20,7 +20,7 @@ createRoot(document.getElementById('root')!).render(
         scrollMode="internal"
         terrain3d={q.get('terrain') === '1'}
         debug={q.has('debug')}
-        intro={q.get('intro') === '0' ? undefined : <FloodTransition teks={banjirTeks} />}
+        intro={q.get('intro') === '0' ? undefined : <FloodTransition teks={banjirTeks} embedded />}
       />
     </main>
   </StrictMode>,
