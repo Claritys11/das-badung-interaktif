@@ -47,3 +47,9 @@ body {
   margin: 24px auto 48px;
   padding: 0 20px;
 }
+.hx-lead {
+  padding-block: 40px 32px;
+}
+.hx-lead p:last-child {
+  margin-bottom: 0;
+}

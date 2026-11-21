@@ -57,6 +57,11 @@ createRoot(document.getElementById('root')!).render(
       <Dummy n={3} />
     </article>
     <ScrollyMap steps={story} teks={petaTeks} scrollMode="page" terrain3d={q.get('terrain') === '1'} debug={q.has('debug')} />
+    <article className="hx-article hx-lead">
+      {banjirTeks.pengantar.map((p, i) => (
+        <p key={i}>{p}</p>
+      ))}
+    </article>
     <FloodTransition teks={banjirTeks} />
     <article className="hx-article">
       <h2>Peringatan di DAS Badung sudah tertulis sejak 2023</h2>

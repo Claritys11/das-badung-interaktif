@@ -51,6 +51,10 @@ export const banjirTeks = {
     kredit: '(IDN Times/Irma Yudistirani)',
   },
   petunjukScroll: 'Gulir untuk mengikuti bagaimana banjir terjadi',
+  pengantar: [
+    'Kami meminta bantuan Guru Besar Teknik Sipil Bidang Hidro Universitas Warmadewa, Prof Dr Ir I Gusti Agung Putu Eryani MT IPU ASEAN Eng, untuk menganalisis apa yang terjadi di DAS Badung ketika hujan 245,5—385,5 mm per hari turun.',
+    'Hasil analisis itu kami olah dan animasikan dengan bantuan kecerdasan buatan. Foto di visual berikut adalah Tukad Badung dan Toko Tasnim Textile, yang diambil melalui citra satelit Google Earth serta langsung ke lokasi kejadian pada 10 September 2025.',
+  ],
   sumberData:
     'Keterangan: hasil estimasi model hidrologi dihitung oleh Guru Besar Tetap Bidang Ilmu Teknik Sipil Bidang Hidro, Universitas Warmadewa, Prof Dr Ir I Gusti Agung Putu Eryani MT IPU ASEAN Eng. Angka bisa berbeda dari pengukuran langsung di lapangan. Visualisasi dan animasi diolah dengan bantuan kecerdasan buatan.',
   judulIstilah: 'Istilah',
