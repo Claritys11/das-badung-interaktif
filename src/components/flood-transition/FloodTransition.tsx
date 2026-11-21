@@ -1,8 +1,9 @@
-import { useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { AnimatePresence, motion, useAnimationControls, useReducedMotion } from 'motion/react';
 import type { banjirTeks as defaultTeks } from '../../content/banjir';
 import { FloodFx, FX_TOTAL_S } from './FloodFx';
 import { StageCard } from './StageCard';
+import { useMediaQuery } from '../useMediaQuery';
 import '../../styles/tokens.css';
 import './flood-transition.css';
 
@@ -51,6 +52,7 @@ export function FloodTransition({
   const prevStage = useRef<number | null>(null);
   // Seed efek air bah; null = tidak ada efek yang sedang berjalan.
   const [fxSeed, setFxSeed] = useState<number | null>(null);
+  const isNarrow = useMediaQuery('(max-width: 767px)');
 
   // Tahap = berapa layar sudah digulir di dalam section (dihitung dari event scroll fase capture →
   // ikut menangkap scroll container internal di iframe). Titik tengah layar sebagai patokan.
@@ -76,6 +78,41 @@ export function FloodTransition({
       window.removeEventListener('resize', schedule);
     };
   }, [tahapan.length]);
+
+  // Tombol langsung lanjut ke seksi peta di mobile (1 sentuhan).
+  const skipToNext = useCallback(() => {
+    const el = sectionRef.current;
+    if (!el) return;
+    const mapSection = document.querySelector('.das-sm__steps, .das-sm__mapcol, .das-sm') as HTMLElement | null;
+    if (mapSection) {
+      mapSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      return;
+    }
+    const nextEl = el.nextElementSibling as HTMLElement | null;
+    if (nextEl) {
+      nextEl.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    } else {
+      window.scrollTo({
+        top: window.scrollY + el.getBoundingClientRect().bottom + 2,
+        behavior: 'smooth',
+      });
+    }
+  }, []);
+
+  // Di mobile, tap kartu untuk langsung maju ke tahap berikutnya (atau ke peta di tahap akhir).
+  const handleCardClick = useCallback((e: React.MouseEvent) => {
+    if (!isNarrow) return;
+    if ((e.target as HTMLElement).closest('details, button, a')) return;
+    const el = sectionRef.current;
+    if (!el) return;
+    if (stage < tahapan.length - 1) {
+      const vh = window.innerHeight;
+      const targetY = window.scrollY + el.getBoundingClientRect().top + (stage + 1) * vh + 10;
+      window.scrollTo({ top: targetY, behavior: 'smooth' });
+    } else {
+      skipToNext();
+    }
+  }, [isNarrow, stage, tahapan.length, skipToNext]);
 
   // Klimaks hanya saat MELINTASI tahap meluap ke depan (bukan saat scroll balik / halaman dibuka di tengah).
   useEffect(() => {
@@ -180,10 +217,26 @@ export function FloodTransition({
           {current.penanda}
         </p>
 
-        <div className="das-ft__cardslot" aria-live="polite">
+        {isNarrow && (
+          <button
+            type="button"
+            className="das-ft__skip"
+            onClick={skipToNext}
+            aria-label="Lanjut langsung ke seksi peta interaktif"
+          >
+            Lanjut ke Peta ↓
+          </button>
+        )}
+
+        <div className="das-ft__cardslot" onClick={handleCardClick} aria-live="polite">
           <AnimatePresence mode="wait">
             <StageCard key={tahap.id} tahap={tahap} sumber={teks.sumberData} judulIstilah={teks.judulIstilah} reduceMotion={reduceMotion} />
           </AnimatePresence>
+          {isNarrow && (
+            <p className="das-ft__cardtap" aria-hidden="true">
+              {stage < tahapan.length - 1 ? 'Ketuk kartu untuk tahap berikutnya ▸' : 'Ketuk untuk langsung ke peta ↓'}
+            </p>
+          )}
         </div>
 
         {stage === 0 && (

@@ -5,6 +5,9 @@ import { resolve } from 'node:path';
 // Multi-page: dev harness (index) + halaman standalone untuk iframe.
 export default defineConfig({
   plugins: [react()],
+  server: {
+    allowedHosts: ['.trycloudflare.com', 'jawe.clarityz.my.id'], // 👈 Menambahkan izin untuk host Cloudflare
+  },
   build: {
     rollupOptions: {
       input: {
